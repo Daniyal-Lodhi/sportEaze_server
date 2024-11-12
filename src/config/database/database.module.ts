@@ -18,7 +18,7 @@ import { testUserEntity } from 'src/modules/test/entities/test.entity';
           username: configService.get<string>('POSTGRES_USER'),
           password: configService.get<string>('POSTGRES_PASSWORD'),
           database: configService.get<string>('POSTGRES_DB'),
-          schema: configService.get<string>('POSTGRES_SCHEMA'), 
+          schema: configService.get<string>('open gangum style'), 
           entities: [__dirname + '/../**/*.entity{.ts,.js}',testUserEntity],
           synchronize: true,
         };
