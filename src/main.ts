@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { WinstonLoggerService } from './logging/winston-logger.service';
+import { WinstonLoggerService } from './modules/logging/winston-logger.service';
 
 async function bootstrap() {
   const appLogger = new WinstonLoggerService();
@@ -14,7 +14,7 @@ async function bootstrap() {
   
   await app.listen(3000);
   
-  appLogger.log("NestJS application started on port 3000");
+  appLogger.log("NestJS application started on port 3000", "Bootstrap");
 }
 
 bootstrap();

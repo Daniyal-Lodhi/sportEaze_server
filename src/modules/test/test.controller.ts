@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TestService } from './test.service';
 import { CreateTestUserDto } from './dto/test.dto';
 import { testUserEntity } from './entities/test.entity';
-import { WinstonLoggerService } from 'src/logging/winston-logger.service';
+import { WinstonLoggerService } from 'src/modules/logging/winston-logger.service';
 
 @Controller('/api') 
 export class TestController {

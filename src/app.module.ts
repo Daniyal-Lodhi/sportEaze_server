@@ -5,10 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { envFilePath } from './config/env.config';
 import { DatabaseModule } from './config/database/database.module';
 import { TestModule } from './modules/test/test.module';
-import { WinstonLoggerService } from './logging/winston-logger.service';
+import { WinstonLoggerService } from './modules/logging/winston-logger.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggingInterceptor } from './logging/logging.interceptor';
-import { LoggerModule } from './logging/logger.module';
+import { LoggingInterceptor } from './modules/logging/logging.interceptor';
+import { LoggerModule } from './modules/logging/logger.module';
 
 
 
