@@ -6,7 +6,6 @@ export class AppService {
   constructor(private configService:ConfigService){}
   
   getHello(): string {
-    console.log(this.configService.get<string>('name'))
-    return 'Hello World!'; 
+    return 'Server is on!'; 
   } 
 }

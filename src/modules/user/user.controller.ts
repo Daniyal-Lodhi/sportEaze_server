@@ -1,0 +1,129 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, Response, Request, HttpException, HttpStatus, Put, UseGuards } from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
+import { httpOnlyCookieMaxAge } from 'src/common/consts/common-const';
+
+@Controller('api/user')
+export class UserController {
+  constructor(private readonly userService: UserService) { }
+
+  // 1. Register General User
+  @Post('/registerUser')
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+    @Response() res,
+  ) {
+    try {
+      const accessToken: string = await this.userService.RegisterUser(createUserDto);
+      res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        maxAge: httpOnlyCookieMaxAge, //1 year
+      });
+      return res.status(200).send({ message: 'User registered successfully',success:true });
+
+    } catch (error) {
+
+      console.error('[REGISTER_USER_CTRL]:', error);
+      throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 2. login general user
+  @UseGuards(JwtAuthGuard)
+  @Post('/loginUser')
+  async loginUser(
+    @Body() createUserDto: CreateUserDto,
+    @Request() req,
+    @Response() res,
+  ) {
+    try {
+      const accessToken: string = await this.userService.loginUser(createUserDto);
+      res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        maxAge: httpOnlyCookieMaxAge, //1 year
+      });
+      return res.status(200).send({ message: 'User logged in successfully',succes:true });
+
+    } catch (error) {
+
+      console.error('[LOGIN_USER_CTRL]:', error);
+      throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 3. get general user
+  @UseGuards(JwtAuthGuard)
+  @Get('/getUser')
+  async getUser(
+    @Request() req,
+    @Response() res,
+
+  ) {
+    try {
+      const { id } = req.user;
+      const user = await this.userService.getUser(id);
+
+      res.status(200).send({user,success:true})
+    } catch (error) {
+      console.error('[GET_USER_CTRL]:', error);
+      throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 4. Update General User
+  @UseGuards(JwtAuthGuard)
+  @Patch('/updateUser')
+  async updateUser(
+    @Request() req,
+    @Response() res,
+    @Body() updateUserDto: UpdateUserDto,
+
+  ): Promise<UpdateUserDto> {
+    try {
+      const { id } = req.user
+      const updatedUser = await this.userService.updateUser(id, updateUserDto);
+      const { password = null, ...updatedUserWoPass } = updatedUser;
+      const user = updatedUserWoPass;
+      return res.status(200).send({ message: "User updated successfully", success: true, user });
+    } catch (error) {
+      console.error('[UPDATE_USER_CTRL]:', error);
+      throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 5. Delete General User
+  @UseGuards(JwtAuthGuard)
+  @Delete('/deleteUser')
+  async deleteUser(
+    @Request() req,
+    @Response() res,
+  ): Promise<UpdateUserDto> {
+    try {
+      const { id } = req.user
+      await this.userService.deleteUser(id);
+      return res.status(200).send({ message: "User deleted successfully", success: true });
+    } catch (error) {
+      console.error('[DELETE_USER_CTRL]:', error);
+      throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
