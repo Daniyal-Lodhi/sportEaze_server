@@ -4,10 +4,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 import { httpOnlyCookieMaxAge } from 'src/common/consts/common-const';
+import { WinstonLoggerService } from '../logging/winston-logger.service';
 
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly logger: WinstonLoggerService
+  ) { }
 
   // 1. Register General User
   @Post('/registerUser')
@@ -25,13 +29,13 @@ export class UserController {
 
     } catch (error) {
 
-      console.error('[REGISTER_USER_CTRL]:', error);
+      this.logger.error('[REGISTER_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   // 2. login general user
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('/loginUser')
   async loginUser(
     @Body() createUserDto: CreateUserDto,
@@ -44,11 +48,11 @@ export class UserController {
         httpOnly: true,
         maxAge: httpOnlyCookieMaxAge, //1 year
       });
-      return res.status(200).send({ message: 'User logged in successfully',succes:true });
+      return res.status(200).json({ message: 'User logged in successfully',succes:true });
 
     } catch (error) {
 
-      console.error('[LOGIN_USER_CTRL]:', error);
+      this.logger.error('[LOGIN_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -67,7 +71,7 @@ export class UserController {
 
       res.status(200).send({user,success:true})
     } catch (error) {
-      console.error('[GET_USER_CTRL]:', error);
+      this.logger.error('[GET_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -88,7 +92,7 @@ export class UserController {
       const user = updatedUserWoPass;
       return res.status(200).send({ message: "User updated successfully", success: true, user });
     } catch (error) {
-      console.error('[UPDATE_USER_CTRL]:', error);
+      this.logger.error('[UPDATE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -105,7 +109,7 @@ export class UserController {
       await this.userService.deleteUser(id);
       return res.status(200).send({ message: "User deleted successfully", success: true });
     } catch (error) {
-      console.error('[DELETE_USER_CTRL]:', error);
+      this.logger.error('[DELETE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

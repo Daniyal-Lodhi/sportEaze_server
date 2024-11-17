@@ -1,1 +1,1 @@
-export const httpOnlyCookieMaxAge = 32061600000;
+export const httpOnlyCookieMaxAge = 32061600000; //1 Year+some more

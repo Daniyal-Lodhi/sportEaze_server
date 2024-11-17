@@ -38,7 +38,7 @@ import * as cookieParser from 'cookie-parser';
     useClass: LoggingInterceptor
   }]
 })
-export class AppModule {
+export class AppModule { 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(cookieParser(), CookieExtractorMiddleware).forRoutes('*');
 }

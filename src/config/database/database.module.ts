@@ -3,8 +3,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { dbConFail, dbConSuccess } from 'src/common/consts/db-const';
-import { testUserEntity } from 'src/modules/test/entities/test.entity';
 import { dataSourceOptions } from './typeorm.config';
+import { WinstonLoggerService } from 'src/modules/logging/winston-logger.service';
+
+
 
 @Module({
   imports: [
@@ -13,13 +15,13 @@ import { dataSourceOptions } from './typeorm.config';
       imports: [ConfigModule],
       useFactory: async (): Promise<TypeOrmModuleOptions> => {
         const config: TypeOrmModuleOptions = dataSourceOptions as TypeOrmModuleOptions
-
+        const logger = new WinstonLoggerService();
         const dataSource = new DataSource(config as DataSourceOptions);
         try {
           await dataSource.initialize();
-          console.log(dbConSuccess);
+          logger.log(dbConSuccess);
         } catch (error) {
-          console.error(dbConFail, error,'\n\n');
+          logger.error(dbConFail, error,'\n\n');
         }
         
         return config;
