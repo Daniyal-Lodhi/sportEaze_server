@@ -28,10 +28,14 @@ export class UserService {
         email: createUserDto.email,
       },
     });
+    if(existingUser && existingUser.deleted){
+      throw new ConflictException("This account was deleted, log in to this account for recvoery options")
+    }
 
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
+
 
     createUserDto.password = await hashPassword(createUserDto.password);
 
@@ -57,7 +61,7 @@ export class UserService {
     }
     // asking for recover and sending error if user is flagged deleted
     if (user && user.deleted && !userCredentials.recover) {
-      throw new ConflictException("Account with this email was deleted, send an additional field 'recover:true' for account recovery.")
+      throw new ConflictException("This account was deleted, send an additional field 'recover:true' for account recovery.")
     }
     // setting delete flag to false
     if (userCredentials.recover && user.deleted) {
@@ -96,6 +100,10 @@ export class UserService {
       where: { id }
     })
 
+    if(user.deleted){
+      throw new ConflictException("This account was deleted, log in to this account for recvoery options")
+
+    }
     const updatedUser = await this.userRepository.save({
       ...user,
       ...updateUserDto,
