@@ -84,9 +84,7 @@ export class UserController {
     try {
       const { id } = req.user
       const updatedUser = await this.userService.updateUser(id, updateUserDto);
-      const { password = null, ...updatedUserWoPass } = updatedUser;
-      const user = updatedUserWoPass;
-      return res.status(200).send({ message: "User updated successfully", success: true, user });
+      return res.status(200).json({ message: "User updated successfully", success: true, user:updatedUser });
     } catch (error) {
       console.error('[UPDATE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
@@ -103,7 +101,7 @@ export class UserController {
     try {
       const { id } = req.user
       await this.userService.deleteUser(id);
-      return res.status(200).send({ message: "User deleted successfully", success: true });
+      return res.status(200).send({ id, message: "User deleted successfully", success: true });
     } catch (error) {
       console.error('[DELETE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);

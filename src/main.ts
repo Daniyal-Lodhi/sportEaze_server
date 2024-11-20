@@ -10,8 +10,13 @@ async function bootstrap() {
     logger: appLogger
   });
   
-  app.useGlobalPipes(new ValidationPipe());
-  
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );  
   await app.listen(3000);
   
   appLogger.log("NestJS application started on port 3000", "Bootstrap");
