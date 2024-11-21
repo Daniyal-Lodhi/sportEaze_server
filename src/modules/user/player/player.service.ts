@@ -88,12 +88,8 @@ export class PlayerService {
 
   async updatePlayer(id: string, updatePlayerDto: UpdatePlayerDto): Promise<GetPlayerDto>
   {
-    const _player = await this.userrRepository.findOne({ where: { id } });
-
-    if (_player.deleted) {
-      throw new ConflictException("This account was deleted, log in to this account for recvoery options")
-    }
-
+    await this.userService.getUser(id);
+    
     const player = await this.playerRepository.findOne({
       where: { id },
       relations: [
@@ -123,6 +119,8 @@ export class PlayerService {
   }
 
   async addPlayerLink(id: string, addSocialMediaLinkDto: AddSocialMediaLinkDto): Promise<GetPlayerDto> {
+    await this.userService.getUser(id);
+
     const player = await this.playerRepository.findOne({ where: { id } });
 
     if(!player)
@@ -146,7 +144,9 @@ export class PlayerService {
   }
   
   async deletePlayerLink(id: string, deleteSocialMediaLinkDto: DeleteSocialMediaDto): Promise<string> {
-    const player = await this.playerRepository.findOne({ where: { id } });
+    await this.userService.getUser(id);
+
+    const player = await this.playerRepository.findOne({ where: { id } });    
 
     if(!player)
     {
@@ -168,7 +168,8 @@ export class PlayerService {
   }
 
   async getPlayerLink(id: string): Promise<AddSocialMediaLinkDto> {
-    
+    await this.userService.getUser(id);
+
     const player = await this.getPlayer(id);
 
     if(!player)
