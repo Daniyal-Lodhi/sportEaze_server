@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 import { httpOnlyCookieMaxAge } from 'src/common/consts/common-const';
+import { UserType } from 'src/common/enums/user-type';
 
 @Controller('api/user')
 export class UserController {
@@ -21,7 +22,7 @@ export class UserController {
         httpOnly: true,
         maxAge: httpOnlyCookieMaxAge, //1 year
       });
-      return res.status(200).send({ message: 'User registered successfully',success:true });
+      return res.status(200).send({ message: 'User registered successfully',success:true, UserType: UserType.FAN });
 
     } catch (error) {
 
@@ -39,12 +40,13 @@ export class UserController {
     @Response() res,
   ) {
     try {
-      const accessToken: string = await this.userService.loginUser(createUserDto);
+      const [accessToken, userType]: [string, UserType] = await this.userService.loginUser(createUserDto);
+
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         maxAge: httpOnlyCookieMaxAge, //1 year
       });
-      return res.status(200).send({ message: 'User logged in successfully',succes:true });
+      return res.status(200).send({ message: 'User logged in successfully', succes: true, userType });
 
     } catch (error) {
 
@@ -84,9 +86,7 @@ export class UserController {
     try {
       const { id } = req.user
       const updatedUser = await this.userService.updateUser(id, updateUserDto);
-      const { password = null, ...updatedUserWoPass } = updatedUser;
-      const user = updatedUserWoPass;
-      return res.status(200).send({ message: "User updated successfully", success: true, user });
+      return res.status(200).json({ message: "User updated successfully", success: true, user:updatedUser });
     } catch (error) {
       console.error('[UPDATE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);
@@ -103,7 +103,7 @@ export class UserController {
     try {
       const { id } = req.user
       await this.userService.deleteUser(id);
-      return res.status(200).send({ message: "User deleted successfully", success: true });
+      return res.status(200).send({ id, message: "User deleted successfully", success: true });
     } catch (error) {
       console.error('[DELETE_USER_CTRL]:', error);
       throw new HttpException(error.message || "Internal Server Error", error.status || HttpStatus.INTERNAL_SERVER_ERROR);

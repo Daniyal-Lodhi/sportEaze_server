@@ -51,7 +51,7 @@ export class UserService {
 
   }
 
-  async loginUser(userCredentials: CreateUserDto): Promise<string> {
+  async loginUser(userCredentials: CreateUserDto): Promise<[string, UserType]> {
     const user = await this.userRepository.findOne({
       where: { email: userCredentials.email }
     })
@@ -75,7 +75,7 @@ export class UserService {
       throw new UnauthorizedException("Invalid credentials")
     }
     const accessToken: string = this.localAuthSrv.getAccessToken(user.id, user.userType);
-    return accessToken;
+    return [accessToken, user.userType];
   }
 
   async getUser(id:string):Promise<GetUserDto>{
@@ -86,11 +86,11 @@ export class UserService {
     if(user.deleted){
       throw new NotFoundException("User not found")
     }
-
-    return user  ;
+    const {password,...userWoPass} = user;
+    return userWoPass as GetUserDto;
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<UpdateUserDto> {
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<GetUserDto> {
 
     if (updateUserDto.password) {
       var hashedPass = await hashPassword(updateUserDto.password)
@@ -102,14 +102,19 @@ export class UserService {
 
     if(user.deleted){
       throw new ConflictException("This account was deleted, log in to this account for recvoery options")
-
     }
+
+
     const updatedUser = await this.userRepository.save({
       ...user,
       ...updateUserDto,
     })
+    
+    const {password, ...updatedUserWoPass} = updateUserDto
+    console.log(updatedUserWoPass)
 
-    return updatedUser as UpdateUserDto;
+
+    return updatedUserWoPass as GetUserDto;
   }
 
   async deleteUser(id: string): Promise<boolean> {

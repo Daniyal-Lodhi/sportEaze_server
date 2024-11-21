@@ -1,6 +1,7 @@
 import { GenderType } from 'src/common/enums/gender-type';
 import { UserType } from 'src/common/enums/user-type';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Player } from 'src/modules/user/player/entities/player.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 
 @Entity('Users') // Specifies the table name as 'users'
 export class User {
@@ -42,4 +43,7 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt?: Date; 
+
+    @OneToOne(() => Player, (player) => player.user)
+    player: Player;
 }

@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
- import { DatabaseModule } from './config/database/database.module';
+import { DatabaseModule } from './config/database/database.module';
 import { TestModule } from './modules/test/test.module';
 import { WinstonLoggerService } from './modules/logging/winston-logger.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -30,7 +30,7 @@ import * as cookieParser from 'cookie-parser';
     TypeOrmModule.forFeature([User]) ,
     LocalAuthModule,
     UserModule,
-
+    
   ],
   controllers: [AppController,UserController],
   providers: [AppService,UserService,LocalAuthService, WinstonLoggerService, {

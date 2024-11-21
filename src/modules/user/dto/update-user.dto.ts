@@ -1,5 +1,6 @@
-import { IsString, IsEmail, IsBoolean, IsOptional, IsDateString, MaxLength, MinLength, Matches } from 'class-validator';
+import { IsString, IsEmail, IsBoolean, IsOptional, IsDateString, MaxLength, MinLength, Matches, IsEnum } from 'class-validator';
 import { GenderType } from 'src/common/enums/gender-type';
+import { UserType } from 'src/common/enums/user-type';
 
 export class UpdateUserDto {
   @IsString()
