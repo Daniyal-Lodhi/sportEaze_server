@@ -1,4 +1,4 @@
-import { Player } from "src/modules/player/entities/player.entity";
+import { Player } from "src/modules/user/player/entities/player.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("Achievements")

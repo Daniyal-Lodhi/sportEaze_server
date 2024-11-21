@@ -1,13 +1,12 @@
 import { Controller, Get, Post, Body, Request, Response, Patch, UseGuards, HttpException, HttpStatus, UnauthorizedException, NotFoundException, BadRequestException, Delete, Res } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { UpdatePlayerDto } from './dto/update-player.dto';
-import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/local-auth/jwt-auth.guard';
 import { GetPlayerDto } from './dto/get-player.dto';
 import { AddSocialMediaLinkDto } from './dto/add-social-media-link.dto';
-import { dbConSuccess } from 'src/common/consts/db-const';
 import { DeleteSocialMediaDto } from './dto/delete-socia-media-links.dto';
 
-@Controller('api/player')
+@Controller('api/user/player')
 export class PlayerController {
   constructor(
     private readonly playerService: PlayerService,
@@ -83,7 +82,7 @@ export class PlayerController {
     }
   }
 
-  @Patch("/AddSocialMediaLink")
+  @Patch("/addSocialMediaLinks")
   @UseGuards(JwtAuthGuard)
   async AddSocialMediaLink(@Request() req, @Response() res, @Body() addSocialMediaLinkDto: AddSocialMediaLinkDto)
   {
@@ -109,11 +108,19 @@ export class PlayerController {
     }
   }
 
-  @Delete("/DeleteSocialMediaLinks")
+  @Delete("/deleteSocialMediaLinks")
   @UseGuards(JwtAuthGuard)
   async deleteSocialMediaLink(@Request() req, @Response() res, @Body() deleteSocialMediaLinkDto: DeleteSocialMediaDto)
   {
     try {
+      const isEmpty = !deleteSocialMediaLinkDto.Delete_FB_link &&
+        !deleteSocialMediaLinkDto.Delete_INSTA_link &&
+        !deleteSocialMediaLinkDto.Delete_X_link;
+
+      if (isEmpty) {
+        throw new BadRequestException('No social media link provided');
+      }
+      
       if (!req.user || !req.user.id) {
         throw new UnauthorizedException("Invalid user credentials");
       }
@@ -135,7 +142,7 @@ export class PlayerController {
     }
   }
 
-  @Get("/GetSocialMediaLinks")
+  @Get("/getSocialMediaLinks")
   @UseGuards(JwtAuthGuard)
   async getSocialMediaLinks(@Request() req, @Response() res, @Body() deleteSocialMediaLinkDto: DeleteSocialMediaDto)
   {

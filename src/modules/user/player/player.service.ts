@@ -3,14 +3,15 @@ import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { Player } from './entities/player.entity';
 import { UserType } from 'src/common/enums/user-type';
-import { UserService } from '../user/user.service';
-import { GetUserDto } from '../user/dto/get-user.dto';
+import { UserService } from '../../user/user.service';
+import { GetUserDto } from '../../user/dto/get-user.dto';
 import { GetPlayerDto } from './dto/get-player.dto';
 import { AddSocialMediaLinkDto } from './dto/add-social-media-link.dto';
 import { DeleteSocialMediaDto } from './dto/delete-socia-media-links.dto';
+import { HandleDeleteSocialMediaLink } from 'src/common/utils/player-utils';
 
 @Injectable()
 export class PlayerService {
@@ -87,6 +88,12 @@ export class PlayerService {
 
   async updatePlayer(id: string, updatePlayerDto: UpdatePlayerDto): Promise<GetPlayerDto>
   {
+    const _player = await this.userrRepository.findOne({ where: { id } });
+
+    if (_player.deleted) {
+      throw new ConflictException("This account was deleted, log in to this account for recvoery options")
+    }
+
     const player = await this.playerRepository.findOne({
       where: { id },
       relations: [
@@ -95,11 +102,12 @@ export class PlayerService {
         "preferredSport",
       ],
     });
-  
+    
     if (!player) {
       throw new NotFoundException(`Player with ID ${id} not found`);
     }
-  
+    
+
     Object.assign(player, updatePlayerDto);
 
     const updatedPlayer = await this.playerRepository.save(player);
@@ -145,26 +153,8 @@ export class PlayerService {
       throw new NotFoundException("This user is not a player");
     }
 
-    let msg: string = "Deleted ";
-
-    if(deleteSocialMediaLinkDto.Delete_FB_link)
-    {
-      player.FB_link = null;
-      msg += "Facebook, ";
-    }
-
-    if(deleteSocialMediaLinkDto.Delete_INSTA_link)
-    {
-      player.INSTA_link = null;
-      msg += "Instagram, ";
-    }
+    const response = HandleDeleteSocialMediaLink(deleteSocialMediaLinkDto, player);
     
-    if(deleteSocialMediaLinkDto.Delete_X_link)
-    {
-      player.X_link = null;
-      msg += "X, ";
-    }
-
     console.log(player);
     
     const updatedPlayer: GetPlayerDto = await this.playerRepository.save(player);
@@ -172,20 +162,26 @@ export class PlayerService {
 
     if(updatedPlayer)
     {
-      return msg.substring(0, msg.length-2);
+      return response;
     }
     else return "Cannot Save player after deleting";
   }
 
   async getPlayerLink(id: string): Promise<AddSocialMediaLinkDto> {
-    const links = await this.playerRepository.findOne({ where: { id }, select: ["FB_link", "INSTA_link", "X_link"] });
+    
+    const player = await this.getPlayer(id);
 
-    if(!links)
+    if(!player)
     {
       throw new NotFoundException("This user is not a player");
     }
 
-    return links as AddSocialMediaLinkDto;
+
+    return {
+      FB_link: player.FB_link,
+      INSTA_link: player.INSTA_link,
+      X_link: player.X_link,
+    };
   }
 
 }

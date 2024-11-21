@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ContractStatus } from "../enums/contract-status";
-import { Player } from "src/modules/player/entities/player.entity";
+import { Player } from "src/modules/user/player/entities/player.entity";
 
 @Entity("Contracts")
 export class Contract {

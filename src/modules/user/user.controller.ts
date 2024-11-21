@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 import { httpOnlyCookieMaxAge } from 'src/common/consts/common-const';
+import { UserType } from 'src/common/enums/user-type';
 
 @Controller('api/user')
 export class UserController {
@@ -21,7 +22,7 @@ export class UserController {
         httpOnly: true,
         maxAge: httpOnlyCookieMaxAge, //1 year
       });
-      return res.status(200).send({ message: 'User registered successfully',success:true });
+      return res.status(200).send({ message: 'User registered successfully',success:true, UserType: UserType.FAN });
 
     } catch (error) {
 
@@ -39,12 +40,13 @@ export class UserController {
     @Response() res,
   ) {
     try {
-      const accessToken: string = await this.userService.loginUser(createUserDto);
+      const [accessToken, userType]: [string, UserType] = await this.userService.loginUser(createUserDto);
+
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         maxAge: httpOnlyCookieMaxAge, //1 year
       });
-      return res.status(200).send({ message: 'User logged in successfully',succes:true });
+      return res.status(200).send({ message: 'User logged in successfully', succes: true, userType });
 
     } catch (error) {
 

@@ -51,7 +51,7 @@ export class UserService {
 
   }
 
-  async loginUser(userCredentials: CreateUserDto): Promise<string> {
+  async loginUser(userCredentials: CreateUserDto): Promise<[string, UserType]> {
     const user = await this.userRepository.findOne({
       where: { email: userCredentials.email }
     })
@@ -75,7 +75,7 @@ export class UserService {
       throw new UnauthorizedException("Invalid credentials")
     }
     const accessToken: string = this.localAuthSrv.getAccessToken(user.id, user.userType);
-    return accessToken;
+    return [accessToken, user.userType];
   }
 
   async getUser(id:string):Promise<GetUserDto>{

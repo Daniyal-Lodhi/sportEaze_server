@@ -6,10 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { LocalAuthService } from '../auth/local-auth/local-auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { response } from 'express';
+import { PlayerModule } from './player/player.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([User]),LocalAuthModule,JwtModule],
+  imports:[TypeOrmModule.forFeature([User]),LocalAuthModule,JwtModule, PlayerModule],
   controllers: [UserController],
   providers: [UserService,LocalAuthService],
 })

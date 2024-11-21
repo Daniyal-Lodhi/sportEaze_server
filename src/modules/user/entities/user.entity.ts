@@ -1,6 +1,6 @@
 import { GenderType } from 'src/common/enums/gender-type';
 import { UserType } from 'src/common/enums/user-type';
-import { Player } from 'src/modules/player/entities/player.entity';
+import { Player } from 'src/modules/user/player/entities/player.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 
 @Entity('Users') // Specifies the table name as 'users'
