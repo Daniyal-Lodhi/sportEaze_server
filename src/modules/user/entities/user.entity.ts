@@ -1,15 +1,17 @@
-import { GenderType } from 'src/common/enums/gender-type';
-import { UserType } from 'src/common/enums/user-type';
+import { GenderType } from 'src/common/enums/gender-type.enum';
+import { UserType } from 'src/common/enums/user-type.enum';
 import { Player } from 'src/modules/user/player/entities/player.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from 'typeorm';
+import { UserPost } from '../user-posts/entities/user-post.entity';
+import { SharedPost } from '../user-posts/entities/shared-post.entity';
 
 @Entity('Users') // Specifies the table name as 'users'
 export class User {
     @PrimaryGeneratedColumn("uuid") // Auto-generates a unique ID for each user
-    id?: string; 
+    id?: string;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
-    name?: string; 
+    name?: string;
 
     @Column({ type: 'varchar', unique: true, length: 150 })
     email: string; // Required
@@ -18,32 +20,34 @@ export class User {
     password: string; // Required
 
     @Column({ type: 'enum', enum: GenderType, nullable: true })
-    gender?: GenderType; 
+    gender?: GenderType;
 
     @Column({ type: 'date', nullable: true })
-    dob?: Date; 
+    dob?: Date;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
-    city?: string; 
+    city?: string;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
-    country?: string; 
+    country?: string;
 
     @Column({ type: 'varchar', nullable: true })
-    profilePicUrl?: string; 
+    profilePicUrl?: string;
 
     @Column({ type: 'enum', enum: UserType, nullable: true })
-    userType?: UserType; 
+    userType?: UserType;
 
     @Column({ type: 'boolean', default: false, nullable: true })
-    deleted?: boolean; 
+    deleted?: boolean;
 
     @CreateDateColumn()
-    createdAt?: Date; 
+    createdAt?: Date;
 
     @UpdateDateColumn()
-    updatedAt?: Date; 
+    updatedAt?: Date;
 
     @OneToOne(() => Player, (player) => player.user)
     player: Player;
+
+
 }

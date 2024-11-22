@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { LocalAuthService } from '../auth/local-auth/local-auth.service';
 import { hashPassword } from 'src/common/utils/user-utils';
-import { UserType } from 'src/common/enums/user-type';
+import { UserType } from 'src/common/enums/user-type.enum';
 import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()

@@ -17,6 +17,7 @@ import { LocalAuthModule } from './modules/auth/local-auth/local-auth.module';
 import { ConfigModule } from './config/config.module';
 import { CookieExtractorMiddleware } from './common/middleware/cookie-extractor.middleware';
 import * as cookieParser from 'cookie-parser';
+import { UserPostModule } from './modules/user/user-posts/user-post.module';
 
 
 
@@ -29,8 +30,8 @@ import * as cookieParser from 'cookie-parser';
     TestModule,
     TypeOrmModule.forFeature([User]) ,
     LocalAuthModule,
-    UserModule,
-    
+    UserModule,    
+    UserPostModule
   ],
   controllers: [AppController,UserController],
   providers: [AppService,UserService,LocalAuthService, WinstonLoggerService, {

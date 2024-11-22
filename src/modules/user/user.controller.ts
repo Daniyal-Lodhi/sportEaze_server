@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 import { httpOnlyCookieMaxAge } from 'src/common/consts/common-const';
-import { UserType } from 'src/common/enums/user-type';
+import { UserType } from 'src/common/enums/user-type.enum';
 
 @Controller('api/user')
 export class UserController {
