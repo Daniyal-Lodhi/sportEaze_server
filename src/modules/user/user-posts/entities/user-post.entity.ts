@@ -21,9 +21,11 @@ import { PostMedia } from './post-media.entity';
     @PrimaryGeneratedColumn('uuid')
     id: string;
   
-    @ManyToOne(() => User, (user) => user.id) // Relationship to User entity
-    @JoinColumn()
-    userId:string
+    @Column({type: "uuid", nullable: false})
+    userId: string
+
+    @ManyToOne(() => User) // Relationship to User entity
+    @JoinColumn({name: "userId"})
   
     @Column('text')
     textContent: string;
@@ -40,16 +42,13 @@ import { PostMedia } from './post-media.entity';
     @UpdateDateColumn()
     updatedAt: Date;
   
-    @OneToMany(() => PostMedia, (PostMedia) => PostMedia)
+    @OneToMany(() => PostMedia, (PostMedia) => PostMedia.post)
     media: PostMedia[];
-
   
     @OneToMany(() => PostLikes, (like) => like)
     likes: PostLikes[];
   
     @OneToMany(() => Comment, (comment) => comment)
     comments: Comment[];
-
-    
   }
    

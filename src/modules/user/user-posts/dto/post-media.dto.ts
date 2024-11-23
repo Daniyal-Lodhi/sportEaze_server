@@ -2,8 +2,6 @@ import { ArrayNotEmpty, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID,
 import { MediaType } from 'src/common/enums/user-posts.enum'; // Enum for MediaType
 
 export class PostMediaDTO {
-
-
   @IsEnum(MediaType)
   @IsNotEmpty()
   mediaType: MediaType;
@@ -17,10 +15,4 @@ export class PostMediaDTO {
   @IsNotEmpty()
   @MinLength(5)
   mediaLink: string
-
-
-  @IsString()
-  @IsOptional()
-  postId: string;
-
 }

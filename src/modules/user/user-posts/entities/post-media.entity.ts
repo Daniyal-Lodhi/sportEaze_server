@@ -18,11 +18,11 @@ export class PostMedia{
     @Column({nullable:false})
     mediaOrder:number 
 
-    @ManyToOne(() => UserPost )
-    @JoinColumn() 
+    @Column({type: "uuid", nullable: false})
     postId: string;
 
-    
-
+    @ManyToOne(() => UserPost, (userPost) => userPost.media)
+    @JoinColumn({name: "postId"}) 
+    post: UserPost;
 
 }

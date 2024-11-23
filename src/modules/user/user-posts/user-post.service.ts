@@ -6,6 +6,7 @@ import { CreateTextPostDTO } from './dto/create-text-post.dto';
 import { UserPost } from './entities/user-post.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { CreateMediaPostDTO } from './dto/create-media-post.dto';
+import { GetPostDTO } from './dto/get-post.dto';
 
 @Injectable()
 export class UserPostService {
@@ -52,5 +53,40 @@ export class UserPostService {
          return savedPostWithMedia
     }
 
+    async getPost(userId: string): Promise<GetPostDTO[]>
+    {
+        console.log(userId);
+        const post = await this.postRepository.find({
+            where: {
+                userId 
+            },
+            relations: [
+                "media",
+                // "likes",
+                // "comments",
+            ]
+        });
 
+        console.log(post);
+
+        return post as GetPostDTO[];
+    }
+
+    async getPostById(id: string): Promise<GetPostDTO>
+    {
+        const post = await this.postRepository.findOne({
+            where: {
+                id 
+            },
+            relations: [
+                "media",
+                // "likes",
+                // "comments",
+            ]
+        });
+
+        console.log(post);
+
+        return post as GetPostDTO;
+    }
 }
