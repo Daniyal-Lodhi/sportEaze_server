@@ -100,6 +100,11 @@ export class UserService {
       where: { id }
     })
 
+    if(!user)
+    {
+      throw new NotFoundException("User not found");
+    }
+
     if(user.deleted){
       throw new ConflictException("This account was deleted, log in to this account for recvoery options")
     }
