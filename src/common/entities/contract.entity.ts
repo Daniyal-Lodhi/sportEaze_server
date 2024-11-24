@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ContractStatus } from "../enums/contract-status";
+import { ContractStatus } from "../enums/contract-status.enum";
 import { Player } from "src/modules/user/player/entities/player.entity";
 
 @Entity("Contracts")

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Player } from './entities/player.entity';
-import { UserType } from 'src/common/enums/user-type';
+import { UserType } from 'src/common/enums/user-type.enum';
 import { UserService } from '../../user/user.service';
 import { GetUserDto } from '../../user/dto/get-user.dto';
 import { GetPlayerDto } from './dto/get-player.dto';

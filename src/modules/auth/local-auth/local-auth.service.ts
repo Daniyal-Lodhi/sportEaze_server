@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserType } from 'src/common/enums/user-type';
+import { UserType } from 'src/common/enums/user-type.enum';
 import { verifyPassword } from 'src/common/utils/user-utils';
 import { User } from 'src/modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
