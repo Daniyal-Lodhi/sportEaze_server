@@ -11,7 +11,7 @@ export class UserPostController {
     constructor(private PostSrv:UserPostService){}
 
     // creating only text user posts
-    @Post('/createTextPost')
+    @Post('/create-text-post')
     async createTextPost(
         @Body() CreateTextPostDTO:CreateTextPostDTO,
         @Request() req,
@@ -27,7 +27,7 @@ export class UserPostController {
     }
 
 
-     @Post('/createMediaPost')
+     @Post('/create-media-post')
     async createMediaPost(
         @Body() CreateMediaPostDTO:CreateMediaPostDTO,
         @Request() req,
@@ -42,7 +42,7 @@ export class UserPostController {
         }
     }
 
-    @Get("/getPost/:postId")
+    @Get("/get-post/:postId")
     async getPostById(@Response() res, @Param("postId") postId: string)
     {
         try {
@@ -55,7 +55,7 @@ export class UserPostController {
     }
 
 
-    @Get("/getPost")
+    @Get("/get-post")
     async getPost(@Request() req, @Response() res)
     {
         try {
