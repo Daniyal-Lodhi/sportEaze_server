@@ -12,7 +12,7 @@ export class PlayerController {
     private readonly playerService: PlayerService,
   ) {}
 
-  @Post("/becomePlayer")
+  @Post("/become-player")
   @UseGuards(JwtAuthGuard)
   async becomePlayer(@Request() req, @Response() res) {
     try {
@@ -40,7 +40,7 @@ export class PlayerController {
     }
   }
 
-  @Patch("/updatePlayer")
+  @Patch("/update-player")
   @UseGuards(JwtAuthGuard)
   async updatePlayer(@Request() req, @Response() res, @Body() updatePlayerDto: UpdatePlayerDto)
   {
@@ -57,7 +57,7 @@ export class PlayerController {
     }
   }
 
-  @Get("/getPlayer")
+  @Get("/get-player")
   @UseGuards(JwtAuthGuard)
   async getPlayer(@Request() req, @Response() res)
   {
@@ -82,7 +82,7 @@ export class PlayerController {
     }
   }
 
-  @Patch("/addSocialMediaLinks")
+  @Patch("/add-social-media-links")
   @UseGuards(JwtAuthGuard)
   async AddSocialMediaLink(@Request() req, @Response() res, @Body() addSocialMediaLinkDto: AddSocialMediaLinkDto)
   {
@@ -108,7 +108,7 @@ export class PlayerController {
     }
   }
 
-  @Delete("/deleteSocialMediaLinks")
+  @Delete("/delete-social-media-links")
   @UseGuards(JwtAuthGuard)
   async deleteSocialMediaLink(@Request() req, @Response() res, @Body() deleteSocialMediaLinkDto: DeleteSocialMediaDto)
   {
@@ -142,7 +142,7 @@ export class PlayerController {
     }
   }
 
-  @Get("/getSocialMediaLinks")
+  @Get("/get-social-media-links")
   @UseGuards(JwtAuthGuard)
   async getSocialMediaLinks(@Request() req, @Response() res, @Body() deleteSocialMediaLinkDto: DeleteSocialMediaDto)
   {

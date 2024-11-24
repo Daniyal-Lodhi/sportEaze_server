@@ -35,7 +35,7 @@ export class UserPostService {
     
          const post = this.postRepository.create({
             ...CreateMediaPostDTOWoMedia,
-            userId, 
+            userId
         });
     
         const savedPost = await this.postRepository.save(post); // Save the post to the database

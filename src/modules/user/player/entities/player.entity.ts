@@ -14,10 +14,10 @@ export class Player {
     @JoinColumn({ name: "id" })
     user: User;
 
-    @OneToMany(() => Achievement, (achievement) => achievement.player, { cascade: true })
+    @OneToMany(() => Achievement, (achievement) => achievement.player)
     achievements: Achievement[];
 
-    @OneToMany(() => Contract, (contract) => contract.player, { cascade: true })
+    @OneToMany(() => Contract, (contract) => contract.player)
     contracts: Contract[];
 
     @ManyToOne(() => Sport, (sport) => sport.player)
@@ -43,7 +43,7 @@ export class Player {
     @Column({type: "varchar", length: 255, nullable: true})
     X_link: string;
 
-    @OneToMany(() => RatingAndReview, (ratingAndReview) => ratingAndReview.player, { cascade: true })
+    @OneToMany(() => RatingAndReview, (ratingAndReview) => ratingAndReview.player )
     ratingAndReviews: RatingAndReview[]
     
     @Column({type: "varchar", length: 200, nullable: true})

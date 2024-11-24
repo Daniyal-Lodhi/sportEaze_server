@@ -11,7 +11,7 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   // 1. Register General User
-  @Post('/registerUser')
+  @Post('/register-user')
   async createUser(
     @Body() createUserDto: CreateUserDto,
     @Response() res,
@@ -33,7 +33,7 @@ export class UserController {
 
   // 2. login general user
   @UseGuards(JwtAuthGuard)
-  @Post('/loginUser')
+  @Post('/login-user')
   async loginUser(
     @Body() createUserDto: CreateUserDto,
     @Request() req,
@@ -57,7 +57,7 @@ export class UserController {
 
   // 3. get general user
   @UseGuards(JwtAuthGuard)
-  @Get('/getUser')
+  @Get('/get-user')
   async getUser(
     @Request() req,
     @Response() res,
@@ -76,7 +76,7 @@ export class UserController {
 
   // 4. Update General User
   @UseGuards(JwtAuthGuard)
-  @Patch('/updateUser')
+  @Patch('/update-user')
   async updateUser(
     @Request() req,
     @Response() res,
@@ -95,7 +95,7 @@ export class UserController {
 
   // 5. Delete General User
   @UseGuards(JwtAuthGuard)
-  @Delete('/deleteUser')
+  @Delete('/delete-user')
   async deleteUser(
     @Request() req,
     @Response() res,
