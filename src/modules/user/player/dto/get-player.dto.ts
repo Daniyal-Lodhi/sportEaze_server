@@ -6,38 +6,38 @@ import { Sport } from "src/common/entities/sport.entity";
 import { User } from "src/modules/user/entities/user.entity";
 
 export class GetPlayerDto {
-    @IsString()
-    id: string;
-    
-    @IsInt()
-    preferredSport?: Sport;
-        
-    @IsInt()
-    rank?: number;
-    
-    @IsString()
-    region: string;
-    
-    @IsString()
-    club: string;
-    
-    @IsString()
-    about: string;
+  @IsString()
+  id: string;
 
-    @IsString()
-    FB_link: string
+  @IsInt()
+  preferredSport?: Sport;
 
-    @IsString()
-    INSTA_link: string
+  @IsInt()
+  rank?: number;
 
-    @IsString()
-    X_link: string
-    
-    achievements?: Achievement[];
+  @IsString()
+  region: string;
 
-    contracts?: Contract[];
+  @IsString()
+  club: string;
 
-    ratingAndReviews: RatingAndReview[]
+  @IsString()
+  about: string;
 
-    user: User;
+  @IsString()
+  FB_link: string;
+
+  @IsString()
+  INSTA_link: string;
+
+  @IsString()
+  X_link: string;
+
+  achievements?: Achievement[];
+
+  contracts?: Contract[];
+
+  ratingAndReviews: RatingAndReview[];
+
+  user: User;
 }

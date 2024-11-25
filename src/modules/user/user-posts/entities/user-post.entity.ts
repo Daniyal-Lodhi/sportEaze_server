@@ -7,29 +7,33 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-} from 'typeorm';
-import { User } from '../../entities/user.entity';
-import { PostMedia } from './post-media.entity';
-import { PostLikes } from './post-like.entity';
-import { Comment } from './post-comment.entity';
-import { PostVisibilityEnum } from 'src/common/enums/user-posts.enum';
+} from "typeorm";
+import { User } from "../../entities/user.entity";
+import { PostMedia } from "./post-media.entity";
+import { PostLikes } from "./post-like.entity";
+import { Comment } from "./post-comment.entity";
+import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 
-@Entity('posts')
+@Entity("posts")
 export class UserPost {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'uuid', nullable: false }) // Separate userId column
+  @Column({ type: "uuid", nullable: false }) // Separate userId column
   userId: string;
 
   @ManyToOne(() => User, (user) => user.posts) // Define relationship
-  @JoinColumn({ name: 'userId' }) // Match foreign key column
+  @JoinColumn({ name: "userId" }) // Match foreign key column
   user: User;
 
-  @Column('text')
+  @Column("text")
   textContent: string;
 
-  @Column({ type: 'enum', enum: PostVisibilityEnum, default: PostVisibilityEnum.PUBLIC })
+  @Column({
+    type: "enum",
+    enum: PostVisibilityEnum,
+    default: PostVisibilityEnum.PUBLIC,
+  })
   visibility: PostVisibilityEnum;
 
   @Column({ default: 0 })

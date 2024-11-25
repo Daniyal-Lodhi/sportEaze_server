@@ -1,5 +1,5 @@
 type generalResponeType = {
-    message:string
-    success:boolean
-    data?:any
-}
+  message: string;
+  success: boolean;
+  data?: any;
+};

@@ -1,7 +1,12 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { WinstonLoggerService } from './winston-logger.service';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { tap } from "rxjs/operators";
+import { WinstonLoggerService } from "./winston-logger.service";
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -18,9 +23,9 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap((response) => {
-        this.logger.log(`Request ${method} ${url} took ${Date.now() - now}ms`)
-        this.logger.log(`Response: ${JSON.stringify(response)}`)
-      })
+        this.logger.log(`Request ${method} ${url} took ${Date.now() - now}ms`);
+        this.logger.log(`Response: ${JSON.stringify(response)}`);
+      }),
     );
   }
 }
