@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "../entities/user.entity";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
 import { UserPost } from "./entities/user-post.entity";
 import { PostMedia } from "./entities/post-media.entity";

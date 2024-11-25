@@ -1,9 +1,6 @@
 import {
-  BadRequestException,
   ConflictException,
-  HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { UpdatePlayerDto } from "./dto/update-player.dto";
@@ -58,8 +55,6 @@ export class PlayerService {
 
     const player = new Player();
     player.id = id;
-
-    const createdPlayer = await this.playerRepository.save(player);
 
     return await this.userService.getUser(id);
   }

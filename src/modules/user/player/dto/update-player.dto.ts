@@ -1,14 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsInt,
-  IsOptional,
-  Min,
-  Max,
-  IsString,
-  Length,
-  ArrayNotEmpty,
-  ValidateNested,
-} from "class-validator";
+import { IsInt, IsOptional, IsString, Length } from "class-validator";
 
 export class UpdatePlayerDto {
   @IsInt()

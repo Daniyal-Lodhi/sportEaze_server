@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
-import { Type } from "class-transformer";
 
 export class CommentDTO {
   @IsUUID()

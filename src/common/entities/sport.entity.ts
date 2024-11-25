@@ -1,12 +1,5 @@
 import { Player } from "src/modules/user/player/entities/player.entity";
-import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("Sports")
 export class Sport {

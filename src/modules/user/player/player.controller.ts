@@ -13,7 +13,6 @@ import {
   NotFoundException,
   BadRequestException,
   Delete,
-  Res,
 } from "@nestjs/common";
 import { PlayerService } from "./player.service";
 import { UpdatePlayerDto } from "./dto/update-player.dto";

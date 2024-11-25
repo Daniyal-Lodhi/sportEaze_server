@@ -1,4 +1,4 @@
-import { IsInt, IsNumber, IsString, isTimeZone } from "class-validator";
+import { IsInt, IsString } from "class-validator";
 import { Achievement } from "src/common/entities/achievement.entity";
 import { Contract } from "src/common/entities/contract.entity";
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";

@@ -6,7 +6,6 @@ import {
   ManyToOne,
   UpdateDateColumn,
   JoinColumn,
-  Unique,
 } from "typeorm";
 import { UserPost } from "./user-post.entity";
 import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";

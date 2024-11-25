@@ -4,13 +4,11 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Response,
   Request,
   HttpException,
   HttpStatus,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import { UserService } from "./user.service";

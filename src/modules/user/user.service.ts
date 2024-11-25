@@ -103,7 +103,7 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<GetUserDto> {
     if (updateUserDto.password) {
-      var hashedPass = await hashPassword(updateUserDto.password);
+      const hashedPass = await hashPassword(updateUserDto.password);
       updateUserDto.password = hashedPass;
     }
     const user = await this.userRepository.findOne({

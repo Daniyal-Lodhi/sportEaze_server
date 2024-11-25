@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { UserPost } from "./user-post.entity";
-import { Url } from "url";
 
 @Entity("PostMedia")
 export class PostMedia {

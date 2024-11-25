@@ -1,9 +1,6 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { envFilePath } from "../env.config";
-import { SharedPost } from "src/modules/user/user-posts/entities/shared-post.entity";
-import { PostMedia } from "src/modules/user/user-posts/entities/post-media.entity";
-import { PostLikes } from "src/modules/user/user-posts/entities/post-like.entity";
 
 ConfigModule.forRoot({
   isGlobal: true,

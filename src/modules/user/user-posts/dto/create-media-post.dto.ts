@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   ValidateNested,
 } from "class-validator";
 import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";

@@ -11,7 +11,6 @@ import {
   OneToMany,
 } from "typeorm";
 import { UserPost } from "../user-posts/entities/user-post.entity";
-import { SharedPost } from "../user-posts/entities/shared-post.entity";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {

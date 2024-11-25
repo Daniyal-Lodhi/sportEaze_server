@@ -1,11 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 import { PostLikesDTO } from "./post-likes.dto";
 import { CommentDTO } from "./post-comments.dto";
