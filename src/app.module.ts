@@ -1,8 +1,5 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DatabaseModule } from './config/database/database.module';
-import { TestModule } from './modules/test/test.module';
 import { WinstonLoggerService } from './modules/logging/winston-logger.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './modules/logging/logging.interceptor';
@@ -27,14 +24,13 @@ import { UserPostModule } from './modules/user/user-posts/user-post.module';
     LoggerModule,
     ConfigModule,
     DatabaseModule,
-    TestModule,
     TypeOrmModule.forFeature([User]) ,
     LocalAuthModule,
     UserModule,    
     UserPostModule
   ],
-  controllers: [AppController,UserController],
-  providers: [AppService,UserService,LocalAuthService, WinstonLoggerService, {
+  controllers: [UserController],
+  providers: [UserService,LocalAuthService, WinstonLoggerService, {
     provide: APP_INTERCEPTOR,
     useClass: LoggingInterceptor
   }]

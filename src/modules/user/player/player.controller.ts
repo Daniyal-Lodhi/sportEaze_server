@@ -144,7 +144,7 @@ export class PlayerController {
 
   @Get("/get-social-media-links")
   @UseGuards(JwtAuthGuard)
-  async getSocialMediaLinks(@Request() req, @Response() res, @Body() deleteSocialMediaLinkDto: DeleteSocialMediaDto)
+  async getSocialMediaLinks(@Request() req, @Response() res)
   {
     try {
       if (!req.user || !req.user.id) {

@@ -7,16 +7,18 @@ import { UserPost } from './entities/user-post.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { CreateMediaPostDTO } from './dto/create-media-post.dto';
 import { GetPostDTO } from './dto/get-post.dto';
+import { UserService } from '../user.service';
 
 @Injectable()
 export class UserPostService {
     constructor(
         @InjectRepository(UserPost) private readonly postRepository: Repository<UserPost>,
         @InjectRepository(PostMedia) private readonly postMediaRepository: Repository<PostMedia>,
+        private readonly userSrv: UserService
 
     ) { }
     async createTextPost(userId: string, createTextPost: CreateTextPostDTO): Promise<CreateTextPostDTO> {
-
+        await this.userSrv.getUser(userId);
 
         const post = this.postRepository.create({
             ...createTextPost,
@@ -31,6 +33,8 @@ export class UserPostService {
     }
 
     async createMediaPost(userId: string, CreateMediaPostDTO: CreateMediaPostDTO): Promise<CreateMediaPostDTO> {
+        await this.userSrv.getUser(userId);
+
          const { media, ...CreateMediaPostDTOWoMedia } = CreateMediaPostDTO;
     
          const post = this.postRepository.create({
@@ -55,6 +59,8 @@ export class UserPostService {
 
     async getPost(userId: string): Promise<GetPostDTO[]>
     {
+        await this.userSrv.getUser(userId);
+        
         console.log(userId);
         const post = await this.postRepository.find({
             where: {

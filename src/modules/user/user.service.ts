@@ -128,7 +128,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { id }
     })
-    if (!user) {
+    if (!user || user.deleted) {
       throw new NotFoundException("User not found")
     }
 

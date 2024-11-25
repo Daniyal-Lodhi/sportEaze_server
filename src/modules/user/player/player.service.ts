@@ -1,5 +1,4 @@
 import { BadRequestException, ConflictException, HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,8 +23,8 @@ export class PlayerService {
   async ChangeUserTypeToPlayer(id: string): Promise<GetUserDto> {
     const user = await this.userrRepository.findOne({ where: { id } });
   
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!user || user.deleted) {
+      throw new NotFoundException(`User not found`);
     }
   
     if (user.userType !== UserType.FAN) {

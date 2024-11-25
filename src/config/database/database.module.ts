@@ -3,7 +3,6 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { dbConFail, dbConSuccess } from 'src/common/consts/db-const';
-import { testUserEntity } from 'src/modules/test/entities/test.entity';
 import { dataSourceOptions } from './typeorm.config';
 
 @Module({
