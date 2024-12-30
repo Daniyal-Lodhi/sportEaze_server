@@ -28,19 +28,22 @@ import { UserPostModule } from './modules/user/user-posts/user-post.module';
     ConfigModule,
     DatabaseModule,
     TestModule,
-    TypeOrmModule.forFeature([User]) ,
+    TypeOrmModule.forFeature([User]),
     LocalAuthModule,
-    UserModule,    
+    UserModule,
     UserPostModule
   ],
-  controllers: [AppController,UserController],
-  providers: [AppService,UserService,LocalAuthService, WinstonLoggerService, {
+  controllers: [AppController, UserController],
+  providers: [AppService, UserService, LocalAuthService, WinstonLoggerService, {
     provide: APP_INTERCEPTOR,
     useClass: LoggingInterceptor
   }]
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser(), CookieExtractorMiddleware).forRoutes('*');
+
+  // the below code was for cookie parser to fetch token from http only cookie into auth header as bearer token but it is not of any use since the client will now directly send the token in the auth header as bearer token.
+
+  //   configure(consumer: MiddlewareConsumer) {
+  //     consumer.apply(cookieParser(), CookieExtractorMiddleware).forRoutes('*');
+  // }
 }
- }
