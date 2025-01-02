@@ -15,6 +15,8 @@ import { ConfigModule } from "./config/config.module";
 import { CookieExtractorMiddleware } from "./common/middleware/cookie-extractor.middleware";
 import * as cookieParser from "cookie-parser";
 import { UserPostModule } from "./modules/user/user-posts/user-post.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 
 @Module({
   imports: [
@@ -24,21 +26,19 @@ import { UserPostModule } from "./modules/user/user-posts/user-post.module";
     TypeOrmModule.forFeature([User]),
     LocalAuthModule,
     UserModule,
-    UserPostModule,
+    UserPostModule
   ],
-  controllers: [UserController],
-  providers: [
-    UserService,
-    LocalAuthService,
-    WinstonLoggerService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-  ],
+  controllers: [AppController, UserController],
+  providers: [AppService, UserService, LocalAuthService, WinstonLoggerService, {
+    provide: APP_INTERCEPTOR,
+    useClass: LoggingInterceptor
+  }]
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser(), CookieExtractorMiddleware).forRoutes("*");
-  }
+
+  // the below code was for cookie parser to fetch token from http only cookie into auth header as bearer token but it is not of any use since the client will now directly send the token in the auth header as bearer token.
+
+  //   configure(consumer: MiddlewareConsumer) {
+  //     consumer.apply(cookieParser(), CookieExtractorMiddleware).forRoutes('*');
+  // }
 }

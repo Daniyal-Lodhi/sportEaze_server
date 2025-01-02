@@ -26,17 +26,13 @@ export class UserController {
   @Post("/register-user")
   async createUser(@Body() createUserDto: CreateUserDto, @Response() res) {
     try {
-      const accessToken: string =
-        await this.userService.RegisterUser(createUserDto);
-      res.cookie("access_token", accessToken, {
-        httpOnly: true,
-        maxAge: httpOnlyCookieMaxAge, //1 year
-      });
-      return res.status(200).send({
-        message: "User registered successfully",
-        success: true,
-        UserType: UserType.FAN,
-      });
+      const accessToken: string = await this.userService.RegisterUser(createUserDto);
+      // res.cookie('access_token', accessToken, {
+      //   httpOnly: true,
+      //   maxAge: httpOnlyCookieMaxAge, //1 year
+      // });
+      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, UserType: UserType.FAN });
+
     } catch (error) {
       console.error("[REGISTER_USER_CTRL]:", error);
       throw new HttpException(
@@ -47,8 +43,9 @@ export class UserController {
   }
 
   // 2. login general user
-  @UseGuards(JwtAuthGuard)
-  @Post("/login-user")
+  // below d is commented because we are using the jwt strategy to validate the token and get the user details from the token itself so cant expect a token at this point.
+  // @UseGuards(JwtAuthGuard)
+  @Post('/login-user')
   async loginUser(
     @Body() createUserDto: CreateUserDto,
     @Request() req,
@@ -58,15 +55,12 @@ export class UserController {
       const [accessToken, userType]: [string, UserType] =
         await this.userService.loginUser(createUserDto);
 
-      res.cookie("access_token", accessToken, {
-        httpOnly: true,
-        maxAge: httpOnlyCookieMaxAge, //1 year
-      });
-      return res.status(200).send({
-        message: "User logged in successfully",
-        succes: true,
-        userType,
-      });
+      // res.cookie('access_token', accessToken, {
+      //   httpOnly: true,
+      //   maxAge: httpOnlyCookieMaxAge, //1 year
+      // });
+      return res.status(200).send({ message: 'User logged in successfully', succes: true,accessToken, userType });
+
     } catch (error) {
       console.error("[LOGIN_USER_CTRL]:", error);
       throw new HttpException(
