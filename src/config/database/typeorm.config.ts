@@ -21,6 +21,7 @@ const dataSourceOptions = {
   synchronize: false,
   migrations: [__dirname + "/migrations/*{.ts,.js}"],
   migrationsTableName: configService.get("POSTGRES_MIGRATION_TBL_NAME"),
+  ssl: configService.get("PG_DB_SSL"),
 };
 const dataSource = new DataSource(dataSourceOptions as DataSourceOptions);
 
