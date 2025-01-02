@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AppService {
-  constructor(private configService:ConfigService){}
-  
+  constructor(private configService: ConfigService) {}
+
   getHello(): string {
-    return 'Server is on!'; 
-  } 
+    return "Server is on!";
+  }
 }

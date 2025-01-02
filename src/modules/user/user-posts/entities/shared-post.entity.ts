@@ -6,29 +6,28 @@ import {
   ManyToOne,
   UpdateDateColumn,
   JoinColumn,
-  Unique,
-} from 'typeorm';
-import { UserPost } from './user-post.entity';
-import { PostVisibilityEnum } from 'src/common/enums/user-posts.enum';
-import { User } from '../../entities/user.entity';
+} from "typeorm";
+import { UserPost } from "./user-post.entity";
+import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { User } from "../../entities/user.entity";
 
-
-@Entity('shared_posts')
+@Entity("shared_posts")
 export class SharedPost {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })  // will automatically create column 
-
-
+  @JoinColumn({ name: "userId" }) // will automatically create column
   @ManyToOne(() => UserPost)
-  @JoinColumn({ name: 'originalPostId' })  
-
+  @JoinColumn({ name: "originalPostId" })
   @Column({ nullable: true })
   shareMessage: string;
 
-  @Column({ type: 'enum', enum: PostVisibilityEnum, default: PostVisibilityEnum.PUBLIC})
+  @Column({
+    type: "enum",
+    enum: PostVisibilityEnum,
+    default: PostVisibilityEnum.PUBLIC,
+  })
   visibility: PostVisibilityEnum;
 
   @CreateDateColumn()

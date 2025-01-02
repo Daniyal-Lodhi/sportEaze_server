@@ -6,34 +6,34 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { UserPost } from './user-post.entity';
-import { User } from '../../entities/user.entity';
-import { ReactTypeEnum } from 'src/common/enums/user-posts.enum';
+} from "typeorm";
+import { UserPost } from "./user-post.entity";
+import { User } from "../../entities/user.entity";
+import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
 
-@Entity('post_likes')
+@Entity("post_likes")
 export class PostLikes {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'uuid', nullable: false }) // Separate userId column
+  @Column({ type: "uuid", nullable: false }) // Separate userId column
   userId: string;
 
   @ManyToOne(() => User, (user) => user.id)
-  @JoinColumn({ name: 'userId' }) // Match foreign key column
+  @JoinColumn({ name: "userId" }) // Match foreign key column
   user: User;
 
-  @Column({ type: 'uuid', nullable: false }) // Separate postId column
+  @Column({ type: "uuid", nullable: false }) // Separate postId column
   postId: string;
 
   @ManyToOne(() => UserPost, (post) => post.likes)
-  @JoinColumn({ name: 'postId' }) // Match foreign key column
+  @JoinColumn({ name: "postId" }) // Match foreign key column
   post: UserPost;
 
   @Column({ default: false })
   unLiked?: boolean;
 
-  @Column({ type: 'enum', enum: ReactTypeEnum, default: ReactTypeEnum.LIKE })
+  @Column({ type: "enum", enum: ReactTypeEnum, default: ReactTypeEnum.LIKE })
   reactType: ReactTypeEnum;
 
   @CreateDateColumn()

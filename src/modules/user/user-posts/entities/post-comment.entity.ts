@@ -6,30 +6,30 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { UserPost } from './user-post.entity';
-import { User } from '../../entities/user.entity';
+} from "typeorm";
+import { UserPost } from "./user-post.entity";
+import { User } from "../../entities/user.entity";
 
-@Entity('comments')
+@Entity("comments")
 export class Comment {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'uuid', nullable: false })  
+  @Column({ type: "uuid", nullable: false })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.id )
-  @JoinColumn({ name: 'userId' })  
+  @ManyToOne(() => User, (user) => user.id)
+  @JoinColumn({ name: "userId" })
   user: User;
 
-  @Column({ type: 'uuid', nullable: false }) // Separate postId column
+  @Column({ type: "uuid", nullable: false }) // Separate postId column
   postId: string;
 
-  @ManyToOne(() => UserPost, (post) => post.comments )
-  @JoinColumn({ name: 'postId' }) // Match foreign key column
+  @ManyToOne(() => UserPost, (post) => post.comments)
+  @JoinColumn({ name: "postId" }) // Match foreign key column
   post: UserPost;
 
-  @Column('text')
+  @Column("text")
   content: string;
 
   @CreateDateColumn()

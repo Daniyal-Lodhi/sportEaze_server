@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { GoogleAuthService } from './google-auth.service';
+import { Module } from "@nestjs/common";
+import { GoogleAuthService } from "./google-auth.service";
 
 @Module({
   controllers: [],
