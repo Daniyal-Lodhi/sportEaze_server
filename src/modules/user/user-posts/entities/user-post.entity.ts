@@ -29,7 +29,7 @@ export class UserPost {
   @Column("text")
   textContent: string;
 
-  @Column({
+  @Column({ 
     type: "enum",
     enum: PostVisibilityEnum,
     default: PostVisibilityEnum.PUBLIC,
