@@ -56,6 +56,8 @@ export class PlayerService {
     const player = new Player();
     player.id = id;
 
+    await this.playerRepository.save(player);
+    
     return await this.userService.getUser(id);
   }
 

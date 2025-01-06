@@ -18,7 +18,7 @@ async function bootstrap() {
   );
   app.useGlobalPipes(new ValidationPipe());
 
-  const config = new DocumentBuilder().setTitle("SportEaze API").build();
+  const config = new DocumentBuilder().setTitle("SportEaze API").addBearerAuth().build();
 
   const document = SwaggerModule.createDocument(app, config);
 

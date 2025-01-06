@@ -65,6 +65,15 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Generate and Run Migrations
+```bash
+#run migration
+$ npm run migration:run
+
+#create migration
+$ npm run migration:generate --name=name
+```
+
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

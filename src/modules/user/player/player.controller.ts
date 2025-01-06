@@ -20,12 +20,14 @@ import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { AddSocialMediaLinkDto } from "./dto/add-social-media-link.dto";
 import { DeleteSocialMediaDto } from "./dto/delete-socia-media-links.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller("api/user/player")
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
   @Post("/become-player")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async becomePlayer(@Request() req, @Response() res) {
     try {
@@ -56,6 +58,7 @@ export class PlayerController {
   }
 
   @Patch("/update-player")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async updatePlayer(
     @Request() req,
@@ -81,6 +84,7 @@ export class PlayerController {
   }
 
   @Get("/get-player")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getPlayer(@Request() req, @Response() res) {
     try {
@@ -107,6 +111,7 @@ export class PlayerController {
   }
 
   @Patch("/add-social-media-links")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async AddSocialMediaLink(
     @Request() req,
@@ -138,6 +143,7 @@ export class PlayerController {
   }
 
   @Delete("/delete-social-media-links")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async deleteSocialMediaLink(
     @Request() req,
@@ -180,6 +186,7 @@ export class PlayerController {
   }
 
   @Get("/get-social-media-links")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getSocialMediaLinks(@Request() req, @Response() res) {
     try {
