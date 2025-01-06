@@ -14,8 +14,10 @@ import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
 import { UserPostService } from "./user-post.service";
 import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Controller("api/user/post")
 export class UserPostController {
   constructor(private PostSrv: UserPostService) {}

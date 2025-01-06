@@ -17,6 +17,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/local-auth/jwt-auth.guard";
 import { httpOnlyCookieMaxAge } from "src/common/consts/common-const";
 import { UserType } from "src/common/enums/user-type.enum";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller("api/user")
 export class UserController {
@@ -72,6 +73,7 @@ export class UserController {
 
   // 3. get general user
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get("/get-user")
   async getUser(@Request() req, @Response() res) {
     try {
@@ -90,6 +92,7 @@ export class UserController {
 
   // 4. Update General User
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch("/update-user")
   async updateUser(
     @Request() req,
@@ -115,6 +118,7 @@ export class UserController {
 
   // 5. Delete General User
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete("/delete-user")
   async deleteUser(@Request() req, @Response() res): Promise<UpdateUserDto> {
     try {
