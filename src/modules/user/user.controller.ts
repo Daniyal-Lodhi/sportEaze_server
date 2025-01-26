@@ -32,7 +32,7 @@ export class UserController {
       //   httpOnly: true,
       //   maxAge: httpOnlyCookieMaxAge, //1 year
       // });
-      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, UserType: UserType.FAN });
+      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, userType: UserType.FAN });
 
     } catch (error) {
       console.error("[REGISTER_USER_CTRL]:", error);

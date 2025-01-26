@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { UserPost } from "./user-post.entity";
+import { isString } from "class-validator";
 
 @Entity("PostMedia")
 export class PostMedia {
@@ -18,6 +19,9 @@ export class PostMedia {
 
   @Column({ nullable: false })
   mediaLink: string;
+
+  @Column({ nullable: true }) // Marked as optional
+  mediaThumbnail?: string; // Optional in TypeScript
 
   @Column({ nullable: false })
   mediaOrder: number;

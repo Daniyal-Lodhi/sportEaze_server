@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Min,
   MinLength,
@@ -18,6 +19,10 @@ export class PostMediaDTO {
   @IsEnum(MediaType)
   @IsNotEmpty()
   mediaType: MediaType;
+  
+  @IsString()
+  @IsOptional()
+  mediaThumbnail?: string;
 
   @ApiProperty({
     description: "The order of the media in the post",

@@ -39,8 +39,12 @@ export class UserPost {
   @Column({ default: 0 })
   shareCount: number;
 
+  @Column()
+  postType: number;
+
   @CreateDateColumn()
   createdAt: Date;
+
 
   @UpdateDateColumn()
   updatedAt: Date;

@@ -3,11 +3,12 @@ import {
   ArrayNotEmpty,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from "class-validator";
-import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 import { PostMediaDTO } from "./post-media.dto";
 import { PostLikesDTO } from "./post-likes.dto";
 import { CommentDTO } from "./post-comments.dto";
@@ -22,8 +23,17 @@ export class CreateMediaPostDTO {
   @IsNotEmpty()
   textContent: string;
 
+  @IsString()
+  @IsOptional()
+  mediaThumbnail?: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @IsOptional()
+  postType:PostTypeEnum  = 1; 
+
   @ApiPropertyOptional({
-    description: "The visibility of the post",
+    description: "The visibility of the post", 
     enum: PostVisibilityEnum,
     example: PostVisibilityEnum.PUBLIC,
   })

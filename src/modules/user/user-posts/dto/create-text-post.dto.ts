@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
-import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 import { PostLikesDTO } from "./post-likes.dto";
 import { CommentDTO } from "./post-comments.dto";
 
@@ -12,6 +12,11 @@ export class CreateTextPostDTO {
   @IsString()
   @IsNotEmpty()
   textContent: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @IsOptional()
+  postType:PostTypeEnum  = 0; 
 
   @ApiPropertyOptional({
     description: "The visibility setting for the post",
