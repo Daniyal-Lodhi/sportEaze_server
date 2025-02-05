@@ -20,6 +20,12 @@ export class UpdateUserDto {
   @IsOptional()
   name?: string;
 
+  @IsString()
+  @MinLength(3)
+  @IsOptional()
+  @Matches(/^@/, { message: 'Username must start with @' })
+  username?: string;
+
   @ApiProperty({
     description:
       "The new password for the user. Must be at least 8 characters long with at least one uppercase letter and one special character.",

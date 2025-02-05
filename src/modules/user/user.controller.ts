@@ -32,7 +32,7 @@ export class UserController {
       //   httpOnly: true,
       //   maxAge: httpOnlyCookieMaxAge, //1 year
       // });
-      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, UserType: UserType.FAN });
+      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, userType: UserType.FAN });
 
     } catch (error) {
       console.error("[REGISTER_USER_CTRL]:", error);
@@ -129,6 +129,30 @@ export class UserController {
         .send({ id, message: "User deleted successfully", success: true });
     } catch (error) {
       console.error("[DELETE_USER_CTRL]:", error);
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get("/is-username-exist")
+  async isUsernameExist(@Body() body: {username:string}, @Response() res) {
+    try {
+      if(!body.username) {
+        throw new HttpException(
+          "Username is required",
+          HttpStatus.BAD_REQUEST)
+        }
+
+        if (!body.username.startsWith('@')) {
+          throw new HttpException('Username must start with @', HttpStatus.BAD_REQUEST);
+        }
+      const isExist = await this.userService.doesUsernameExist(body.username);
+      return res.status(200).send({ exist: isExist, success: true,body });
+
+    } catch (error) {
+      console.error("[REGISTER_USER_CTRL]:", error);
       throw new HttpException(
         error.message || "Internal Server Error",
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,

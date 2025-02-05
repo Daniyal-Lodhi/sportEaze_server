@@ -7,6 +7,8 @@ import { PostMedia } from "./entities/post-media.entity";
 import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
 import { GetPostDTO } from "./dto/get-post.dto";
 import { UserService } from "../user.service";
+import { GetUserDto } from "../dto/get-user.dto";
+import { UserType } from "src/common/enums/user-type.enum";
 
 @Injectable()
 export class UserPostService {
@@ -21,14 +23,19 @@ export class UserPostService {
     userId: string,
     createTextPost: CreateTextPostDTO,
   ): Promise<CreateTextPostDTO> {
-    await this.userSrv.getUser(userId);
+    const user:GetUserDto = await this.userSrv.getUser(userId);
+
+    if(user.userType !== UserType.PLAYER && user.userType !== UserType.MENTOR ){
+      throw new Error("Only Player and Mentor can create post");
+    }
 
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
     });
 
-    const createdPost = await this.postRepository.save(post);
+
+    const createdPost:CreateTextPostDTO = await this.postRepository.save(post);
     console.log(createdPost);
 
     return createdPost;
@@ -38,7 +45,10 @@ export class UserPostService {
     userId: string,
     CreateMediaPostDTO: CreateMediaPostDTO,
   ): Promise<CreateMediaPostDTO> {
-    await this.userSrv.getUser(userId);
+    const user:GetUserDto  = await this.userSrv.getUser(userId);
+    if(user.userType !== UserType.PLAYER && user.userType !== UserType.MENTOR ){
+      throw new Error("Only Player and Mentor can create post");
+    }
 
     const { media, ...CreateMediaPostDTOWoMedia } = CreateMediaPostDTO;
 
@@ -57,12 +67,12 @@ export class UserPostService {
     });
 
     const savedMedia = await this.postMediaRepository.save(postMediaEntities);
-    const savedPostWithMedia = { ...savedPost, media: savedMedia };
+    const savedPostWithMedia:CreateMediaPostDTO= { ...savedPost, media: savedMedia };
 
     return savedPostWithMedia;
   }
 
-  async getPost(userId: string): Promise<GetPostDTO[]> {
+  async getPosts(userId: string): Promise<GetPostDTO[]> {
     await this.userSrv.getUser(userId);
 
     console.log(userId);
@@ -80,14 +90,14 @@ export class UserPostService {
     console.log(post);
 
     return post as GetPostDTO[];
-  }
+  } 
 
   async getPostById(id: string): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
       where: {
         id,
       },
-      relations: [
+      relations: [ 
         "media",
         // "likes",
         // "comments",

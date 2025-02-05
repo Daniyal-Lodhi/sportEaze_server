@@ -120,7 +120,7 @@ export class UserService {
       );
     }
 
-    const updatedUser = await this.userRepository.save({
+    const updatedUser = await this.userRepository.save({ 
       ...user,
       ...updateUserDto,
     });
@@ -146,4 +146,11 @@ export class UserService {
 
     return true;
   }
+
+  async doesUsernameExist(username: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { username } });
+    return !!user;
+  }
+
+
 }

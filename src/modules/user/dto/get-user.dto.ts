@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsDateString,
   MinLength,
+  Matches,
 } from "class-validator";
 import { GenderType } from "src/common/enums/gender-type.enum";
 import { UserType } from "src/common/enums/user-type.enum";
@@ -16,6 +17,12 @@ export class GetUserDto {
   @IsOptional()
   @MinLength(3)
   name?: string;
+
+  @IsString()
+  @MinLength(3)
+  @IsOptional()
+  @Matches(/^@/, { message: 'Username must start with @' })
+  username?: string;
 
   @IsOptional()
   @IsString()
