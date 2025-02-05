@@ -14,7 +14,7 @@ import { PostLikes } from "./post-like.entity";
 import { Comment } from "./post-comment.entity";
 import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 
-@Entity("posts")
+@Entity("Posts")
 export class UserPost {
   @PrimaryGeneratedColumn("uuid")
   id: string;

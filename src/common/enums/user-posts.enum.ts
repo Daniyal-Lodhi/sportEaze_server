@@ -14,7 +14,8 @@ export enum ReactTypeEnum {
   LAUGH = 2,
   SAD = 3,
   WOW = 4,
-  Support= 5,
+  Support= 5, 
+  Angry=6,
 }
 
 export enum MediaType {

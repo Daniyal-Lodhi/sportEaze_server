@@ -72,7 +72,7 @@ export class UserPostService {
     return savedPostWithMedia;
   }
 
-  async getPost(userId: string): Promise<GetPostDTO[]> {
+  async getPosts(userId: string): Promise<GetPostDTO[]> {
     await this.userSrv.getUser(userId);
 
     console.log(userId);
@@ -90,14 +90,14 @@ export class UserPostService {
     console.log(post);
 
     return post as GetPostDTO[];
-  }
+  } 
 
   async getPostById(id: string): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
       where: {
         id,
       },
-      relations: [
+      relations: [ 
         "media",
         // "likes",
         // "comments",

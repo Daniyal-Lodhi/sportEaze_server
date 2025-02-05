@@ -82,7 +82,7 @@ export class UserPostController {
   @Get("/get-post")
   async getPost(@Request() req, @Response() res) {
     try {
-      const post = await this.PostSrv.getPost(req.user.id);
+      const post = await this.PostSrv.getPosts(req.user.id);
       res.status(200).json({ success: true, post });
     } catch (error) {
       console.error("[GET_USER_POST_CTRL]:", error);

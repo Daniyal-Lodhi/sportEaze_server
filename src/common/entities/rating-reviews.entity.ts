@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity("Rating and Reviews")
+@Entity("RatingAndReviews")
 export class RatingAndReview {
   @PrimaryGeneratedColumn("increment")
   id: number;

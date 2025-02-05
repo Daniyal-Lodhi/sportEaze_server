@@ -14,7 +14,6 @@ export class CreateUserDto {
   })
   @IsEmail()
   email: string;
-
   @ApiProperty({
     description:
       "The user's password. Must be at least 8 characters long, with at least one uppercase letter and one special character.",

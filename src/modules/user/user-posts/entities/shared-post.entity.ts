@@ -11,7 +11,7 @@ import { UserPost } from "./user-post.entity";
 import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
 import { User } from "../../entities/user.entity";
 
-@Entity("shared_posts")
+@Entity("SharedPosts")
 export class SharedPost {
   @PrimaryGeneratedColumn("uuid")
   id: string;
