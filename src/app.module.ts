@@ -26,7 +26,6 @@ import { AppService } from "./app.service";
     TypeOrmModule.forFeature([User]),
     LocalAuthModule,
     UserModule,
-    UserPostModule
   ],
   controllers: [AppController, UserController],
   providers: [AppService, UserService, LocalAuthService]

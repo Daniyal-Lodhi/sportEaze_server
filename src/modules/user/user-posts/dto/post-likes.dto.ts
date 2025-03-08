@@ -8,11 +8,8 @@ export class PostLikesDTO {
   @IsUUID()
   postId: string;
 
-  @IsOptional()
-  @IsBoolean()
-  unLiked?: boolean;
 
   @IsEnum(ReactTypeEnum)
   @IsOptional()
-  reactType: ReactTypeEnum;
+  reactType?: ReactTypeEnum;
 }

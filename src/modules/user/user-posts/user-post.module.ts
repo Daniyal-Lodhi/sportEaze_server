@@ -8,10 +8,13 @@ import { UserService } from "../user.service";
 import { LocalAuthService } from "src/modules/auth/local-auth/local-auth.service";
 import { User } from "../entities/user.entity";
 import { JwtService } from "@nestjs/jwt";
+import { PostLikesController } from "./post-likes/post-likes.controller";
+import { PostLikesService } from "./post-likes/post-likes.service";
+import { PostLikes } from "./entities/post-like.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User])],
-  controllers: [UserPostController],
-  providers: [UserPostService, UserService, LocalAuthService, JwtService],
+  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User,PostLikes])],
+  controllers: [UserPostController,PostLikesController],
+  providers: [UserPostService, UserService, LocalAuthService, JwtService,PostLikesService],
 })
 export class UserPostModule {}

@@ -7,6 +7,7 @@ import { User } from "./entities/user.entity";
 import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { JwtModule } from "@nestjs/jwt";
 import { PlayerModule } from "./player/player.module";
+import { UserPostModule } from "./user-posts/user-post.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PlayerModule } from "./player/player.module";
     LocalAuthModule,
     JwtModule,
     PlayerModule,
+    UserPostModule
   ],
   controllers: [UserController],
   providers: [UserService, LocalAuthService],
