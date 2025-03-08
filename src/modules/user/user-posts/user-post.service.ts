@@ -9,6 +9,7 @@ import { GetPostDTO } from "./dto/get-post.dto";
 import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user-type.enum";
+import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
 
 @Injectable()
 export class UserPostService {
@@ -72,40 +73,58 @@ export class UserPostService {
     return savedPostWithMedia;
   }
 
-  async getPosts(userId: string): Promise<GetPostDTO[]> {
+  async getPosts(userId: string): Promise<any[]> {
     await this.userSrv.getUser(userId);
-
+  
     console.log(userId);
-    const post = await this.postRepository.find({
-      where: {
-        userId,
-      },
-      relations: [
-        "media",
-        // "likes",
-        // "comments",
-      ],
+  
+    const posts = await this.postRepository.find({
+      where: { userId },
+      relations: ["media", "likes"],
     });
-
-    console.log(post);
-
-    return post as GetPostDTO[];
-  } 
+  
+    console.log(posts);
+  
+    return posts.map(({ id, textContent, visibility, shareCount, media, likes }) => ({
+      id,
+      textContent,
+      visibility,
+      shareCount,
+      media,
+      likeCount: likes?.length || 0, // Total number of likes
+      reactions: likes?.reduce((acc, { reactType }) => {
+        acc[reactType] = (acc[reactType] || 0) + 1;
+        return acc;
+      }, {} as Record<ReactTypeEnum, number>), // Reaction breakdown
+    }));
+  }
+  
+  
 
   async getPostById(id: string): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
-      where: {
-        id,
-      },
-      relations: [ 
-        "media",
-        // "likes",
-        // "comments",
-      ],
+      where: { id },
+      relations: ["media", "likes"],
     });
-
-    console.log(post);
-
-    return post as GetPostDTO;
+  
+    if (!post) {
+      throw new Error("Post not found");
+    }
+  
+    // Calculate like count and reaction breakdown
+    const likeCount = post.likes.length;
+    const reactions: Partial<Record<ReactTypeEnum, number>> = {};
+  
+    post.likes.forEach((like) => {
+      const reactionType = like.reactType;
+      reactions[reactionType] = (reactions[reactionType] || 0) + 1;
+    });
+  
+    return {
+      ...post,
+      likeCount,
+      reactions,
+    };
   }
+  
 }

@@ -91,7 +91,7 @@ export class UserService {
       where: { id },
     });
 
-    if (user.deleted) {
+    if (user?.deleted || !user) {
       throw new NotFoundException("User not found");
     }
     const { password, ...userWoPass } = user;

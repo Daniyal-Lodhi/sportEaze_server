@@ -30,11 +30,8 @@ export class PostLikes {
   @JoinColumn({ name: "postId" }) // Match foreign key column
   post: UserPost;
 
-  @Column({ default: false })
-  unLiked?: boolean;
-
-  @Column({ type: "enum", enum: ReactTypeEnum, default: ReactTypeEnum.LIKE })
-  reactType: ReactTypeEnum;
+  @Column({ type: "enum", enum: ReactTypeEnum })
+  reactType?: ReactTypeEnum;
 
   @CreateDateColumn()
   createdAt: Date;

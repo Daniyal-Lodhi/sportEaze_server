@@ -66,30 +66,41 @@ export class UserPostController {
   }
 
   @Get("/get-post/:postId")
-  async getPostById(@Response() res, @Param("postId") postId: string) {
-    try {
-      const post = await this.PostSrv.getPostById(postId);
-      res.status(200).json({ success: true, post });
-    } catch (error) {
-      console.error("[GET_USER_POST_CTRL]:", error);
-      throw new HttpException(
-        error.message || "Internal Server Error",
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+async getPostById(@Response() res, @Param("postId") postId: string) {
+  try {
+    const post = await this.PostSrv.getPostById(postId);
 
-  @Get("/get-post")
-  async getPost(@Request() req, @Response() res) {
-    try {
-      const post = await this.PostSrv.getPosts(req.user.id);
-      res.status(200).json({ success: true, post });
-    } catch (error) {
-      console.error("[GET_USER_POST_CTRL]:", error);
-      throw new HttpException(
-        error.message || "Internal Server Error",
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    res.status(200).json({
+      success: true,
+      post: {
+        ...post,
+        likeCount: post.likeCount|| 0, // Total likes count
+        reactions: post.reactions || {},   // Reaction type breakdown
+      },
+    });
+  } catch (error) {
+    console.error("[GET_USER_POST_CTRL]:", error);
+
+    throw new HttpException(
+      error.message || "Internal Server Error",
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+}
+
+
+@Get("/get-posts")
+async getPost(@Request() req, @Response() res) {
+  try {
+    const posts = await this.PostSrv.getPosts(req.user.id);
+    res.status(200).json({ success: true, posts }); // Renamed "post" to "posts" for clarity
+  } catch (error) {
+    console.error("[GET_USER_POST_CTRL]:", error);
+    throw new HttpException(
+      error.message || "Internal Server Error",
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+}
+
 }
