@@ -26,7 +26,7 @@ export class SharedPost {
   @Column({
     type: "enum",
     enum: PostVisibilityEnum,
-    default: PostVisibilityEnum.PUBLIC,
+    default: PostVisibilityEnum.PRIVATE,
   })
   visibility: PostVisibilityEnum;
 

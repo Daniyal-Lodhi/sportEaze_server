@@ -14,7 +14,6 @@ export class CreateTextPostDTO {
   textContent: string;
 
   @IsNumber()
-  @IsNotEmpty()
   @IsOptional()
   postType:PostTypeEnum  = 0; 
 
@@ -25,7 +24,7 @@ export class CreateTextPostDTO {
   })
   @IsEnum(PostVisibilityEnum)
   @IsOptional()
-  visibility?: PostVisibilityEnum;
+  visibility?: PostVisibilityEnum = 1;
 
   @IsOptional()
   shareCount: number;

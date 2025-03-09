@@ -5,6 +5,7 @@ import {
   IsDateString,
   MinLength,
   Matches,
+  IsEnum,
 } from "class-validator";
 import { GenderType } from "src/common/enums/gender-type.enum";
 import { UserType } from "src/common/enums/user-type.enum";
@@ -25,7 +26,7 @@ export class GetUserDto {
   username?: string;
 
   @IsOptional()
-  @IsString()
+  @IsEnum(GenderType, { message: 'Gender must be one of: male, female, other' })
   gender?: GenderType;
 
   @IsOptional()

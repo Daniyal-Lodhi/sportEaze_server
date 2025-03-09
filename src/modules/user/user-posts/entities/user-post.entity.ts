@@ -32,7 +32,7 @@ export class UserPost {
   @Column({ 
     type: "enum",
     enum: PostVisibilityEnum,
-    default: PostVisibilityEnum.PUBLIC,
+    default: PostVisibilityEnum.PRIVATE,
   })
   visibility: PostVisibilityEnum;
 

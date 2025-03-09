@@ -4,6 +4,7 @@ import {
   IsDateString,
   MinLength,
   Matches,
+  IsEnum,
 } from "class-validator";
 import { GenderType } from "src/common/enums/gender-type.enum";
 import { ApiProperty } from "@nestjs/swagger";
@@ -49,7 +50,7 @@ export class UpdateUserDto {
     enum: GenderType,
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(GenderType, { message: 'Gender must be one of: male, female, other' })
   gender?: GenderType;
 
   @ApiProperty({

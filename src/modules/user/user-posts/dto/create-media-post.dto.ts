@@ -28,7 +28,6 @@ export class CreateMediaPostDTO {
   mediaThumbnail?: string;
 
   @IsNumber()
-  @IsNotEmpty()
   @IsOptional()
   postType:PostTypeEnum  = 1; 
 
@@ -39,7 +38,7 @@ export class CreateMediaPostDTO {
   })
   @IsEnum(PostVisibilityEnum)
   @IsOptional()
-  visibility?: PostVisibilityEnum;
+  visibility?: PostVisibilityEnum = 1;
 
   @ApiPropertyOptional({
     description: "The number of times the post has been shared",
