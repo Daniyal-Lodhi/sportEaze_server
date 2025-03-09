@@ -29,7 +29,7 @@ export class User {
   email: string; // Required
 
   @Exclude()
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: "varchar", length: 255, select: false })
   password: string; // Required
 
   @Column({ type: "enum", enum: GenderType, nullable: true })
