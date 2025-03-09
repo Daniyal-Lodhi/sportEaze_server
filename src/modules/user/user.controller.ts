@@ -10,6 +10,7 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  Param,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -136,20 +137,20 @@ export class UserController {
     }
   }
 
-  @Get("/is-username-exist")
-  async isUsernameExist(@Body() body: {username:string}, @Response() res) {
+  @Get("/is-username-exist/:username")
+  async isUsernameExist(@Param("username") username: string, @Response() res) {
     try {
-      if(!body.username) {
+      if(!username) {
         throw new HttpException(
           "Username is required",
           HttpStatus.BAD_REQUEST)
         }
 
-        if (!body.username.startsWith('@')) {
+        if (!username.startsWith('@')) {
           throw new HttpException('Username must start with @', HttpStatus.BAD_REQUEST);
         }
-      const isExist = await this.userService.doesUsernameExist(body.username);
-      return res.status(200).send({ exist: isExist, success: true,body });
+      const isExist = await this.userService.doesUsernameExist(username);
+      return res.status(200).send({ exist: isExist, success: true, username });
 
     } catch (error) {
       console.error("[REGISTER_USER_CTRL]:", error);
