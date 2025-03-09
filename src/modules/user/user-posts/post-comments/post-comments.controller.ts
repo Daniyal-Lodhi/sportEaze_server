@@ -3,13 +3,13 @@ import { PostCommentsService } from "./post-comments.service";
 import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 
 
-@Controller("comments")
+@Controller("api/user/post")
 export class PostCommentsController {
   constructor(private readonly postCommentsService: PostCommentsService) {}
 
   // ✅ Create a Comment or Reply
   @UseGuards(JwtAuthGuard)
-  @Post(":postId")
+  @Post("comment/:postId")
   async createComment(
     @Req() req,
     @Param("postId") postId: string,
@@ -21,7 +21,7 @@ export class PostCommentsController {
 
   // ✅ Edit a Comment or Reply
   @UseGuards(JwtAuthGuard)
-  @Put(":commentId")
+  @Put("comment/:commentId")
   async editComment(
     @Req() req,
     @Param("commentId") commentId: string,
@@ -32,19 +32,19 @@ export class PostCommentsController {
 
   // ✅ Delete a Comment or Reply
   @UseGuards(JwtAuthGuard)
-  @Delete(":commentId")
+  @Delete("comment/:commentId")
   async deleteComment(@Req() req, @Param("commentId") commentId: string) {
     return this.postCommentsService.deleteComment(commentId, req.user.id);
   }
 
-  // ✅ Get All Comments for a Post (Auth Required)
-  @Get("post/:postId")
+  // ✅ Get All Comments for a Post 
+  @Get("comments/:postId")
   async getComments(@Param("postId") postId: string) {
     return await this.postCommentsService.getComments(postId);
   }
 
   // ✅ Get replies of a specific comment
-  @Get(":commentId/replies")
+  @Get("comment/replies/:commentId")
   async getCommentReplies(@Param("commentId") commentId: string) {
     return await this.postCommentsService.getCommentReplies(commentId);
   }
