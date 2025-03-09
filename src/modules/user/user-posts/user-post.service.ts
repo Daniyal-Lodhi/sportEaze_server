@@ -80,31 +80,33 @@ export class UserPostService {
   
     const posts = await this.postRepository.find({
       where: { userId },
-      relations: ["media", "likes"],
+      relations: ["media", "likes", "comments"], // ✅ Include "comments" relation
     });
   
     console.log(posts);
   
-    return posts.map(({ id, textContent, visibility, shareCount, media, likes }) => ({
+    return posts.map(({ id, textContent, visibility, shareCount, media, likes, comments }) => ({
       id,
       textContent,
       visibility,
       shareCount,
       media,
-      likeCount: likes?.length || 0, // Total number of likes
+      likeCount: likes?.length || 0, // ✅ Total number of likes
+      commentCount: comments?.length || 0, // ✅ Total number of comments
       reactions: likes?.reduce((acc, { reactType }) => {
         acc[reactType] = (acc[reactType] || 0) + 1;
         return acc;
-      }, {} as Record<ReactTypeEnum, number>), // Reaction breakdown
+      }, {} as Record<ReactTypeEnum, number>), // ✅ Reaction breakdown
     }));
   }
+  
   
   
 
   async getPostById(id: string): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ["media", "likes"],
+      relations: ["media", "likes", "comments"], // ✅ Include "comments" in relations
     });
   
     if (!post) {
@@ -120,11 +122,16 @@ export class UserPostService {
       reactions[reactionType] = (reactions[reactionType] || 0) + 1;
     });
   
+    // ✅ Get comment count directly from the post object
+    const commentCount = post.comments.length;
+  
     return {
       ...post,
       likeCount,
       reactions,
+      commentCount, // ✅ Included comment count
     };
   }
+  
   
 }
