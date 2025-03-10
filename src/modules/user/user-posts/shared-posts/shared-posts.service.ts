@@ -39,7 +39,6 @@ export class SharedPostsService {
     const sharedPosts = await this.sharedPostRepository.find({
         where: { user: { id: userId } },
         relations: [
-            "user",
             "originalPost",
             "originalPost.user",
             "originalPost.media",
@@ -63,7 +62,8 @@ export class SharedPostsService {
             originalPost: {
                 ...sharedPost.originalPost,
                 likeCount,
-                reactions,
+                likes: undefined,
+                reactions: undefined,
             },
         };
     });
