@@ -10,7 +10,6 @@ import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user-type.enum";
 import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
-import { plainToInstance } from "class-transformer";
 
 @Injectable()
 export class UserPostService {
@@ -121,10 +120,10 @@ export class UserPostService {
       reactions[reactionType] = (reactions[reactionType] || 0) + 1;
     });
   
-    return plainToInstance(GetPostDTO, {
+    return {
       ...post,
       likeCount,
       reactions,
-    });
+    };
   }
 }

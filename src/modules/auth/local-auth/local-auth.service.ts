@@ -25,6 +25,7 @@ export class LocalAuthService {
   async verifyPassword(email: string, password: string): Promise<boolean> {
     const user = await this.userRepository.findOne({
       where: { email },
+      select: ["password"]
     });
 
     const validPass: boolean = await verifyPassword(password, user.password);

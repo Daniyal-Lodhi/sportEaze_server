@@ -11,7 +11,6 @@ import {
   OneToMany,
 } from "typeorm";
 import { UserPost } from "../user-posts/entities/user-post.entity";
-import { Exclude } from "class-transformer";
 import { SharedPost } from "../user-posts/entities/shared-post.entity";
 
 @Entity("Users") // Specifies the table name as 'users'
@@ -28,7 +27,6 @@ export class User {
   @Column({ type: "varchar", unique: true, length: 150 })
   email: string; // Required
 
-  @Exclude()
   @Column({ type: "varchar", length: 255, select: false })
   password: string; // Required
 
