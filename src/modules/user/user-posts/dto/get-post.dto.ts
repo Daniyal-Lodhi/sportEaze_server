@@ -22,5 +22,5 @@ export class GetPostDTO {
   // Count breakdown for each reaction type
   reactions: Partial<Record<ReactTypeEnum, number>>;
 
-  comments?: CommentDTO[];
+  commentCount: number;
 }

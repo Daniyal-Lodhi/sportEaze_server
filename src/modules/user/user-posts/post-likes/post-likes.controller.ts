@@ -16,13 +16,13 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 import { PostLikesService } from "./post-likes.service";
 import { LikePostDto } from "./dto/post-like.dto";
 
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 @Controller("api/user/post")
 export class PostLikesController {
   constructor(private PostSrv: UserPostService,private postLikeSrv:PostLikesService) {}
 
   // creating only text user posts
+  @UseGuards(JwtAuthGuard)
   @Post('/like/:postId')
   async likePost(@Param('postId') postId: string, @Request() req, @Response() res,@Body() body:LikePostDto) {
     try {
