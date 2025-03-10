@@ -11,7 +11,7 @@ import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
 export class SharedPostsController {
   constructor(private readonly sharedPostsService: SharedPostsService) {}
 
-  @Post("/shared-posts")
+  @Post()
   async create(@Body() createSharedPostDto: CreateSharedPostDto, @Request() req, @Response() res) {
     try {
        const sharedPost = await this.sharedPostsService.create(req.user.id, createSharedPostDto);
@@ -26,7 +26,7 @@ export class SharedPostsController {
     }  
   }
 
-  @Get("/shared-posts")
+  @Get()
   async get(@Request() req, @Response() res)
   {
     try {
@@ -42,11 +42,11 @@ export class SharedPostsController {
    }  
   }
 
-  @Patch("/shared-posts/")
-  async update(@Body() updateSharedPost: UpdateSharedPostDto, @Request() req, @Response() res)
+  @Patch(":id")
+  async update(@Param("id") id: string, @Body() updateSharedPost: UpdateSharedPostDto, @Request() req, @Response() res)
   {
     try {
-      const updatedSharedPost = await this.sharedPostsService.UpdateSharedPost(req.user.id, updateSharedPost);
+      const updatedSharedPost = await this.sharedPostsService.UpdateSharedPost(req.user.id, id, updateSharedPost);
 
      res.status(200).json({success: true, ...{updatedSharedPost}});
    } catch (error) {

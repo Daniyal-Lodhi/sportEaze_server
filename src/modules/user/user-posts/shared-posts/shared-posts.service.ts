@@ -102,10 +102,10 @@ export class SharedPostsService {
     return sharedPost;
 }
 
-  async UpdateSharedPost(userId: string, updateSharedPost: UpdateSharedPostDto): Promise<SharedPost> {
+  async UpdateSharedPost(userId: string, sharedPostId: string, updateSharedPost: UpdateSharedPostDto): Promise<SharedPost> {
     await this.userSrv.getUser(userId); // Ensure the user exists
 
-    const sharedPost = await this.getSharedPostsById(updateSharedPost.SharedPostId);
+    const sharedPost = await this.getSharedPostsById(sharedPostId);
     
     if (!sharedPost) {
         throw new Error("Shared post not found");
