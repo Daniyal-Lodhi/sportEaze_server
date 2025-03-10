@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { PostVisibilityEnum, ReactTypeEnum } from 'src/common/enums/user-posts.enum';
 import { UserPost } from '../entities/user-post.entity';
 import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
+import { share } from 'rxjs';
 
 @Injectable()
 export class SharedPostsService {
@@ -44,74 +45,51 @@ export class SharedPostsService {
     }
   }
 
-  async getSharedPostsByUserId(userId: string): Promise<SharedPost[]> {
-    await this.userSrv.getUser(userId); // Ensure the user exists
-    
-    const sharedPosts = await this.sharedPostRepository.find({
-        where: { user: { id: userId } },
-        relations: [
-            "originalPost",
-            "originalPost.user",
-            "originalPost.media",
-            "originalPost.likes",
-        ],
-    });
-
-    return sharedPosts.map((sharedPost) => {
-        if (!sharedPost.originalPost) return sharedPost;
-
-        const likeCount = sharedPost.originalPost.likes.length;
-        const reactions: Partial<Record<ReactTypeEnum, number>> = {};
-
-        sharedPost.originalPost.likes.forEach((like) => {
-            const reactionType = like.reactType;
-            reactions[reactionType] = (reactions[reactionType] || 0) + 1;
-        });
-
-        return {
-            ...sharedPost,
-            originalPost: {
-                ...sharedPost.originalPost,
-                likeCount,
-                likes: undefined,
-                reactions: undefined,
-            },
-        };
-    });
-  }
-
   async getSharedPostsById(id: string): Promise<SharedPost> {
     const sharedPost = await this.sharedPostRepository.findOne({
-        where: { id },
-        relations: [
-            "originalPost",
-            "originalPost.user",
-            "originalPost.media",
-            "originalPost.likes",
-        ],
+      where: { id },
+      relations: ["originalPost"],
     });
-
     if (!sharedPost) {
-        throw new Error("Shared post not found");
+      throw new NotFoundException("Shared post not found");
     }
-
-    if (sharedPost.originalPost) {
-        const likeCount = sharedPost.originalPost.likes.length;
-        const reactions: Partial<Record<ReactTypeEnum, number>> = {};
-
-        sharedPost.originalPost.likes.forEach((like) => {
-            const reactionType = like.reactType;
-            reactions[reactionType] = (reactions[reactionType] || 0) + 1;
-        });
-
-        // Assign additional fields dynamically
-        (sharedPost.originalPost as any).likeCount = likeCount;
-        (sharedPost.originalPost as any).reactions = undefined;
-        (sharedPost.originalPost as any).likes = undefined;
-    }
-
+  
+    // Retrieve the original post (which is of type GetPostDTO)
+    const originalPostDTO = await this.postSrv.getPostById(sharedPost.originalPost.id);
+  
+    // Create a shallow copy and cast it as any so you can remove properties
+    const originalPost = { ...originalPostDTO } as any;
+    originalPost.likes = undefined;
+    originalPost.reactions = undefined;
+  
+    // Assign the modified originalPost back to sharedPost
+    sharedPost.originalPost = originalPost;
     return sharedPost;
-}
+  }
+  
+  async getSharedPostsByUserId(userId: string): Promise<SharedPost[]> {
+    await this.userSrv.getUser(userId);
+    const sharedPosts = await this.sharedPostRepository.find({
+      where: { user: { id: userId } },
+      relations: ["originalPost"],
+    });
+    
+    const updatedSharedPosts = await Promise.all(
+      sharedPosts.map(async (sharedPost) => {
+        if (sharedPost.originalPost) {
+          const originalPostDTO = await this.postSrv.getPostById(sharedPost.originalPost.id);
+          const originalPost = { ...originalPostDTO } as any;
+          originalPost.likes = undefined;
+          originalPost.reactions = undefined;
+          sharedPost.originalPost = originalPost;
+        }
+        return sharedPost;
+      })
+    );
+    
+    return updatedSharedPosts;
+  }
+    
 
   async UpdateSharedPost(userId: string, sharedPostId: string, updateSharedPost: UpdateSharedPostDto): Promise<SharedPost> {
     await this.userSrv.getUser(userId); // Ensure the user exists
