@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Get,
   Param,
+  Query,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
@@ -90,15 +91,32 @@ async getPostById(@Response() res, @Param("postId") postId: string) {
 
 
 @Get("/get-posts")
-async getPost(@Request() req, @Response() res) {
+async getPost(
+  @Request() req,
+  @Response() res,
+  @Query("pageSize") pageSize?: string,
+  @Query("pageNo") pageNo?: string
+) {
   try {
-    const posts = await this.PostSrv.getPosts(req.user.id);
-    res.status(200).json({ success: true, posts }); // Renamed "post" to "posts" for clarity
+    const userId = req.user.id;
+    const page = pageNo ? parseInt(pageNo, 10) : 1;
+    const size = pageSize ? parseInt(pageSize, 10) : 10; // Default: 10 posts per page
+
+    if (isNaN(page) || isNaN(size) || page < 1 || size < 1) {
+      throw new HttpException("Invalid pagination parameters", HttpStatus.BAD_REQUEST);
+    }
+
+    console.log(`Fetching posts for user: ${userId}, Page: ${page}, Page Size: ${size}`);
+
+    const posts = await this.PostSrv.getPosts(userId, size, page);
+
+    return res.status(200).json({ success: true, ...posts });
+
   } catch (error) {
     console.error("[GET_USER_POST_CTRL]:", error);
     throw new HttpException(
       error.message || "Internal Server Error",
-      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR
     );
   }
 }

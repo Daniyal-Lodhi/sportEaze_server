@@ -73,32 +73,45 @@ export class UserPostService {
     return savedPostWithMedia;
   }
 
-  async getPosts(userId: string): Promise<any[]> {
+  async getPosts(
+    userId: string,
+    pageSize: number,
+    pageNo: number
+  ): Promise<{ totalPosts: number; currentPage: number; totalPages: number; posts: any[] }> {
     await this.userSrv.getUser(userId);
   
-    console.log(userId);
+    console.log(`Fetching posts for user: ${userId}, Page: ${pageNo}, Page Size: ${pageSize}`);
   
-    const posts = await this.postRepository.find({
+    const [posts, totalPosts] = await this.postRepository.findAndCount({
       where: { userId },
-      relations: ["media", "likes", "comments"], // ✅ Include "comments" relation
+      relations: ["media", "likes", "comments"],
+      order: { createdAt: "DESC" }, // ✅ Fetch latest posts first
+      skip: (pageNo - 1) * pageSize, // ✅ Pagination logic
+      take: pageSize,
     });
   
-    console.log(posts);
+    console.log(`Total Posts Found: ${totalPosts}, Returned Posts: ${posts.length}`);
   
-    return posts.map(({ id, textContent, visibility, shareCount, media, likes, comments }) => ({
-      id,
-      textContent,
-      visibility,
-      shareCount,
-      media,
-      likeCount: likes?.length || 0, // ✅ Total number of likes
-      commentCount: comments?.length || 0, // ✅ Total number of comments
-      reactions: likes?.reduce((acc, { reactType }) => {
-        acc[reactType] = (acc[reactType] || 0) + 1;
-        return acc;
-      }, {} as Record<ReactTypeEnum, number>), // ✅ Reaction breakdown
-    }));
+    return {
+      totalPosts, // ✅ Total number of posts
+      currentPage: pageNo,
+      totalPages: Math.ceil(totalPosts / pageSize),
+      posts: posts.map(({ id, textContent, visibility, shareCount, media, likes, comments }) => ({
+        id,
+        textContent,
+        visibility,
+        shareCount,
+        media,
+        likeCount: likes?.length || 0, // ✅ Total number of likes
+        commentCount: comments?.length || 0, // ✅ Total number of comments
+        reactions: likes?.reduce((acc, { reactType }) => {
+          acc[reactType] = (acc[reactType] || 0) + 1;
+          return acc;
+        }, {} as Record<ReactTypeEnum, number>), // ✅ Reaction breakdown
+      })),
+    };
   }
+  
   
   
   

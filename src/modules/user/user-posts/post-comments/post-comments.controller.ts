@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Delete, Get, Param, Body, Req, UseGuards } from "@nestjs/common";
+import { Controller, Post, Put, Delete, Get, Param, Body, Req, UseGuards, Query } from "@nestjs/common";
 import { PostCommentsService } from "./post-comments.service";
 import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 
@@ -37,15 +37,26 @@ export class PostCommentsController {
     return this.postCommentsService.deleteComment(commentId, req.user.id);
   }
 
-  // ✅ Get All Comments for a Post 
-  @Get("comments/:postId")
-  async getComments(@Param("postId") postId: string) {
-    return await this.postCommentsService.getComments(postId);
-  }
+  // ✅ Get All Comments for a Post with Pagination
+@Get("comments/:postId")
+async getComments(
+  @Param("postId") postId: string,
+  @Query("pageSize") pageSize: number,
+  @Query("pageNo") pageNo: number
+) {
+  return await this.postCommentsService.getComments(postId, Number(pageSize), Number(pageNo));
+}
 
-  // ✅ Get replies of a specific comment
+
   @Get("comment/replies/:commentId")
-  async getCommentReplies(@Param("commentId") commentId: string) {
-    return await this.postCommentsService.getCommentReplies(commentId);
-  }
+async getCommentReplies(
+  @Param("commentId") commentId: string,
+  @Query("pageSize") pageSize: string,
+  @Query("pageNo") pageNo: string
+) {
+  const pageSizeNum = parseInt(pageSize, 10) || 10; // Default page size to 10 if not provided
+  const pageNoNum = parseInt(pageNo, 10) || 1; // Default to first page if not provided
+
+  return await this.postCommentsService.getCommentReplies(commentId, pageSizeNum, pageNoNum);
+}
 }

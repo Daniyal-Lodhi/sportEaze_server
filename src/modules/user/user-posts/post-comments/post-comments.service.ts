@@ -53,16 +53,19 @@ export class PostCommentsService {
   }
 
   // ✅ Get All Comments for a Post (Including Replies)
-  async getComments(postId: string) {
-    const comments = await this.commentRepository.find({
-      where: { postId, parentComment: null }, // Only fetch top-level comments
+  async getComments(postId: string, pageSize: number, pageNo: number) {
+    const [comments, commentCount] = await this.commentRepository.findAndCount({
+      where: { postId, parentComment: null }, // Fetch only top-level comments
       relations: ["user"],
+      order: { createdAt: "DESC" }, // Fetch latest comments first
+      skip: (pageNo - 1) * pageSize, // Pagination logic
+      take: pageSize,
     });
 
-    const commentCount = await this.commentRepository.count({ where: { postId } });
-
     return {
-      commentCount,
+      commentCount, // Total number of top-level comments
+      currentPage: pageNo,
+      totalPages: Math.ceil(commentCount / pageSize),
       comments: comments.map(comment => ({
         id: comment.id,
         content: comment.content,
@@ -73,20 +76,26 @@ export class PostCommentsService {
         },
       })),
     };
-  }
+}
+
 
   // ✅ Get replies of a specific comment
-  async getCommentReplies(commentId: string) {
+  async getCommentReplies(commentId: string, pageSize: number, pageNo: number) {
     const comment = await this.commentRepository.findOne({ where: { id: commentId } });
     if (!comment) throw new NotFoundException("Comment not found");
-
-    const replies = await this.commentRepository.find({
+  
+    const [replies, totalReplies] = await this.commentRepository.findAndCount({
       where: { parentComment: { id: commentId } },
       relations: ["user"],
+      order: { createdAt: "ASC" }, // ✅ Oldest replies first, change to "DESC" if needed
+      skip: (pageNo - 1) * pageSize, // ✅ Pagination logic
+      take: pageSize,
     });
-
+  
     return {
-      replyCount: replies.length,
+      totalReplies, // ✅ Total number of replies (for client-side pagination handling)
+      currentPage: pageNo,
+      totalPages: Math.ceil(totalReplies / pageSize),
       replies: replies.map(reply => ({
         id: reply.id,
         content: reply.content,
@@ -98,4 +107,5 @@ export class PostCommentsService {
       })),
     };
   }
+  
 }
