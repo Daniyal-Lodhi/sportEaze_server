@@ -41,10 +41,12 @@ export class PostCommentsController {
 @Get("comments/:postId")
 async getComments(
   @Param("postId") postId: string,
-  @Query("pageSize") pageSize: number,
-  @Query("pageNo") pageNo: number
+  @Query("pageSize") pageSize: string,
+  @Query("pageNo") pageNo: string
 ) {
-  return await this.postCommentsService.getComments(postId, Number(pageSize), Number(pageNo));
+  const pageSizeNum = parseInt(pageSize, 10) || 10; // Default page size to 10 if not provided
+  const pageNoNum = parseInt(pageNo, 10) || 1; 
+  return await this.postCommentsService.getComments(postId, Number(pageSizeNum), Number(pageNoNum));
 }
 
 
