@@ -6,7 +6,7 @@ import {
   Matches,
 } from "class-validator";
 import { GenderType } from "src/common/enums/gender-type.enum";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class UpdateUserDto {
   @ApiProperty({
@@ -20,8 +20,14 @@ export class UpdateUserDto {
   @IsOptional()
   name?: string;
 
+  @ApiPropertyOptional({
+    description: 'Optional username that must start with "@" and be at least 4 characters long.',
+    minLength: 4,
+    pattern: '^@',
+    example: '@exampleUser',
+  })
   @IsString()
-  @MinLength(3)
+  @MinLength(4, { message: 'Username must be at least 4 characters long.' })
   @IsOptional()
   @Matches(/^@/, { message: 'Username must start with @' })
   username?: string;
