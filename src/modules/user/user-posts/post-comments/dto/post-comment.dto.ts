@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CommentPostDto {
@@ -10,6 +10,9 @@ export class CommentPostDto {
   @IsNotEmpty()
   content: string;
 
+  @ApiPropertyOptional({
+    description: 'Id of the parent comment',
+    example: "uuid",})
   @IsString()
   @IsOptional()
   parentCommentId?: string;
