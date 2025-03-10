@@ -7,7 +7,7 @@ import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-@Controller("api/user/post")
+@Controller("api/user/post/shared-posts")
 export class SharedPostsController {
   constructor(private readonly sharedPostsService: SharedPostsService) {}
 

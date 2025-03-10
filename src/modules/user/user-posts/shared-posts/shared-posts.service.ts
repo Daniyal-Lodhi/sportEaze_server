@@ -32,10 +32,21 @@ export class SharedPostsService {
       shareMessage: createSharedPostDto.shareMessage,
     });
 
-    return this.sharedPostRepository.save(sharedPost);
+    this.sharedPostRepository.save(sharedPost);
+
+    return {
+        ...sharedPost,
+        user: undefined,
+        originalPost: {
+            ...sharedPost.originalPost,
+            likes: undefined,
+        }
+    }
   }
 
   async getSharedPostsByUserId(userId: string): Promise<SharedPost[]> {
+    await this.userSrv.getUser(userId); // Ensure the user exists
+    
     const sharedPosts = await this.sharedPostRepository.find({
         where: { user: { id: userId } },
         relations: [
@@ -73,7 +84,6 @@ export class SharedPostsService {
     const sharedPost = await this.sharedPostRepository.findOne({
         where: { id },
         relations: [
-            "user",
             "originalPost",
             "originalPost.user",
             "originalPost.media",
@@ -96,7 +106,8 @@ export class SharedPostsService {
 
         // Assign additional fields dynamically
         (sharedPost.originalPost as any).likeCount = likeCount;
-        (sharedPost.originalPost as any).reactions = reactions;
+        (sharedPost.originalPost as any).reactions = undefined;
+        (sharedPost.originalPost as any).likes = undefined;
     }
 
     return sharedPost;
