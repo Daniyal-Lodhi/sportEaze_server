@@ -17,9 +17,13 @@ export class SharedPost {
   id: string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: "userId" }) // will automatically create column
+  @JoinColumn({ name: "userId" })
+  user: User;
+
   @ManyToOne(() => UserPost)
   @JoinColumn({ name: "originalPostId" })
+  originalPost: UserPost;
+
   @Column({ nullable: true })
   shareMessage: string;
 

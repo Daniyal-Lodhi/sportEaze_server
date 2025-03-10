@@ -11,10 +11,16 @@ import { JwtService } from "@nestjs/jwt";
 import { PostLikesController } from "./post-likes/post-likes.controller";
 import { PostLikesService } from "./post-likes/post-likes.service";
 import { PostLikes } from "./entities/post-like.entity";
+import { SharedPostsController } from "./shared-posts/shared-posts.controller";
+import { SharedPostsService } from "./shared-posts/shared-posts.service";
+import { SharedPost } from "./entities/shared-post.entity";
+import { PostCommentsController } from "./post-comments/post-comments.controller";
+import { PostCommentsService } from "./post-comments/post-comments.service";
+import { Comment } from "./entities/post-comment.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User,PostLikes])],
-  controllers: [UserPostController,PostLikesController],
-  providers: [UserPostService, UserService, LocalAuthService, JwtService,PostLikesService],
+  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment])],
+  controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
+  providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService],
 })
-export class UserPostModule {}
+export class UserPostModule { }
