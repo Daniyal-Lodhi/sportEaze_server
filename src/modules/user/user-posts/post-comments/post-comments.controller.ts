@@ -1,6 +1,7 @@
 import { Controller, Post, Put, Delete, Get, Param, Body, Req, UseGuards, Query } from "@nestjs/common";
 import { PostCommentsService } from "./post-comments.service";
 import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
+import { CommentPostDto } from "./dto/post-comment.dto";
 
 
 @Controller("api/user/post")
@@ -13,10 +14,9 @@ export class PostCommentsController {
   async createComment(
     @Req() req,
     @Param("postId") postId: string,
-    @Body("content") content: string,
-    @Body("parentCommentId") parentCommentId?: string
+    @Body() body: CommentPostDto,
   ) {
-    return this.postCommentsService.createComment(req.user.id, postId, content, parentCommentId);
+    return this.postCommentsService.createComment(req.user.id, postId, body.content, body.parentCommentId);
   }
 
   // ✅ Edit a Comment or Reply
@@ -25,9 +25,9 @@ export class PostCommentsController {
   async editComment(
     @Req() req,
     @Param("commentId") commentId: string,
-    @Body("content") newContent: string
+    @Body() body: CommentPostDto
   ) {
-    return this.postCommentsService.editComment(commentId, req.user.id, newContent);
+    return this.postCommentsService.editComment(commentId, req.user.id, body.content);
   }
 
   // ✅ Delete a Comment or Reply
@@ -41,10 +41,12 @@ export class PostCommentsController {
 @Get("comments/:postId")
 async getComments(
   @Param("postId") postId: string,
-  @Query("pageSize") pageSize: number,
-  @Query("pageNo") pageNo: number
+  @Query("pageSize") pageSize: string,
+  @Query("pageNo") pageNo: string
 ) {
-  return await this.postCommentsService.getComments(postId, Number(pageSize), Number(pageNo));
+  const pageSizeNum = parseInt(pageSize, 10) || 10; // Default page size to 10 if not provided
+  const pageNoNum = parseInt(pageNo, 10) || 1; 
+  return await this.postCommentsService.getComments(postId, Number(pageSizeNum), Number(pageNoNum));
 }
 
 
