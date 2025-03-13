@@ -20,15 +20,17 @@ export class PostCommentsGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   async emitNewComment(postId: string, comment: any) {
+    // Post ID to determine to send new comments to all clients in the same post
+    // newComment is the event that the listner is listening for  
     this.server.to(postId).emit("newComment", comment);
   }
 
-  async emitEditComment(commentId: string, updatedContent: string) {
-    this.server.emit("editComment", { commentId, updatedContent });
+  async emitEditComment(postId: string, commentId: string, updatedContent: string) {
+    this.server.to(postId).emit("editComment", { commentId, updatedContent });
   }
 
-  async emitDeleteComment(commentId: string) {
-    this.server.emit("deleteComment", { commentId });
+  async emitDeleteComment(postId: string, commentId: string) {
+    this.server.to(postId).emit("deleteComment", { commentId });
   }
 
   @SubscribeMessage("joinPost")

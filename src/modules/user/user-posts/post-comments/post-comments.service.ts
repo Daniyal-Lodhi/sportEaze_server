@@ -43,7 +43,7 @@ export class PostCommentsService {
     comment.content = newContent;
     await this.commentRepository.save(comment);
 
-    this.postCommentsGateway.emitEditComment(commentId, newContent);
+    this.postCommentsGateway.emitEditComment(comment.postId, commentId, newContent);
 
     return { success: true, message: "Comment updated successfully", comment };
   }
@@ -55,7 +55,7 @@ export class PostCommentsService {
 
     await this.commentRepository.remove(comment);
 
-    this.postCommentsGateway.emitDeleteComment(commentId);
+    this.postCommentsGateway.emitDeleteComment(comment.postId, commentId);
 
     return { success: true, message: "Comment deleted successfully" };
   }
