@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { UserPost } from "../entities/user-post.entity";
 import { Comment } from "../entities/post-comment.entity";
 import { UserService } from "../../user.service";
+import { PostCommentsGateway } from "./post-comments.gateway";
 
 @Injectable()
 export class PostCommentsService {
@@ -12,7 +13,7 @@ export class PostCommentsService {
     private readonly postRepository: Repository<UserPost>,
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
-    private readonly userSrv: UserService
+    private readonly postCommentsGateway: PostCommentsGateway,
   ) {}
 
   // ✅ Create a Comment or Reply
@@ -29,6 +30,8 @@ export class PostCommentsService {
     const newComment = this.commentRepository.create({ userId, postId, content, parentComment });
     await this.commentRepository.save(newComment);
 
+    this.postCommentsGateway.emitNewComment(postId, newComment); // ✅ Emit new comment to all clients 
+
     return { success: true, message: "Comment added successfully", comment: newComment };
   }
 
@@ -40,6 +43,8 @@ export class PostCommentsService {
     comment.content = newContent;
     await this.commentRepository.save(comment);
 
+    this.postCommentsGateway.emitEditComment(commentId, newContent);
+
     return { success: true, message: "Comment updated successfully", comment };
   }
 
@@ -49,6 +54,9 @@ export class PostCommentsService {
     if (!comment) throw new NotFoundException("Comment not found or unauthorized");
 
     await this.commentRepository.remove(comment);
+
+    this.postCommentsGateway.emitDeleteComment(commentId);
+
     return { success: true, message: "Comment deleted successfully" };
   }
 
