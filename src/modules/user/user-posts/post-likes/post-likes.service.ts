@@ -7,6 +7,7 @@ import { UserService } from "../../user.service";
 import { UserType } from "src/common/enums/user-type.enum";
 import { PostLikes } from "../entities/post-like.entity";
 import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
+import { PostLikesGateway } from "./post-likes.gateway";
 
 @Injectable()
 export class PostLikesService {
@@ -15,7 +16,7 @@ export class PostLikesService {
     private readonly postRepository: Repository<UserPost>,
     @InjectRepository(PostLikes)
     private readonly likeRepository: Repository<PostLikes>,
-    private readonly userSrv: UserService,
+    private readonly postLikeGateway: PostLikesGateway
   ) {}
   async likePost(
     userId: string, 
@@ -57,6 +58,8 @@ export class PostLikesService {
     // Get the updated like count
     const likeCount = await this.likeRepository.count({ where: { postId } });
   
+    this.postLikeGateway.emitLikePost(postId, likeCount);
+
     return { liked: true, likeCount, reactType };
   }
 
