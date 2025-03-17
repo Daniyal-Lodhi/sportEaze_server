@@ -26,7 +26,7 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
-  @Post("/become-player")
+  @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async becomePlayer(@Body() UpdatePlayerDto: UpdatePlayerDto, @Request() req, @Response() res) {
@@ -57,7 +57,7 @@ export class PlayerController {
     }
   }
 
-  @Patch("/update-player")
+  @Patch()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async updatePlayer(
@@ -83,7 +83,7 @@ export class PlayerController {
     }
   }
 
-  @Get("/get-player")
+  @Get()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getPlayer(@Request() req, @Response() res) {
@@ -110,7 +110,7 @@ export class PlayerController {
     }
   }
 
-  @Patch("/add-social-media-links")
+  @Patch("/social-media-links")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async AddSocialMediaLink(
@@ -142,7 +142,7 @@ export class PlayerController {
     }
   }
 
-  @Delete("/delete-social-media-links")
+  @Delete("/social-media-links")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async deleteSocialMediaLink(
@@ -185,7 +185,7 @@ export class PlayerController {
     }
   }
 
-  @Get("/get-social-media-links")
+  @Get("/social-media-links")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getSocialMediaLinks(@Request() req, @Response() res) {
