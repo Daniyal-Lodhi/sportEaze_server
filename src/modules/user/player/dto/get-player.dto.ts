@@ -1,15 +1,15 @@
-import { IsInt, IsString } from "class-validator";
+import { IsEnum, IsInt, IsString } from "class-validator";
 import { Achievement } from "src/common/entities/achievement.entity";
 import { Contract } from "src/common/entities/contract.entity";
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
-import { Sport } from "src/common/entities/sport.entity";
+import { Sport } from "src/common/enums/sport.enum";
 import { User } from "src/modules/user/entities/user.entity";
 
 export class GetPlayerDto {
   @IsString()
   id: string;
 
-  @IsInt()
+  @IsEnum(Sport)
   preferredSport?: Sport;
 
   @IsInt()
@@ -22,7 +22,7 @@ export class GetPlayerDto {
   club: string;
 
   @IsString()
-  about: string;
+  bio: string;
 
   @IsString()
   FB_link: string;

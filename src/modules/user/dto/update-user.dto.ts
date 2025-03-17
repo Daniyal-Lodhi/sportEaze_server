@@ -8,31 +8,9 @@ import {
 } from "class-validator";
 import { GenderType } from "src/common/enums/gender-type.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Sport } from "src/common/enums/sport.enum";
 
 export class UpdateUserDto {
-  @ApiProperty({
-    description: "The name of the user. Must be at least 3 characters long.",
-    example: "John Doe",
-    required: false,
-    minLength: 3,
-  })
-  @IsString()
-  @MinLength(3)
-  @IsOptional()
-  name?: string;
-
-  @ApiPropertyOptional({
-    description: 'Optional username that must start with "@" and be at least 4 characters long.',
-    minLength: 4,
-    pattern: '^@',
-    example: '@exampleUser',
-  })
-  @IsString()
-  @MinLength(4, { message: 'Username must be at least 4 characters long.' })
-  @IsOptional()
-  @Matches(/^@/, { message: 'Username must start with @' })
-  username?: string;
-
   @ApiProperty({
     description:
       "The new password for the user. Must be at least 8 characters long with at least one uppercase letter and one special character.",
@@ -50,14 +28,36 @@ export class UpdateUserDto {
   password?: string;
 
   @ApiProperty({
-    description: "The gender of the user.",
-    example: GenderType.MALE,
+    description: "The URL of the user's profile picture.",
+    example: "https://example.com/profile.jpg",
     required: false,
-    enum: GenderType,
   })
+  @IsString()
   @IsOptional()
-  @IsEnum(GenderType)
-  gender?: GenderType;
+  profilePicUrl?: string;
+
+  @ApiProperty({
+    description: "The name of the user. Must be at least 3 characters long.",
+    example: "John Doe",
+    required: false,
+    minLength: 3,
+  })
+  @IsString()
+  @MinLength(3)
+  @IsOptional()
+  fullName?: string;
+
+  @ApiPropertyOptional({
+    description: 'Optional username that must start with "@" and be at least 4 characters long.',
+    minLength: 4,
+    pattern: '^@',
+    example: '@exampleUser',
+  })
+  @IsString()
+  @MinLength(4, { message: 'Username must be at least 4 characters long.' })
+  @IsOptional()
+  @Matches(/^@/, { message: 'Username must start with @' })
+  username?: string;
 
   @ApiProperty({
     description: "The date of birth of the user in ISO 8601 format.",
@@ -70,29 +70,40 @@ export class UpdateUserDto {
   dob?: Date;
 
   @ApiProperty({
-    description: "The city where the user resides.",
-    example: "Karachi",
+    description: "The gender of the user.",
+    example: GenderType.MALE,
     required: false,
+    enum: GenderType,
   })
-  @IsString()
   @IsOptional()
-  city?: string;
+  @IsEnum(GenderType)
+  gender?: GenderType;
 
   @ApiProperty({
-    description: "The country where the user resides.",
-    example: "Pakistan",
+    description: "The sports that the user is interested in.",
+    example: Sport.FOOTBALL,
     required: false,
+    enum: Sport,
   })
-  @IsString()
   @IsOptional()
-  country?: string;
+  @IsEnum(Sport)
+  sportsInterest?: Sport;
 
-  @ApiProperty({
-    description: "The URL of the user's profile picture.",
-    example: "https://example.com/profile.jpg",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  profilePicUrl?: string;
+  // @ApiProperty({
+  //   description: "The city where the user resides.",
+  //   example: "Karachi",
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // city?: string;
+
+  // @ApiProperty({
+  //   description: "The country where the user resides.",
+  //   example: "Pakistan",
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // country?: string;
 }

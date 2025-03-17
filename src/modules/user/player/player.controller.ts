@@ -29,7 +29,7 @@ export class PlayerController {
   @Post("/become-player")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async becomePlayer(@Request() req, @Response() res) {
+  async becomePlayer(@Body() UpdatePlayerDto: UpdatePlayerDto, @Request() req, @Response() res) {
     try {
       if (!req.user || !req.user.id) {
         throw new UnauthorizedException("Invalid user credentials");

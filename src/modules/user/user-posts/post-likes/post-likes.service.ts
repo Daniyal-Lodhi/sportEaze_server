@@ -81,7 +81,7 @@ export class PostLikesService {
     reactions,
     likes: likes.map(like => ({
       userId: like.user?.id,  // Only return user ID
-      userName: like.user?.name, // Only return user name
+      userName: like.user?.fullName, // Only return user name
     })),
   };
 }

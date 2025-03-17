@@ -16,7 +16,7 @@ export class CreateTextPostDTO {
   @IsNumber()
   @IsNotEmpty()
   @IsOptional()
-  postType:PostTypeEnum  = 0; 
+  postType: PostTypeEnum  = 1; 
 
   @ApiPropertyOptional({
     description: "The visibility setting for the post",

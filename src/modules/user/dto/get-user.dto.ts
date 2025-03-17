@@ -16,7 +16,7 @@ export class GetUserDto {
   @IsString()
   @IsOptional()
   @MinLength(3)
-  name?: string;
+  fullName?: string;
 
   @IsString()
   @MinLength(3)

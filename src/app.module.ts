@@ -17,9 +17,11 @@ import * as cookieParser from "cookie-parser";
 import { UserPostModule } from "./modules/user/user-posts/user-post.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { SportModule } from './modules/sport/sport.module';
 
 @Module({
   imports: [
+    SportModule,
     // LoggerModule,
     ConfigModule,
     DatabaseModule,
@@ -27,8 +29,8 @@ import { AppService } from "./app.service";
     LocalAuthModule,
     UserModule,
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService, LocalAuthService]
+  controllers: [AppController],
+  providers: [AppService]
 })
 export class AppModule {
 
