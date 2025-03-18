@@ -8,9 +8,9 @@ export class SportService {
       .filter((id) => typeof id === 'number')
       .reduce((sports, id) => {
         const sportName = this.getSportNameById(id as number);
-        sports[id] = { name: sportName, value: id };
+        sports[id] = { name: sportName };
         return sports;
-      }, {} as Record<number, { name: string; value: number }>);
+      }, {} as Record<number, { name: string;  }>);
   }
 
   private getSportNameById(id: number): string {
