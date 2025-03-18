@@ -13,9 +13,9 @@ export class Contract {
   @PrimaryGeneratedColumn("increment")
   contractId?: number;
 
-  @ManyToOne(() => Player, (player) => player.contracts)
-  @JoinColumn({ name: "playerId" })
-  player: Player;
+  // @ManyToOne(() => Player, (player) => player.contracts)
+  // @JoinColumn({ name: "playerId" })
+  // player: Player;
 
   // @ManyToOne(() => Patron, (patron) => patron.contracts)
   // @JoinColumn({ name: "patronId" })

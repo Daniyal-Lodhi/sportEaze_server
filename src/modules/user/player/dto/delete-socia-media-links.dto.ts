@@ -8,7 +8,7 @@ export class DeleteSocialMediaDto {
   })
   @IsBoolean()
   @IsOptional()
-  Delete_FB_link?: boolean;
+  deleteFbLink?: boolean;
 
   @ApiPropertyOptional({
     description: "Flag to indicate if the Instagram link should be deleted",
@@ -16,7 +16,7 @@ export class DeleteSocialMediaDto {
   })
   @IsBoolean()
   @IsOptional()
-  Delete_INSTA_link?: boolean;
+  deleteInstaLink?: boolean;
 
   @ApiPropertyOptional({
     description:
@@ -25,5 +25,5 @@ export class DeleteSocialMediaDto {
   })
   @IsBoolean()
   @IsOptional()
-  Delete_X_link?: boolean;
+  deleteXLink?: boolean;
 }

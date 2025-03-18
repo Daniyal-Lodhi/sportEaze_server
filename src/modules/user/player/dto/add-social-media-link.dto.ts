@@ -11,7 +11,7 @@ export class AddSocialMediaLinkDto {
   @IsOptional()
   @IsUrl()
   @Length(1, 255)
-  FB_link?: string;
+  fbLink?: string;
 
   @ApiPropertyOptional({
     description: "Instagram profile link",
@@ -22,7 +22,7 @@ export class AddSocialMediaLinkDto {
   @IsOptional()
   @IsUrl()
   @Length(1, 255)
-  INSTA_link?: string;
+  instaLink?: string;
 
   @ApiPropertyOptional({
     description: "X (formerly Twitter) profile link",
@@ -33,5 +33,5 @@ export class AddSocialMediaLinkDto {
   @IsOptional()
   @IsUrl()
   @Length(1, 255)
-  X_link?: string;
+  xLink?: string;
 }

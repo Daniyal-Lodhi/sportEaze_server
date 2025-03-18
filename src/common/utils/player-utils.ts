@@ -7,18 +7,18 @@ export function HandleDeleteSocialMediaLink(
 ): string {
   let msg: string = "Deleted ";
 
-  if (deleteSocialMediaLinkDto.Delete_FB_link) {
-    player.FB_link = null;
+  if (deleteSocialMediaLinkDto.deleteFbLink) {
+    player.fbLink = null;
     msg += "Facebook, ";
   }
 
-  if (deleteSocialMediaLinkDto.Delete_INSTA_link) {
-    player.INSTA_link = null;
+  if (deleteSocialMediaLinkDto.deleteInstaLink) {
+    player.instaLink = null;
     msg += "Instagram, ";
   }
 
-  if (deleteSocialMediaLinkDto.Delete_X_link) {
-    player.X_link = null;
+  if (deleteSocialMediaLinkDto.deleteXLink) {
+    player.xLink = null;
     msg += "X, ";
   }
 

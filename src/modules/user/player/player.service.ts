@@ -15,56 +15,53 @@ import { GetPlayerDto } from "./dto/get-player.dto";
 import { AddSocialMediaLinkDto } from "./dto/add-social-media-link.dto";
 import { DeleteSocialMediaDto } from "./dto/delete-socia-media-links.dto";
 import { HandleDeleteSocialMediaLink } from "src/common/utils/player-utils";
+import { RegisterPlayerDto } from "./dto/register-player.dto";
 
 @Injectable()
 export class PlayerService {
   constructor(
     private readonly userService: UserService,
-    @InjectRepository(User) private readonly userrRepository: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Player)
     private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async ChangeUserTypeToPlayer(id: string): Promise<GetUserDto> {
-    const user = await this.userrRepository.findOne({ where: { id } });
+  async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetPlayerDto> {
+    const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user || user.deleted) {
-      throw new NotFoundException(`User not found`);
+        throw new NotFoundException(`User not found`);
     }
 
     if (user.userType !== UserType.FAN) {
-      throw new ConflictException(
-        `Since this account is registered as ${user.userType}, you cannot change it to a player`,
-      );
+        throw new ConflictException(
+            `Since this account is registered as ${UserType[user.userType]}, you cannot change it to a player`,
+        );
     }
 
-    user.userType = UserType.PLAYER;
-    await this.userrRepository.save(user);
+    const { profilePicUrl, fullName, username, dob, gender, ...playerDetails } = registerPlayerDto;
 
-    return await this.create(id);
-  }
-
-  async create(id: string): Promise<GetUserDto> {
-    const existingPlayer = await this.playerRepository.findOne({
-      where: { id },
+    await this.userRepository.save({
+        ...user,
+        userType: UserType.PLAYER,
+        profilePicUrl,
+        fullName,
+        username,
+        dob,
+        gender
     });
 
-    if (existingPlayer) {
-      throw new ConflictException("This user is already a player");
-    }
-
-    const player = new Player();
-    player.id = id;
+    const player = Object.assign(new Player(), { id, ...playerDetails });
 
     await this.playerRepository.save(player);
-    
-    return await this.userService.getUser(id);
+
+    return this.getPlayer(id);
   }
 
   async getPlayer(id: string): Promise<GetPlayerDto> {
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ["achievements", "contracts", "preferredSport", "user"],
+      relations: ["user"],
     });
 
     if (!player) {
@@ -95,12 +92,25 @@ export class PlayerService {
 
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ["achievements", "contracts", "preferredSport"],
     });
 
     if (!player) {
       throw new NotFoundException(`Player with ID ${id} not found`);
     }
+
+
+    const { profilePicUrl, fullName, dob, gender, ...playerDetails } = updatePlayerDto;
+
+    const user = {
+      profilePicUrl,
+      fullName,
+      dob,
+      gender
+    };
+
+    await this.userRepository.save({
+      ...user
+    });
 
     Object.assign(player, updatePlayerDto);
 
@@ -182,9 +192,9 @@ export class PlayerService {
     }
 
     return {
-      FB_link: player.FB_link,
-      INSTA_link: player.INSTA_link,
-      X_link: player.X_link,
+      fbLink: player.fbLink,
+      instaLink: player.instaLink,
+      xLink: player.xLink,
     };
   }
 }

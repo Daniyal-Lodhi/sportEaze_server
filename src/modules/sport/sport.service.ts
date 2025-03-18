@@ -6,19 +6,20 @@ export class SportService {
   getAllSports() {
     return Object.values(Sport)
       .filter((id) => typeof id === 'number')
-      .map((id) => ({
-        id: id,
-        name: this.getSportNameById(id as number),
-      }));
+      .reduce((sports, id) => {
+        const sportName = this.getSportNameById(id as number);
+        sports[id] = { name: sportName, value: id };
+        return sports;
+      }, {} as Record<number, { name: string; value: number }>);
   }
 
-  private getSportNameById(id: number) {
+  private getSportNameById(id: number): string {
     const sportName = Object.keys(Sport).find(
       (key) => Sport[key as keyof typeof Sport] === id,
     );
-  
+
     if (!sportName) return null;
-  
+
     // Convert "TABLE_TENNIS" to "Table Tennis"
     return sportName
       .replace(/_/g, ' ') // Replace underscore with space

@@ -21,9 +21,9 @@ export class Achievement {
   @Column({ type: "date" })
   dateAchieved: Date;
 
-  @ManyToOne(() => Player, (player) => player.achievements)
-  @JoinColumn({ name: "playerId" })
-  player: Player;
+  // @ManyToOne(() => Player, (player) => player.achievements)
+  // @JoinColumn({ name: "playerId" })
+  // player: Player;
 }
 
 /** Explanation:

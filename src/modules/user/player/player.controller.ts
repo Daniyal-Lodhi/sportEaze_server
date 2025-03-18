@@ -21,6 +21,7 @@ import { GetPlayerDto } from "./dto/get-player.dto";
 import { AddSocialMediaLinkDto } from "./dto/add-social-media-link.dto";
 import { DeleteSocialMediaDto } from "./dto/delete-socia-media-links.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { RegisterPlayerDto } from "./dto/register-player.dto";
 
 @Controller("api/user/player")
 export class PlayerController {
@@ -29,32 +30,22 @@ export class PlayerController {
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async becomePlayer(@Body() UpdatePlayerDto: UpdatePlayerDto, @Request() req, @Response() res) {
-    try {
-      if (!req.user || !req.user.id) {
-        throw new UnauthorizedException("Invalid user credentials");
-      }
-
-      const { id } = req.user;
-
-      const player = await this.playerService.ChangeUserTypeToPlayer(id);
-
-      if (!player) {
-        throw new BadRequestException("Failed to change user type to player");
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "This user is now a player",
-        player,
-      });
-    } catch (error) {
-      console.error("[BECOME_PLAYER_CTRL]:", error);
-      throw new HttpException(
-        error.message || "Internal Server Error",
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+  async becomePlayer(@Body() registerPlayerDto: RegisterPlayerDto, @Request() req) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
     }
+
+    const player = await this.playerService.RegisterPlayer(req.user.id, registerPlayerDto);
+
+    if (!player) {
+      throw new BadRequestException("Failed to change user type to player");
+    }
+
+    return {
+      success: true,
+      message: "This user is now a player",
+      player,
+    };
   }
 
   @Patch()
@@ -152,9 +143,9 @@ export class PlayerController {
   ) {
     try {
       const isEmpty =
-        !deleteSocialMediaLinkDto.Delete_FB_link &&
-        !deleteSocialMediaLinkDto.Delete_INSTA_link &&
-        !deleteSocialMediaLinkDto.Delete_X_link;
+        !deleteSocialMediaLinkDto.deleteFbLink &&
+        !deleteSocialMediaLinkDto.deleteInstaLink &&
+        !deleteSocialMediaLinkDto.deleteXLink;
 
       if (isEmpty) {
         throw new BadRequestException("No social media link provided");
