@@ -79,15 +79,17 @@ export class UpdateUserDto {
   @IsEnum(GenderType)
   gender?: GenderType;
 
-  @ApiProperty({
-    description: "The sports that the user is interested in.",
-    example: Sport.FOOTBALL,
-    required: false,
-    enum: Sport,
-  })
-  @IsOptional()
-  @IsEnum(Sport)
-  sportsInterest?: Sport;
+ @ApiProperty({
+  description: "The sports that the user is interested in.",
+  example: [Sport.FOOTBALL, Sport.CRICKET],
+  required: false,
+  isArray: true,
+  enum: Sport,
+})
+@IsOptional()
+@IsEnum(Sport, { each: true })
+sportInterests?: Sport[];
+
 
   // @ApiProperty({
   //   description: "The city where the user resides.",

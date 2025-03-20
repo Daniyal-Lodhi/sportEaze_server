@@ -40,8 +40,8 @@ export class User {
   @Column({ type: "enum", enum: GenderType, nullable: true })
   gender?: GenderType;
   
-  @Column({ type: "enum", enum: Sport, nullable: true })
-  sportsInterest: Sport;
+  @Column({ type: "enum", array: true, enum: Sport, nullable: true })
+  sportInterests?: Sport[];
 
   @Column({ type: "enum", enum: UserType, nullable: true })
   userType?: UserType;
