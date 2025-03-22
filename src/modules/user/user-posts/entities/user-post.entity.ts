@@ -12,7 +12,7 @@ import { User } from "../../entities/user.entity";
 import { PostMedia } from "./post-media.entity";
 import { PostLikes } from "./post-like.entity";
 import { Comment } from "./post-comment.entity";
-import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 
 @Entity("Posts")
 export class UserPost {

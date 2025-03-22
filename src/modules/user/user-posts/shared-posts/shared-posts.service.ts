@@ -7,7 +7,7 @@ import { UserPostService } from '../user-post.service';
 import { GetPostDTO } from '../dto/get-post.dto';
 import { SharedPost } from '../entities/shared-post.entity';
 import { Repository } from 'typeorm';
-import { PostVisibilityEnum, ReactTypeEnum } from 'src/common/enums/user-posts.enum';
+import { PostVisibilityEnum, ReactTypeEnum } from 'src/common/enums/post/user-posts.enum';
 import { UserPost } from '../entities/user-post.entity';
 import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
 import { share } from 'rxjs';

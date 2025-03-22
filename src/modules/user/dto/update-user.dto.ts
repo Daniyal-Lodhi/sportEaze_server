@@ -6,9 +6,9 @@ import {
   Matches,
   IsEnum,
 } from "class-validator";
-import { GenderType } from "src/common/enums/gender-type.enum";
+import { GenderType } from "src/common/enums/user/gender-type.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Sport } from "src/common/enums/sport.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
 
 export class UpdateUserDto {
   @ApiProperty({

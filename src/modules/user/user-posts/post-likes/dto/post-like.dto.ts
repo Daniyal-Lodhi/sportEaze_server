@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
-import { ReactTypeEnum } from 'src/common/enums/user-posts.enum';
+import { ReactTypeEnum } from 'src/common/enums/post/user-posts.enum';
 
 export class LikePostDto {
   @ApiPropertyOptional({

@@ -2,7 +2,7 @@ import {
     IsEnum,
   } from "class-validator";
   import { ApiProperty } from "@nestjs/swagger";
-  import { Sport } from "src/common/enums/sport.enum";
+  import { Sport } from "src/common/enums/sport/sport.enum";
 import { BaseUserDto } from "./base-user.dto";
   
   

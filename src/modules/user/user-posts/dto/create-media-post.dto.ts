@@ -8,7 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
-import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 import { PostMediaDTO } from "./post-media.dto";
 import { PostLikesDTO } from "./post-likes.dto";
 import { CommentDTO } from "./post-comments.dto";

@@ -12,7 +12,7 @@ import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
 import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { hashPassword } from "src/common/utils/user-utils";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { GetUserDto } from "./dto/get-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";

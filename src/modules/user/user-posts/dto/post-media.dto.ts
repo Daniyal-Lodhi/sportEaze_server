@@ -8,7 +8,7 @@ import {
   Min,
   MinLength,
 } from "class-validator";
-import { MediaType } from "src/common/enums/user-posts.enum"; // Enum for MediaType
+import { MediaType } from "src/common/enums/post/user-posts.enum"; // Enum for MediaType
 
 export class PostMediaDTO {
   @ApiProperty({

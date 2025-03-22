@@ -1,5 +1,5 @@
 import { IsUUID, IsBoolean, IsEnum, IsOptional } from "class-validator";
-import { ReactTypeEnum } from "src/common/enums/user-posts.enum"; // Import the enum for react types
+import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum"; // Import the enum for react types
 
 export class PostLikesDTO {
   @IsUUID()

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsString, IsBoolean, IsOptional, IsArray, Length, IsUrl } from "class-validator";
-import { Sport } from "src/common/enums/sport.enum";
-import { PlayingLevel } from "src/common/enums/playing-levels.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
+import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 import { BaseUserDto } from "../../dto/base-user.dto";
 
 export class RegisterPlayerDto extends BaseUserDto {

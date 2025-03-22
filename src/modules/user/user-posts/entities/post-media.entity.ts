@@ -1,4 +1,4 @@
-import { MediaType } from "src/common/enums/user-posts.enum";
+import { MediaType } from "src/common/enums/post/user-posts.enum";
 import {
   Column,
   Entity,

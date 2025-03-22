@@ -1,5 +1,5 @@
-import { GenderType } from "src/common/enums/gender-type.enum";
-import { UserType } from "src/common/enums/user-type.enum";
+import { GenderType } from "src/common/enums/user/gender-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { Player } from "src/modules/user/player/entities/player.entity";
 import {
   Entity,
@@ -12,7 +12,7 @@ import {
 } from "typeorm";
 import { UserPost } from "../user-posts/entities/user-post.entity";
 import { SharedPost } from "../user-posts/entities/shared-post.entity";
-import { Sport } from "src/common/enums/sport.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {

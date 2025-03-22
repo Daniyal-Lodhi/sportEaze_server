@@ -16,7 +16,7 @@ import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/local-auth/jwt-auth.guard";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { LoginUserDto } from "./dto/login-user.dto";
 

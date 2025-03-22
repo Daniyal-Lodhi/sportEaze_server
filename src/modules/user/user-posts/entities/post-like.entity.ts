@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { UserPost } from "./user-post.entity";
 import { User } from "../../entities/user.entity";
-import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
+import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 
 @Entity("PostLikes")
 export class PostLikes {

@@ -1,8 +1,8 @@
-import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 import { PostMediaDTO } from "./post-media.dto";
 import { CommentDTO } from "./post-comments.dto";
 import { IsNumber, IsString } from "class-validator";
-import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
+import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 
 export class GetPostDTO {
   @IsString()
