@@ -10,61 +10,54 @@ import { User } from "../../user/entities/user.entity";
 import { Player } from "./entities/player.entity";
 import { UserType } from "src/common/enums/user-type.enum";
 import { UserService } from "../../user/user.service";
-import { GetUserDto } from "../../user/dto/get-user.dto";
 import { GetPlayerDto } from "./dto/get-player.dto";
-import { AddSocialMediaLinkDto } from "./dto/add-social-media-link.dto";
-import { DeleteSocialMediaDto } from "./dto/delete-socia-media-links.dto";
-import { HandleDeleteSocialMediaLink } from "src/common/utils/player-utils";
+import { RegisterPlayerDto } from "./dto/register-player.dto";
 
 @Injectable()
 export class PlayerService {
   constructor(
     private readonly userService: UserService,
-    @InjectRepository(User) private readonly userrRepository: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Player)
     private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async ChangeUserTypeToPlayer(id: string): Promise<GetUserDto> {
-    const user = await this.userrRepository.findOne({ where: { id } });
+  async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetPlayerDto> {
+    const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user || user.deleted) {
-      throw new NotFoundException(`User not found`);
+        throw new NotFoundException(`User not found`);
     }
 
     if (user.userType !== UserType.FAN) {
-      throw new ConflictException(
-        `Since this account is registered as ${user.userType}, you cannot change it to a player`,
-      );
+        throw new ConflictException(
+            `Since this account is registered as ${UserType[user.userType]}, you cannot change it to a player`,
+        );
     }
 
-    user.userType = UserType.PLAYER;
-    await this.userrRepository.save(user);
+    const { profilePicUrl, fullName, username, dob, gender, ...playerDetails } = registerPlayerDto;
 
-    return await this.create(id);
-  }
-
-  async create(id: string): Promise<GetUserDto> {
-    const existingPlayer = await this.playerRepository.findOne({
-      where: { id },
+    await this.userRepository.save({
+        ...user,
+        userType: UserType.PLAYER,
+        profilePicUrl,
+        fullName,
+        username,
+        dob,
+        gender
     });
 
-    if (existingPlayer) {
-      throw new ConflictException("This user is already a player");
-    }
-
-    const player = new Player();
-    player.id = id;
+    const player = Object.assign(new Player(), { id, ...playerDetails });
 
     await this.playerRepository.save(player);
-    
-    return await this.userService.getUser(id);
+
+    return this.getPlayer(id);
   }
 
   async getPlayer(id: string): Promise<GetPlayerDto> {
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ["achievements", "contracts", "preferredSport", "user"],
+      relations: ["user"],
     });
 
     if (!player) {
@@ -91,100 +84,35 @@ export class PlayerService {
     id: string,
     updatePlayerDto: UpdatePlayerDto,
   ): Promise<GetPlayerDto> {
-    await this.userService.getUser(id);
-
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ["achievements", "contracts", "preferredSport"],
+      relations: ['user'],
     });
-
+  
     if (!player) {
       throw new NotFoundException(`Player with ID ${id} not found`);
     }
+  
+    if (player.user) {
+      Object.assign(player.user, {
+        profilePicUrl: updatePlayerDto.profilePicUrl ?? player.user.profilePicUrl,
+        fullName: updatePlayerDto.fullName ?? player.user.fullName,
+        dob: updatePlayerDto.dob ?? player.user.dob,
+        gender: updatePlayerDto.gender ?? player.user.gender,
+      });
 
-    Object.assign(player, updatePlayerDto);
-
+      await this.userRepository.save(player.user);
+    }
+  
+    const playerUpdates = { ...updatePlayerDto };
+    delete playerUpdates.profilePicUrl;
+    delete playerUpdates.fullName;
+    delete playerUpdates.dob;
+    delete playerUpdates.gender;
+  
+    Object.assign(player, playerUpdates);
     const updatedPlayer = await this.playerRepository.save(player);
-
-    console.log(updatedPlayer);
-
-    const sanitizedPlayer: GetPlayerDto = {
-      ...updatedPlayer,
-      id: undefined,
-    };
-
-    return sanitizedPlayer;
-  }
-
-  async addPlayerLink(
-    id: string,
-    addSocialMediaLinkDto: AddSocialMediaLinkDto,
-  ): Promise<GetPlayerDto> {
-    await this.userService.getUser(id);
-
-    const player = await this.playerRepository.findOne({ where: { id } });
-
-    if (!player) {
-      throw new NotFoundException("This user is not a player");
-    }
-
-    Object.assign(player, addSocialMediaLinkDto);
-
-    console.log(player);
-
-    const updatedPlayer: GetPlayerDto =
-      await this.playerRepository.save(player);
-    console.log(updatedPlayer);
-
-    const sanitizedPlayer: GetPlayerDto = {
-      ...updatedPlayer,
-      id: undefined,
-    };
-
-    return sanitizedPlayer;
-  }
-
-  async deletePlayerLink(
-    id: string,
-    deleteSocialMediaLinkDto: DeleteSocialMediaDto,
-  ): Promise<string> {
-    await this.userService.getUser(id);
-
-    const player = await this.playerRepository.findOne({ where: { id } });
-
-    if (!player) {
-      throw new NotFoundException("This user is not a player");
-    }
-
-    const response = HandleDeleteSocialMediaLink(
-      deleteSocialMediaLinkDto,
-      player,
-    );
-
-    console.log(player);
-
-    const updatedPlayer: GetPlayerDto =
-      await this.playerRepository.save(player);
-    console.log(updatedPlayer);
-
-    if (updatedPlayer) {
-      return response;
-    } else return "Cannot Save player after deleting";
-  }
-
-  async getPlayerLink(id: string): Promise<AddSocialMediaLinkDto> {
-    await this.userService.getUser(id);
-
-    const player = await this.getPlayer(id);
-
-    if (!player) {
-      throw new NotFoundException("This user is not a player");
-    }
-
-    return {
-      FB_link: player.FB_link,
-      INSTA_link: player.INSTA_link,
-      X_link: player.X_link,
-    };
+  
+    return updatedPlayer as GetPlayerDto;
   }
 }

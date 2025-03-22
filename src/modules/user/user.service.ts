@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -13,6 +14,8 @@ import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { hashPassword } from "src/common/utils/user-utils";
 import { UserType } from "src/common/enums/user-type.enum";
 import { GetUserDto } from "./dto/get-user.dto";
+import { LoginUserDto } from "./dto/login-user.dto";
+import { RegisterUserDto } from "./dto/register-user.dto";
 
 @Injectable()
 export class UserService {
@@ -51,30 +54,30 @@ export class UserService {
     return accessToken;
   }
 
-  async loginUser(userCredentials: CreateUserDto): Promise<[string, UserType]> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<[string, UserType]> {
     const user = await this.userRepository.findOne({
-      where: { email: userCredentials.email },
+      where: { email: loginUserDto.email },
     });
     // checkng if user exist
     if (!user) {
       throw new NotFoundException("Invalid credentials");
     }
     // asking for recover and sending error if user is flagged deleted
-    if (user && user.deleted && !userCredentials.recover) {
+    if (user && user.deleted && !loginUserDto.recover) {
       throw new ConflictException(
         "This account was deleted, send an additional field 'recover:true' for account recovery.",
       );
     }
     // setting delete flag to false
-    if (userCredentials.recover && user.deleted) {
+    if (loginUserDto.recover && user.deleted) {
       await this.userRepository.save({
         ...user,
         deleted: false,
       });
     }
     const validPwd: boolean = await this.localAuthSrv.verifyPassword(
-      userCredentials.email,
-      userCredentials.password,
+      loginUserDto.email,
+      loginUserDto.password,
     );
     if (!validPwd) {
       throw new UnauthorizedException("Invalid credentials");
@@ -100,35 +103,37 @@ export class UserService {
 
   async updateUser(
     id: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: RegisterUserDto | UpdateUserDto,
   ): Promise<GetUserDto> {
-    if (updateUserDto.password) {
-      const hashedPass = await hashPassword(updateUserDto.password);
-      updateUserDto.password = hashedPass;
-    }
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
+    const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     if (user.deleted) {
       throw new ConflictException(
-        "This account was deleted, log in to this account for recvoery options",
+        'This account was deleted, log in to this account for recovery options',
       );
     }
 
-    const updatedUser = await this.userRepository.save({ 
-      ...user,
-      ...updateUserDto,
-    });
+    let updatedData;
+    if ('password' in updateUserDto) {
+      updatedData = { ...updateUserDto };
+      updatedData.password = await hashPassword(updateUserDto.password);
+    }
+    else updatedData = { ...updateUserDto };
 
-    const { password, ...updatedUserWoPass } = updateUserDto;
-    console.log(updatedUserWoPass);
-
-    return updatedUserWoPass as GetUserDto;
+    try {
+      const updatedUser = await this.userRepository.save({
+        ...user,
+        ...updatedData,
+      });
+      return updatedUser as GetUserDto;
+    } catch (error) {
+      console.error('[UPDATE_USER_SERVICE]:', error);
+      throw new InternalServerErrorException('Failed to update user');
+    }
   }
 
   async deleteUser(id: string): Promise<boolean> {

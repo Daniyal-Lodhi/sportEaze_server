@@ -1,24 +1,25 @@
 export enum PostTypeEnum {
-  Text = 0,
-  Media = 1,
+  Text = 1,
+  Media = 2,
 }
 export enum PostVisibilityEnum {
-  PUBLIC = 0,
-  PRIVATE = 1,
-  FOLLOWERS_ONLY = 2,
+  PUBLIC = 1,
+  PRIVATE = 2,
+  FOLLOWERS_ONLY = 3,
 }
 
 export enum ReactTypeEnum {
-  LIKE = 0,
-  HEART = 1,
-  LAUGH = 2,
-  SAD = 3,
-  WOW = 4,
-  Support= 5, 
-  Angry=6,
+  LIKE = 1,
+  HEART = 2,
+  LAUGH = 3,
+  SAD = 4,
+  WOW = 5,
+  Support= 6, 
+  Angry = 7,
 }
 
 export enum MediaType {
-  IMG = 0,
-  VIDEO = 1,
+  IMG = 1,
+  VIDEO = 2,
+  DOCUMENT = 3 
 }

@@ -7,14 +7,13 @@ import {
   Matches,
 } from "class-validator";
 
-export class CreateUserDto {
+export class LoginUserDto {
   @ApiProperty({
     description: "The email address of the user.",
     example: "user@example.com",
   })
   @IsEmail()
   email: string;
-  
   @ApiProperty({
     description:
       "The user's password. Must be at least 8 characters long, with at least one uppercase letter and one special character.",
@@ -28,4 +27,13 @@ export class CreateUserDto {
   })
   password: string;
 
+  @ApiProperty({
+    description: "Flag indicating whether this is a recovery operation.",
+    example: false,
+    required: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  recover: boolean = false;
 }

@@ -1,6 +1,6 @@
 export enum ContractStatus {
-  INITIATED = 0,
-  ACCEPTED = 1,
-  ONGOING = 2,
-  COMPLETED = 3,
+  INITIATED = 1,
+  ACCEPTED = 2,
+  ONGOING = 3,
+  COMPLETED = 4,
 }

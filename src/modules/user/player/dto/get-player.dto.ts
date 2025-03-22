@@ -1,43 +1,56 @@
-import { IsInt, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsString } from "class-validator";
 import { Achievement } from "src/common/entities/achievement.entity";
 import { Contract } from "src/common/entities/contract.entity";
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
-import { Sport } from "src/common/entities/sport.entity";
+import { PlayingLevel } from "src/common/enums/playing-levels.enum";
+import { Sport } from "src/common/enums/sport.enum";
 import { User } from "src/modules/user/entities/user.entity";
 
 export class GetPlayerDto {
   @IsString()
   id: string;
 
-  @IsInt()
-  preferredSport?: Sport;
+  @IsEnum(Sport)
+  primarySport?: Sport;
+ 
+  @IsEnum(Sport)
+  secondarySports?: Sport[];
+
+  @IsEnum(PlayingLevel)
+  playingLevel?: PlayingLevel;
+
+  @IsString()
+  currentTeam?: string;
+
+  @IsString()
+  coachName?: string;
+  
+  @IsString()
+  playerBio?: string;
+
+  @IsString()
+  trainingLocation?: string;
 
   @IsInt()
   rank?: number;
 
   @IsString()
-  region: string;
+  fbLink?: string;
 
   @IsString()
-  club: string;
+  instaLink?: string;
 
   @IsString()
-  about: string;
+  xLink?: string;
 
-  @IsString()
-  FB_link: string;
+  @IsBoolean()
+  availableForSponsorship?: boolean;
 
-  @IsString()
-  INSTA_link: string;
+  // achievements?: Achievement[];
 
-  @IsString()
-  X_link: string;
+  // contracts?: Contract[];
 
-  achievements?: Achievement[];
-
-  contracts?: Contract[];
-
-  ratingAndReviews: RatingAndReview[];
+  // ratingAndReviews: RatingAndReview[];
 
   user: User;
 }

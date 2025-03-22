@@ -72,7 +72,7 @@ export class PostCommentsService {
         createdAt: comment.createdAt,
         user: {
           userId: comment.user.id,
-          userName: comment.user.name,
+          userName: comment.user.fullName,
         },
       })),
     };
@@ -102,7 +102,7 @@ export class PostCommentsService {
         createdAt: reply.createdAt,
         user: {
           userId: reply.user.id,
-          userName: reply.user.name,
+          userName: reply.user.fullName,
         },
       })),
     };

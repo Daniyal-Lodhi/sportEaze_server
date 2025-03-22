@@ -1,19 +1,25 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Redirect } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { ConfigService } from "@nestjs/config";
 import { ApiExcludeController } from "@nestjs/swagger";
 
 @ApiExcludeController()
-@Controller()
+@Controller("")
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private configS: ConfigService,
   ) {}
-
+  
   @Get()
   getHello(): string {
-    console.log(this.configS.get("name"));
     return this.appService.getHello();
   }
+  
+  @Get("/project/architecture")
+  @Redirect("https://www.tldraw.com/f/1SWocUy7SNWS7Fgg2oTwk")
+  getArchitecture(): void { }
+
+  @Get("/project/design")
+  @Redirect("https://www.figma.com/design/FbSXKNiuvmIfHlXj2XYeT5")
+  getDesign(): void { }
 }
