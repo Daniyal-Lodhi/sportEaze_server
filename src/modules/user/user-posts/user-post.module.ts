@@ -17,10 +17,12 @@ import { SharedPost } from "./entities/shared-post.entity";
 import { PostCommentsController } from "./post-comments/post-comments.controller";
 import { PostCommentsService } from "./post-comments/post-comments.service";
 import { Comment } from "./entities/post-comment.entity";
+import { PostCommentsGateway } from "./post-comments/post-comments.gateway";
+import { PostLikesGateway } from "./post-likes/post-likes.gateway";
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment])],
   controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
-  providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService],
+  providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService, PostCommentsGateway, PostLikesGateway],
 })
 export class UserPostModule { }

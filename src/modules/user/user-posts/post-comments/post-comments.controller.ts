@@ -2,6 +2,7 @@ import { Controller, Post, Put, Delete, Get, Param, Body, Req, UseGuards, Query 
 import { PostCommentsService } from "./post-comments.service";
 import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 import { CommentPostDto } from "./dto/post-comment.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 
 @Controller("api/user/post")
@@ -9,6 +10,7 @@ export class PostCommentsController {
   constructor(private readonly postCommentsService: PostCommentsService) {}
 
   // ✅ Create a Comment or Reply
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post("comment/:postId")
   async createComment(
@@ -21,6 +23,7 @@ export class PostCommentsController {
 
   // ✅ Edit a Comment or Reply
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Put("comment/:commentId")
   async editComment(
     @Req() req,
@@ -32,6 +35,7 @@ export class PostCommentsController {
 
   // ✅ Delete a Comment or Reply
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete("comment/:commentId")
   async deleteComment(@Req() req, @Param("commentId") commentId: string) {
     return this.postCommentsService.deleteComment(commentId, req.user.id);
@@ -50,7 +54,7 @@ async getComments(
 }
 
 
-  @Get("comment/replies/:commentId")
+@Get("comment/replies/:commentId")
 async getCommentReplies(
   @Param("commentId") commentId: string,
   @Query("pageSize") pageSize: string,
