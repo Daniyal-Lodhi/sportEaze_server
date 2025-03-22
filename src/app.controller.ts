@@ -4,22 +4,22 @@ import { ConfigService } from "@nestjs/config";
 import { ApiExcludeController } from "@nestjs/swagger";
 
 @ApiExcludeController()
-@Controller("/project")
+@Controller("")
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private configS: ConfigService,
   ) {}
-
-  @Get("/architecture")
+  
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+  
+  @Get("/project/architecture")
   @Redirect("https://www.tldraw.com/f/1SWocUy7SNWS7Fgg2oTwk")
-  getArchitecture(): string {
-    return this.appService.getHello();
-  }
+  getArchitecture(): void { }
 
-  @Get("/design")
+  @Get("/project/design")
   @Redirect("https://www.figma.com/design/FbSXKNiuvmIfHlXj2XYeT5")
-  getDesign(): string {
-    return this.appService.getHello();
-  }
+  getDesign(): void { }
 }
