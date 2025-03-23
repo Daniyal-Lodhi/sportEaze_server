@@ -12,6 +12,7 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { UserService } from "../../user/user.service";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
+import { UpdateUserDto } from "../dto/update-user.dto";
 
 @Injectable()
 export class PlayerService {
@@ -29,23 +30,17 @@ export class PlayerService {
         throw new NotFoundException(`User not found`);
     }
 
-    if (user.userType !== UserType.FAN) {
+    if (user.userType !== UserType.FAN && user.userType !== null) {
         throw new ConflictException(
             `Since this account is registered as ${UserType[user.userType]}, you cannot change it to a player`,
         );
     }
 
     const { profilePicUrl, fullName, username, dob, gender, ...playerDetails } = registerPlayerDto;
-
-    await this.userRepository.save({
-        ...user,
-        userType: UserType.PLAYER,
-        profilePicUrl,
-        fullName,
-        username,
-        dob,
-        gender
-    });
+    
+    const updateUserDto: UpdateUserDto = { profilePicUrl, fullName, username, dob, gender };
+    
+    await this.userService.updateUser(id, updateUserDto, UserType.PLAYER);
 
     const player = Object.assign(new Player(), { id, ...playerDetails });
 
