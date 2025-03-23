@@ -1,34 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { PatronService } from './patron.service';
-import { CreatePatronDto } from './dto/create-patron.dto';
+import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
+import { RegisterPatronDto } from './dto/register-patron.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { UpdatePatronDto } from './dto/update-patron.dto';
 
-@Controller('patron')
+@Controller('/api/user/patron')
 export class PatronController {
   constructor(private readonly patronService: PatronService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createPatronDto: CreatePatronDto) {
-    return this.patronService.create(createPatronDto);
+  async create(@Request() req, @Body() registerPatronDto: RegisterPatronDto) {
+    return await this.patronService.create(req.user.id, registerPatronDto);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.patronService.findAll();
+  async get(@Request() req) {
+    return await this.patronService.getPatronById(req.user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.patronService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePatronDto: UpdatePatronDto) {
-    return this.patronService.update(+id, updatePatronDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.patronService.remove(+id);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  async update(@Request() req, @Body() updatePatronDto: UpdatePatronDto) {
+    return await this.patronService.update(req.user.id, updatePatronDto);
   }
 }

@@ -4,6 +4,7 @@ import { UserService } from '../user.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserType } from 'src/common/enums/user/user-type.enum';
 
 @Controller('/api/user/fan')
 export class FanController {
@@ -19,7 +20,7 @@ export class FanController {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    return await this.userService.updateUser(userId, createFanDto);
+    return await this.userService.updateUser(userId, createFanDto, UserType.FAN);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -32,7 +33,7 @@ export class FanController {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    return await this.userService.updateUser(userId, updateFanDto);
+    return await this.userService.updateUser(userId, updateFanDto, UserType.FAN);
   }
 
 }

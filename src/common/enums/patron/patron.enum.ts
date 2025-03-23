@@ -1,12 +1,12 @@
-enum PatronType {
-    Individual = 1,
-    Organization = 2,
+export enum PatronType {
+    INDIVIDUAL = 1,
+    ORGANIZATION = 2,
 }
 
-enum FundingType {
-    FullSponsorship = 1,
-    PartialSponsorship = 2,
-    EquipmentSupport = 3,
-    TrainingSupport = 4,
-    Other = 5,
+export enum FundingType {
+    FULL_SPONSORSHIP = 1,
+    PARTIAL_SPONSORSHIP = 2,
+    EQUIPMENT_SUPPORT = 3,
+    TRAINING_SUPPORT = 4,
+    OTHER = 5,
 }

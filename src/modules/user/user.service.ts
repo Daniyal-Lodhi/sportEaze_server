@@ -45,7 +45,7 @@ export class UserService {
 
     user.email = createUserDto.email;
     user.password = createUserDto.password;
-    user.userType = UserType.FAN;
+    // user.userType = UserType.FAN;
     const savedUser = await this.userRepository.save(user);
 
     const { id, userType } = savedUser;
@@ -104,6 +104,7 @@ export class UserService {
   async updateUser(
     id: string,
     updateUserDto: RegisterUserDto | UpdateUserDto,
+    userType: UserType
   ): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({ where: { id } });
 
@@ -117,6 +118,12 @@ export class UserService {
       );
     }
 
+    if (updateUserDto.username) {
+      if (await this.doesUsernameExist(updateUserDto.username)) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+
     let updatedData;
     if ('password' in updateUserDto) {
       updatedData = { ...updateUserDto };
@@ -128,6 +135,7 @@ export class UserService {
       const updatedUser = await this.userRepository.save({
         ...user,
         ...updatedData,
+        userType
       });
       return updatedUser as GetUserDto;
     } catch (error) {
@@ -156,6 +164,4 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { username } });
     return !!user;
   }
-
-
 }
