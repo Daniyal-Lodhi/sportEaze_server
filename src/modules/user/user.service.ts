@@ -92,13 +92,20 @@ export class UserService {
   async getUser(id: string): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ["player", "patron"]
     });
 
     if (user?.deleted || !user) {
       throw new NotFoundException("User not found");
     }
-    const { password, ...userWoPass } = user;
-    return userWoPass as GetUserDto;
+
+    if(user.player === null)
+      user.player = undefined;
+
+    if(user.patron === null)
+      user.patron = undefined;
+  
+    return user as GetUserDto;
   }
 
   async updateUser(
