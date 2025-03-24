@@ -7,6 +7,7 @@ import { UserType } from 'src/common/enums/user/user-type.enum';
 import { RegisterPatronDto } from './dto/register-patron.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePatronDto } from './dto/update-patron.dto';
+import { BaseUserDto } from '../dto/base-user.dto';
 
 @Injectable()
 export class PatronService {
@@ -31,7 +32,7 @@ export class PatronService {
     
     const { profilePicUrl, fullName, username, dob, gender, ...patronDetails } = registerPatronDto;
 
-    const updateUerDto: UpdateUserDto = {
+    const updateUerDto: BaseUserDto = {
       profilePicUrl,
       fullName,
       username,

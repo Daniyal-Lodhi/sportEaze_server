@@ -17,20 +17,4 @@ import { BaseUserDto } from "./base-user.dto";
     })
     @IsEnum(Sport, { each: true })
     sportInterests: Sport[];
-  
-
-    // @ApiProperty({
-    //   description: "The city where the user resides.",
-    //   example: "Karachi",
-    // })
-    // @IsString()
-    // city: string;
-  
-    // @ApiProperty({
-    //   description: "The country where the user resides.",
-    //   example: "Pakistan",
-    // })
-    // @IsString()
-    // country: string;
-  
-  }  
+    }  

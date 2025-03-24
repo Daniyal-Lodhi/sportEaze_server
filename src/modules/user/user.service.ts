@@ -118,8 +118,8 @@ export class UserService {
       );
     }
 
-    if (updateUserDto.username) {
-      if (await this.doesUsernameExist(updateUserDto.username)) {
+    if ('username' in updateUserDto) {
+      if (await this.doesUsernameExist((updateUserDto as RegisterUserDto).username)) {
         throw new ConflictException('Username already taken');
       }
     }
@@ -161,7 +161,7 @@ export class UserService {
   }
 
   async doesUsernameExist(username: string): Promise<boolean> {
-    const user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({ where: { username: username.toLowerCase() } });
     return !!user;
   }
 }

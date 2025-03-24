@@ -13,6 +13,7 @@ import { UserService } from "../../user/user.service";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
 import { UpdateUserDto } from "../dto/update-user.dto";
+import { BaseUserDto } from "../dto/base-user.dto";
 
 @Injectable()
 export class PlayerService {
@@ -38,7 +39,7 @@ export class PlayerService {
 
     const { profilePicUrl, fullName, username, dob, gender, ...playerDetails } = registerPlayerDto;
     
-    const updateUserDto: UpdateUserDto = { profilePicUrl, fullName, username, dob, gender };
+    const updateUserDto: BaseUserDto = { profilePicUrl, fullName, username, dob, gender };
     
     await this.userService.updateUser(id, updateUserDto, UserType.PLAYER);
 
