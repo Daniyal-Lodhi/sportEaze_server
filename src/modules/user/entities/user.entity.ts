@@ -32,7 +32,16 @@ export class User {
   @Column({ type: "varchar", length: 100, nullable: true })
   fullName?: string;
 
-  @Column({ type: "varchar", length: 100, nullable: true, unique: true })
+  @Column({
+    type: "varchar",
+    length: 100,
+    nullable: true,
+    unique: true,
+    transformer: {
+      to: (value: string | null) => value?.toLowerCase() || null,
+      from: (value: string | null) => value,
+    },
+  })
   username?: string;
 
   @Column({ type: "date", nullable: true })
