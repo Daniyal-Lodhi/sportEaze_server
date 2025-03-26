@@ -17,6 +17,7 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { GetUserDto } from "./dto/get-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";
+import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 
 @Injectable()
 export class UserService {
@@ -137,6 +138,10 @@ export class UserService {
     }
     else updatedData = { ...updateUserDto };
 
+    if (!updateUserDto.profilePicUrl) {
+      updateUserDto.profilePicUrl = DEFAULT_USER_PROFILE_PIC_URL;
+    }
+    
     try {
       const updatedUser = await this.userRepository.save({
         ...user,
