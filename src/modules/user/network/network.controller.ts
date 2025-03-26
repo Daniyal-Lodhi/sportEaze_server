@@ -8,25 +8,21 @@ import {
   Param,
   Request,
   UseGuards,
-  HttpException,
-  HttpStatus,
-  NotFoundException,
   UnauthorizedException,
-  ConflictException,
+  NotFoundException,
 } from "@nestjs/common";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBearerAuth} from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { NetworkService } from "../network/network.service";
-import { ConnectionReqResponse } from "src/common/enums/network/network.enum";
 import { RespondToConnectionRequestDto, SendConnectionRequestDto } from "./dto/network.dto";
 
+@ApiBearerAuth()
 @Controller("api/network")
 export class NetworkController {
   constructor(private readonly networkService: NetworkService) {}
 
   // 1️⃣ Send a connection request
   @Post("connect")
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async sendConnectionRequest(@Request() req, @Body() body : SendConnectionRequestDto) {
     if (!req.user || !req.user.id) {
@@ -38,7 +34,6 @@ export class NetworkController {
 
   // 2️⃣ Accept or reject a connection request
   @Patch("connect/respond")
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async respondToConnectionRequest(
     @Request() req,
@@ -53,7 +48,6 @@ export class NetworkController {
 
   // 3️⃣ Get all pending connection requests
   @Get("connect/pending")
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async getPendingRequests(@Request() req) {
     if (!req.user || !req.user.id) {
@@ -78,7 +72,6 @@ export class NetworkController {
 
   // 4️⃣ Follow a player
   @Post("follow/:playerId")
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async followPlayer(@Request() req, @Param("playerId") playerId: string) {
     if (!req.user || !req.user.id) {
