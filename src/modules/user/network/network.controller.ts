@@ -18,6 +18,7 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { NetworkService } from "../network/network.service";
 import { ConnectionReqResponse } from "src/common/enums/network/network.enum";
+import { RespondToConnectionRequestDto, SendConnectionRequestDto } from "./dto/network.dto";
 
 @Controller("api/network")
 export class NetworkController {
@@ -27,12 +28,12 @@ export class NetworkController {
   @Post("connect")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async sendConnectionRequest(@Request() req, @Body("receiverId") receiverId: string) {
+  async sendConnectionRequest(@Request() req, @Body() body : SendConnectionRequestDto) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
-    return this.networkService.sendConnectionRequest(req.user.id, receiverId);
+    return this.networkService.sendConnectionRequest(req.user.id, body.receiverId);
   }
 
   // 2️⃣ Accept or reject a connection request
@@ -41,14 +42,13 @@ export class NetworkController {
   @UseGuards(JwtAuthGuard)
   async respondToConnectionRequest(
     @Request() req,
-    @Body("requesterId") requesterId: string,
-    @Body("action") action: ConnectionReqResponse,
+    @Body() body: RespondToConnectionRequestDto
   ) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
-    return this.networkService.respondToConnectionRequest(requesterId, req.user.id, action);
+    return this.networkService.respondToConnectionRequest(body.requesterId, req.user.id, body.action);
   }
 
   // 3️⃣ Get all pending connection requests
@@ -61,6 +61,19 @@ export class NetworkController {
     }
 
     return this.networkService.getPendingConnectionRequests(req.user.id);
+  }
+
+  @Get("connect/get-all-connections")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getApprovedConnections(@Request() req) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
+    }
+
+    const connections = await this.networkService.getApprovedConnections(req.user.id);
+
+    return {connections,success:true};
   }
 
   // 4️⃣ Follow a player
@@ -84,6 +97,21 @@ export class NetworkController {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
+
     return this.networkService.unfollowPlayer(req.user.id, playerId);
+  }
+
+  @Get("get-all-followers")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getFollowers(@Request() req) {
+    const userId = req.user.id;
+    const followers = await this.networkService.getFollowers(userId);
+
+    if (!followers || followers.length === 0) {
+      throw new NotFoundException("No followers found.");
+    }
+
+    return { followers, count: followers.length,success:true };
   }
 }

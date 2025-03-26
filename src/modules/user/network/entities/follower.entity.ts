@@ -1,18 +1,19 @@
 import {
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
+  ManyToOne,
+  Unique,
+  JoinColumn
 } from "typeorm";
 import { User } from "src/modules/user/entities/user.entity";
 
-
-@Entity("Followers") // Specifies the table name as 'connections'
+@Entity("Followers")
+@Unique(["playerId", "followerId"]) // Ensures a user cannot follow the same player twice
 export class Followers {
-  @PrimaryColumn("uuid")
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ type: "uuid" })
@@ -21,11 +22,11 @@ export class Followers {
   @Column({ type: "uuid" })
   followerId: string;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" }) 
   @JoinColumn({ name: "playerId" })
   player: User;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" }) 
   @JoinColumn({ name: "followerId" })
   follower: User;
 
