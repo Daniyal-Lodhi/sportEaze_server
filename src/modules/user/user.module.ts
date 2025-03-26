@@ -9,6 +9,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { PlayerModule } from "./player/player.module";
 import { UserPostModule } from "./user-posts/user-post.module";
 import { FanController } from "./fan/fan.controller";
+import { NetworkModule } from "./network/network.module";
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { FanController } from "./fan/fan.controller";
     LocalAuthModule,
     JwtModule,
     PlayerModule,
-    UserPostModule
+    UserPostModule,
+    NetworkModule
   ],
   controllers: [UserController, FanController],
   providers: [UserService, LocalAuthService],
