@@ -14,6 +14,8 @@ import { UserPost } from "../user-posts/entities/user-post.entity";
 import { SharedPost } from "../user-posts/entities/shared-post.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { Patron } from "../patron/entities/patron.entity";
+import { DEFAULT_FACTORY_CLASS_METHOD_KEY } from "@nestjs/common/module-utils/constants";
+import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {
@@ -26,8 +28,9 @@ export class User {
   @Column({ type: "varchar", length: 255, select: false })
   password: string; // Required
   
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "varchar", nullable: false, default: DEFAULT_USER_PROFILE_PIC_URL })
   profilePicUrl?: string;
+
 
   @Column({ type: "varchar", length: 100, nullable: true })
   fullName?: string;

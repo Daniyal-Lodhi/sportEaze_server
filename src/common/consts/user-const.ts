@@ -1,0 +1,1 @@
+export const DEFAULT_USER_PROFILE_PIC_URL = "https://res.cloudinary.com/dpe70dvug/image/upload/v1743014138/Untitled_200_x_200_px_1_cie24l.png";
