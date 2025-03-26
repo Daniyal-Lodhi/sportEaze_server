@@ -10,7 +10,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
-import { ILike, Repository } from "typeorm";
+import { ILike, IsNull, Not, Repository } from "typeorm";
 import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { hashPassword } from "src/common/utils/user-utils";
 import { UserType } from "src/common/enums/user/user-type.enum";
@@ -180,8 +180,8 @@ export class UserService {
   
       const users = await this.userRepository.find({
         where: [
-          { fullName: ILike(`%${searchTerm}%`) },
-          { username: ILike(`%${searchTerm}%`) }
+          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()) },
+          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()) }
         ],
         select: {
           id: true,
