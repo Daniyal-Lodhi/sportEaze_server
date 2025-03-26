@@ -11,14 +11,17 @@ import {
   HttpStatus,
   UseGuards,
   Param,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/local-auth/jwt-auth.guard";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { LoginUserDto } from "./dto/login-user.dto";
+import { GetUserDto } from "./dto/get-user.dto";
+import { UUID } from "crypto";
 
 @Controller("api/user")
 export class UserController {
@@ -33,7 +36,7 @@ export class UserController {
       //   httpOnly: true,
       //   maxAge: httpOnlyCookieMaxAge, //1 year
       // });
-      return res.status(200).send({ message: 'User registered successfully',success:true,accessToken, userType: UserType.FAN });
+      return res.status(200).send({ message: 'User registered successfully',success:true, accessToken });
 
     } catch (error) {
       console.error("[REGISTER_USER_CTRL]:", error);
@@ -54,14 +57,14 @@ export class UserController {
     @Response() res,
   ) {
     try {
-      const [accessToken, userType]: [string, UserType] =
+      const [accessToken, user]: [string, GetUserDto] =
         await this.userService.loginUser(loginUserDto);
 
       // res.cookie('access_token', accessToken, {
       //   httpOnly: true,
       //   maxAge: httpOnlyCookieMaxAge, //1 year
       // });
-      return res.status(200).send({ message: 'User logged in successfully', succes: true,accessToken, userType });
+      return res.status(200).send({ message: 'User logged in successfully', succes: true,accessToken, user });
 
     } catch (error) {
       console.error("[LOGIN_USER_CTRL]:", error);
@@ -80,7 +83,7 @@ export class UserController {
     try {
       const { id } = req.user;
       const user = await this.userService.getUser(id);
-
+      
       res.status(200).send({ user, success: true });
     } catch (error) {
       console.error("[GET_USER_CTRL]:", error);
@@ -133,5 +136,11 @@ export class UserController {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get("/:id")
+  async getById(@Param("id",  new ParseUUIDPipe()) id: string)
+  {
+    return await this.userService.getUser(id);
   }
 }

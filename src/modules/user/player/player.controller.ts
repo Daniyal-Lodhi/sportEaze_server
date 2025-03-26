@@ -40,9 +40,9 @@ export class PlayerController {
     }
 
     return {
+      user: player,
       success: true,
       message: "This user is now a player",
-      player,
     };
   }
 
@@ -62,7 +62,7 @@ export class PlayerController {
         updatePlayerDto,
       );
 
-      res.status(200).json(updatedPlayer);
+      res.status(200).json({user: updatedPlayer, success: true});
     } catch (error) {
       console.error("[UPDATE_PLAYER_CTRL]:", error);
       throw new HttpException(

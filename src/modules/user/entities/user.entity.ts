@@ -1,5 +1,5 @@
-import { GenderType } from "src/common/enums/gender-type.enum";
-import { UserType } from "src/common/enums/user-type.enum";
+import { GenderType } from "src/common/enums/user/gender-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { Player } from "src/modules/user/player/entities/player.entity";
 import {
   Entity,
@@ -12,7 +12,8 @@ import {
 } from "typeorm";
 import { UserPost } from "../user-posts/entities/user-post.entity";
 import { SharedPost } from "../user-posts/entities/shared-post.entity";
-import { Sport } from "src/common/enums/sport.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
+import { Patron } from "../patron/entities/patron.entity";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {
@@ -31,7 +32,16 @@ export class User {
   @Column({ type: "varchar", length: 100, nullable: true })
   fullName?: string;
 
-  @Column({ type: "varchar", length: 100, nullable: true, unique: true })
+  @Column({
+    type: "varchar",
+    length: 100,
+    nullable: true,
+    unique: true,
+    transformer: {
+      to: (value: string | null) => value?.toLowerCase() || null,
+      from: (value: string | null) => value,
+    },
+  })
   username?: string;
 
   @Column({ type: "date", nullable: true })
@@ -43,7 +53,7 @@ export class User {
   @Column({ type: "enum", array: true, enum: Sport, nullable: true })
   sportInterests?: Sport[];
 
-  @Column({ type: "enum", enum: UserType, nullable: true })
+  @Column({ type: "enum", enum: UserType, nullable: true, default: null })
   userType?: UserType;
   
   @Column({ type: "boolean", default: false, nullable: true })
@@ -57,6 +67,9 @@ export class User {
   
   @OneToOne(() => Player, (player) => player.user)
   player: Player;
+
+  @OneToOne(() => Patron, (patron) => patron.user)
+  patron: Patron;
   
   @OneToMany(() => UserPost, (post) => post.user) // Establish a one-to-many relationship with posts
   posts: UserPost[]; // A user can have multiple posts

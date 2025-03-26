@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Sport } from 'src/common/enums/sport.enum';
+import { Sport } from 'src/common/enums/sport/sport.enum';
 
 @Injectable()
 export class SportService {

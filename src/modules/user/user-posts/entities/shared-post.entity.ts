@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { UserPost } from "./user-post.entity";
-import { PostVisibilityEnum } from "src/common/enums/user-posts.enum";
+import { PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 import { User } from "../../entities/user.entity";
 
 @Entity("SharedPosts")

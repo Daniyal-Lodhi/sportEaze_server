@@ -2,8 +2,8 @@ import { IsBoolean, IsEnum, IsInt, IsString } from "class-validator";
 import { Achievement } from "src/common/entities/achievement.entity";
 import { Contract } from "src/common/entities/contract.entity";
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
-import { PlayingLevel } from "src/common/enums/playing-levels.enum";
-import { Sport } from "src/common/enums/sport.enum";
+import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
 import { User } from "src/modules/user/entities/user.entity";
 
 export class GetPlayerDto {

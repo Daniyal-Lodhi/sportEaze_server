@@ -25,8 +25,6 @@ import { SportModule } from './modules/sport/sport.module';
     // LoggerModule,
     ConfigModule,
     DatabaseModule,
-    TypeOrmModule.forFeature([User]),
-    LocalAuthModule,
     UserModule,
   ],
   controllers: [AppController],

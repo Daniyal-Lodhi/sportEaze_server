@@ -11,8 +11,8 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
-import { Sport } from "src/common/enums/sport.enum";
-import { PlayingLevel } from "src/common/enums/playing-levels.enum";
+import { Sport } from "src/common/enums/sport/sport.enum";
+import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 
 @Entity("Player")
 export class Player {

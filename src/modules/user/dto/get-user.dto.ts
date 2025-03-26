@@ -6,8 +6,8 @@ import {
   MinLength,
   Matches,
 } from "class-validator";
-import { GenderType } from "src/common/enums/gender-type.enum";
-import { UserType } from "src/common/enums/user-type.enum";
+import { GenderType } from "src/common/enums/user/gender-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 
 export class GetUserDto {
   @IsEmail()

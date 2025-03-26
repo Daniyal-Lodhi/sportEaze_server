@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, MinLength, Matches, IsDateString, IsEnum } from "class-validator";
-import { GenderType } from "src/common/enums/gender-type.enum";
+import { GenderType } from "src/common/enums/user/gender-type.enum";
 
 export class BaseUserDto {
 

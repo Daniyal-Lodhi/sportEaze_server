@@ -9,18 +9,19 @@ import { JwtModule } from "@nestjs/jwt";
 import { PlayerModule } from "./player/player.module";
 import { UserPostModule } from "./user-posts/user-post.module";
 import { FanController } from "./fan/fan.controller";
+import { PatronModule } from "./patron/patron.module";
 import { NetworkModule } from "./network/network.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     LocalAuthModule,
-    JwtModule,
     PlayerModule,
+    PatronModule,
     UserPostModule,
     NetworkModule
   ],
   controllers: [UserController, FanController],
-  providers: [UserService, LocalAuthService],
+  providers: [UserService],
 })
 export class UserModule {}

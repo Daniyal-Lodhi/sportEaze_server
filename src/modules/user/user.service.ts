@@ -12,7 +12,7 @@ import { User } from "./entities/user.entity";
 import { Repository } from "typeorm";
 import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { hashPassword } from "src/common/utils/user-utils";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { GetUserDto } from "./dto/get-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";
@@ -45,7 +45,7 @@ export class UserService {
 
     user.email = createUserDto.email;
     user.password = createUserDto.password;
-    user.userType = UserType.FAN;
+    // user.userType = UserType.FAN;
     const savedUser = await this.userRepository.save(user);
 
     const { id, userType } = savedUser;
@@ -54,7 +54,7 @@ export class UserService {
     return accessToken;
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<[string, UserType]> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<[string, GetUserDto]> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
     });
@@ -86,24 +86,30 @@ export class UserService {
       user.id,
       user.userType,
     );
-    return [accessToken, user.userType];
+    return [accessToken, await this.getUser(user.id)];
   }
 
   async getUser(id: string): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ["player", "patron"]
     });
 
     if (user?.deleted || !user) {
       throw new NotFoundException("User not found");
     }
-    const { password, ...userWoPass } = user;
-    return userWoPass as GetUserDto;
+
+    return {
+      ...user,
+      player: user.player ?? undefined,
+      patron: user.patron ?? undefined,
+    } as GetUserDto;
   }
 
   async updateUser(
     id: string,
     updateUserDto: RegisterUserDto | UpdateUserDto,
+    userType: UserType
   ): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({ where: { id } });
 
@@ -117,6 +123,12 @@ export class UserService {
       );
     }
 
+    if ('username' in updateUserDto) {
+      if (await this.doesUsernameExist((updateUserDto as RegisterUserDto).username)) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+
     let updatedData;
     if ('password' in updateUserDto) {
       updatedData = { ...updateUserDto };
@@ -128,6 +140,7 @@ export class UserService {
       const updatedUser = await this.userRepository.save({
         ...user,
         ...updatedData,
+        userType
       });
       return updatedUser as GetUserDto;
     } catch (error) {
@@ -153,9 +166,7 @@ export class UserService {
   }
 
   async doesUsernameExist(username: string): Promise<boolean> {
-    const user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({ where: { username: username.toLowerCase() } });
     return !!user;
   }
-
-
 }

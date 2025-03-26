@@ -24,6 +24,6 @@ import { User } from "src/modules/user/entities/user.entity";
   ],
   controllers: [],
   providers: [LocalAuthService, JwtStrategy],
-  exports: [JwtModule],
+  exports: [JwtModule, LocalAuthService],
 })
 export class LocalAuthModule {}

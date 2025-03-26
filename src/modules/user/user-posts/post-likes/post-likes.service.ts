@@ -4,9 +4,9 @@ import { Repository } from "typeorm";
 import { UserPost } from "../entities/user-post.entity";
 import { GetPostDTO } from "../dto/get-post.dto";
 import { UserService } from "../../user.service";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 import { PostLikes } from "../entities/post-like.entity";
-import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
+import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesGateway } from "./post-likes.gateway";
 
 @Injectable()

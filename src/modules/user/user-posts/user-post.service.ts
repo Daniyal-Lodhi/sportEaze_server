@@ -8,8 +8,8 @@ import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
 import { GetPostDTO } from "./dto/get-post.dto";
 import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
-import { UserType } from "src/common/enums/user-type.enum";
-import { ReactTypeEnum } from "src/common/enums/user-posts.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
+import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 
 @Injectable()
 export class UserPostService {
