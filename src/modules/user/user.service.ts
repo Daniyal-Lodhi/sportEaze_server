@@ -99,13 +99,11 @@ export class UserService {
       throw new NotFoundException("User not found");
     }
 
-    if(user.player === null)
-      user.player = undefined;
-
-    if(user.patron === null)
-      user.patron = undefined;
-  
-    return user as GetUserDto;
+    return {
+      ...user,
+      player: user.player ?? undefined,
+      patron: user.patron ?? undefined,
+    } as GetUserDto;
   }
 
   async updateUser(

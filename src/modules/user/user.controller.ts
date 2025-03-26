@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   Param,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -20,6 +21,7 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
+import { UUID } from "crypto";
 
 @Controller("api/user")
 export class UserController {
@@ -134,5 +136,11 @@ export class UserController {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get("/:id")
+  async getById(@Param("id",  new ParseUUIDPipe()) id: string)
+  {
+    return await this.userService.getUser(id);
   }
 }
