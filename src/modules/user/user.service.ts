@@ -189,7 +189,8 @@ export class UserService {
           username: true, 
           fullName: true, 
           profilePicUrl: true, 
-        }
+        },
+        take: 20
       });
   
       // // If no users found, throw 404 (Not Found)
