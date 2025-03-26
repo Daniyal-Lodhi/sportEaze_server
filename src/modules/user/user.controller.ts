@@ -143,4 +143,11 @@ export class UserController {
   {
     return await this.userService.getUser(id);
   }
+
+  @Get("/search/:searchTerm")
+  async searchUserByNameOrUsername(@Param("searchTerm") searchTerm: string)
+  {
+    return await this.userService.searchUserByNameOrUsername(searchTerm);
+  }
+
 }
