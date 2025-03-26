@@ -39,8 +39,10 @@ export class NetworkService {
       throw new NotFoundException("Receiver user not found.");
     }
 
+    console.log(requester.userType, receiver.userType)
+
     // 2. Validate Connection Rules
-    if (canConnect(requester.userType, receiver.userType)) {
+    if (!canConnect(requester.userType, receiver.userType)) {
       throw new UnauthorizedException("These roles cannot form a connection.");
     }
 
@@ -65,8 +67,9 @@ export class NetworkService {
 
     try {
       await this.connectionRepository.save(newConnection);
-      return { message: "Connection request sent." };
+      return { message: "Connection request sent.",success:true  };
     } catch (error) {
+      console.log(error)
       throw new InternalServerErrorException("Failed to send connection request.");
     }
   }
@@ -96,7 +99,7 @@ export class NetworkService {
           return { message: `Connection request accepted`,accepted:true };
       }
       else{
-        return { message: `Connection request rejected`,accepted:false };
+        return { message: `Connection request rejected`,accepted:false,success:true  };
       }
     } catch (error) {
       throw new InternalServerErrorException("Failed to update connection request.");
@@ -118,11 +121,40 @@ async getPendingConnectionRequests(userId: string) {
   
     return pendingRequests.map((request) => ({
       requestId: request.id,
-      senderId: request.senderId,
-      senderName: request.sender.username, // Assuming 'name' exists in User entity
+      userId: request.senderId,
+      userName: request.sender.username, // Assuming 'name' exists in User entity
       status: request.status,
+      userType:request.sender.userType,
+      fullName:request.sender.fullName,
+      profilePic:request.sender.profilePicUrl,
+      success:true 
     }));
   }
+
+  // get a user's connection
+  async getApprovedConnections(userId: string) {
+    const connections = await this.connectionRepository.find({
+      where: [
+        { senderId: userId, status: ConnectionStatus.ACCEPTED },
+        { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+      ],
+      relations: ["sender", "receiver"],
+    });
+  
+    return connections.map((connection) => {
+      const otherUser =
+        connection.senderId === userId ? connection.receiver : connection.sender;
+  
+      return {
+        id: otherUser.id,
+        username: otherUser.username,
+        fullName: otherUser.fullName,
+        profilePicUrl: otherUser.profilePicUrl,
+        userType: otherUser.userType,
+      };
+    });
+  }
+  
 
 //   to follow a player
 async followPlayer(followerId: string, playerId: string) {
@@ -164,8 +196,9 @@ async followPlayer(followerId: string, playerId: string) {
   
     try {
       await this.followRepository.save(newFollow);
-      return { message: "Successfully followed the player." };
+      return { message: "Successfully followed the player.",success:true  };
     } catch (error) {
+      console.log(error)
       throw new InternalServerErrorException("Failed to follow player.");
     }
   }
@@ -201,11 +234,22 @@ async unfollowPlayer(followerId: string, playerId: string) {
     // Remove the follow entry
     try {
       await this.followRepository.remove(existingFollow);
-      return { message: "Successfully unfollowed the player." };
+      return { message: "Successfully unfollowed the player.",success:true  };
     } catch (error) {
       throw new InternalServerErrorException("Failed to unfollow player.");
     }
   }
+
+  async getFollowers(userId: string) {
+    const followers = await this.followRepository.find({
+      where: { playerId: userId },
+      relations: ["follower"],
+    });
+  
+    // Extract only the follower details
+    return followers.map(follow => follow.follower);
+  }
+  
   
 
   

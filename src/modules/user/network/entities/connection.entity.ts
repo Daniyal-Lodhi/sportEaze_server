@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
+  PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "src/modules/user/entities/user.entity";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
@@ -13,7 +14,7 @@ import { ConnectionStatus } from "src/common/enums/network/network.enum";
 
 @Entity("Connections") // Specifies the table name as 'connections'
 export class Connection {
-  @PrimaryColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: "uuid" })

@@ -9,14 +9,12 @@ import {
   Request,
   UseGuards,
   UnauthorizedException,
+  NotFoundException,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam } from "@nestjs/swagger";
+import { ApiBearerAuth} from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { NetworkService } from "../network/network.service";
-import { SendConnectionRequestDto } from "./dto/send-connection-request.dto";
-import { RespondConnectionRequestDto } from "./dto/respond-connection-request.dto";
-import { FollowPlayerDto } from "./dto/follow-player.dto";
-import { UnfollowPlayerDto } from "./dto/unfollow-player.dto";
+import { RespondToConnectionRequestDto, SendConnectionRequestDto } from "./dto/network.dto";
 
 @ApiBearerAuth()
 @Controller("api/network")
@@ -26,7 +24,7 @@ export class NetworkController {
   // 1️⃣ Send a connection request
   @Post("connect")
   @UseGuards(JwtAuthGuard)
-  async sendConnectionRequest(@Request() req, @Body() body: SendConnectionRequestDto) {
+  async sendConnectionRequest(@Request() req, @Body() body : SendConnectionRequestDto) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
@@ -37,7 +35,10 @@ export class NetworkController {
   // 2️⃣ Accept or reject a connection request
   @Patch("connect/respond")
   @UseGuards(JwtAuthGuard)
-  async respondToConnectionRequest(@Request() req, @Body() body: RespondConnectionRequestDto) {
+  async respondToConnectionRequest(
+    @Request() req,
+    @Body() body: RespondToConnectionRequestDto
+  ) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
@@ -56,26 +57,54 @@ export class NetworkController {
     return this.networkService.getPendingConnectionRequests(req.user.id);
   }
 
-  // 4️⃣ Follow a player
-  @Post("follow/:playerId")
+  @Get("connect/get-all-connections")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async followPlayer(@Request() req, @Body() body: FollowPlayerDto) {
+  async getApprovedConnections(@Request() req) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
-    return this.networkService.followPlayer(req.user.id, body.playerId);
+    const connections = await this.networkService.getApprovedConnections(req.user.id);
+
+    return {connections,success:true};
+  }
+
+  // 4️⃣ Follow a player
+  @Post("follow/:playerId")
+  @UseGuards(JwtAuthGuard)
+  async followPlayer(@Request() req, @Param("playerId") playerId: string) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
+    }
+
+    return this.networkService.followPlayer(req.user.id, playerId);
   }
 
   // 5️⃣ Unfollow a player
   @Delete("unfollow/:playerId")
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async unfollowPlayer(@Request() req, @Body() body: UnfollowPlayerDto) {
+  async unfollowPlayer(@Request() req, @Param("playerId") playerId: string) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
-    return this.networkService.unfollowPlayer(req.user.id, body.playerId);
+
+    return this.networkService.unfollowPlayer(req.user.id, playerId);
+  }
+
+  @Get("get-all-followers")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getFollowers(@Request() req) {
+    const userId = req.user.id;
+    const followers = await this.networkService.getFollowers(userId);
+
+    if (!followers || followers.length === 0) {
+      throw new NotFoundException("No followers found.");
+    }
+
+    return { followers, count: followers.length,success:true };
   }
 }

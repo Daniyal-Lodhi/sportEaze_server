@@ -7,6 +7,7 @@ export function canConnect(requesterRole: UserType, receiverRole: UserType): boo
       [UserType.MENTOR]: [UserType.MENTOR, UserType.PATRON, UserType.FAN],
       [UserType.PLAYER]: [], // Players cannot form connections
     };
+    console.log(connectionRules[requesterRole].includes(receiverRole))
 
     return connectionRules[requesterRole].includes(receiverRole);
   }
