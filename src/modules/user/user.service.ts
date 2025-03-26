@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -9,7 +10,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { LocalAuthService } from "../auth/local-auth/local-auth.service";
 import { hashPassword } from "src/common/utils/user-utils";
 import { UserType } from "src/common/enums/user/user-type.enum";
@@ -169,4 +170,33 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { username: username.toLowerCase() } });
     return !!user;
   }
+
+
+  async searchUserByNameOrUsername(searchTerm: string): Promise<GetUserDto[]> {
+    // Ensure searchTerm is valid (optional)
+    // if (!searchTerm || searchTerm.trim().length < 2) {
+    //   throw new BadRequestException("Search term must be at least 2 characters long.");
+    // }
+  
+      const users = await this.userRepository.find({
+        where: [
+          { fullName: ILike(`%${searchTerm}%`) },
+          { username: ILike(`%${searchTerm}%`) }
+        ],
+        select: {
+          id: true,
+          userType: true,
+          username: true, 
+          fullName: true, 
+          profilePicUrl: true, 
+        }
+      });
+  
+      // // If no users found, throw 404 (Not Found)
+      // if (!users.length) {
+      //   throw new NotFoundException("No users found matching the search term.");
+      // }
+  
+      return users as GetUserDto[];
+  }  
 }
