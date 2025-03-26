@@ -54,7 +54,7 @@ export class UserService {
     return accessToken;
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<[string, UserType]> {
+  async loginUser(loginUserDto: LoginUserDto): Promise<[string, GetUserDto]> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
     });
@@ -86,7 +86,7 @@ export class UserService {
       user.id,
       user.userType,
     );
-    return [accessToken, user.userType];
+    return [accessToken, await this.getUser(user.id)];
   }
 
   async getUser(id: string): Promise<GetUserDto> {

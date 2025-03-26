@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Patron } from './entities/patron.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,8 @@ import { RegisterPatronDto } from './dto/register-patron.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePatronDto } from './dto/update-patron.dto';
 import { BaseUserDto } from '../dto/base-user.dto';
+import { VerifyPatronDto } from './dto/verify-patron.dto';
+import { GetUserDto } from '../dto/get-user.dto';
 
 @Injectable()
 export class PatronService {
@@ -17,7 +19,7 @@ export class PatronService {
   ) {}
   
 
-  async create(id: string, registerPatronDto: RegisterPatronDto): Promise<Patron> {
+  async create(id: string, registerPatronDto: RegisterPatronDto): Promise<GetUserDto> {
     const user = await this.userService.getUser(id);
     const conflictMessages = {
       [UserType.PATRON]: 'User is already registered as a patron.',
@@ -46,7 +48,7 @@ export class PatronService {
 
     await this.patronRepository.save(patron);
 
-    return this.getPatronById(id);
+    return this.userService.getUser(id);
   }
 
   async getPatronById(id: string): Promise<Patron> {
@@ -59,7 +61,7 @@ export class PatronService {
     return patron;
   }
 
-  async update(id: string, updatePatronDto: UpdatePatronDto): Promise<Patron> {
+  async update(id: string, updatePatronDto: UpdatePatronDto): Promise<GetUserDto> {
     
     await this.userService.getUser(id);
     const patron = await this.getPatronById(id);
@@ -76,7 +78,21 @@ export class PatronService {
   
     await this.patronRepository.save(patron);
   
-    return this.getPatronById(id);
+    return this.userService.getUser(id);
   }
   
+  async verifyPatron(adminId : string, patronId: string, verifyPatronDto: VerifyPatronDto): Promise<any> {
+    const user = await this.userService.getUser(adminId);
+    const patron = await this.getPatronById(patronId);
+
+    if(user.email !== "admin@sporteaze.com") {
+      throw new UnauthorizedException("Only Admins can verify patrons")
+    }
+
+    this.patronRepository.save({
+      ...patron,
+      verifyPatronDto
+    });
+  }
+
 }

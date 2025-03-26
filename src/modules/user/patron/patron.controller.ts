@@ -4,6 +4,7 @@ import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { RegisterPatronDto } from './dto/register-patron.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UpdatePatronDto } from './dto/update-patron.dto';
+import { VerifyPatronDto } from './dto/verify-patron.dto';
 
 @Controller('/api/user/patron')
 export class PatronController {
@@ -13,7 +14,8 @@ export class PatronController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Request() req, @Body() registerPatronDto: RegisterPatronDto) {
-    return await this.patronService.create(req.user.id, registerPatronDto);
+    const user = await this.patronService.create(req.user.id, registerPatronDto); 
+    return { user, success: true };
   }
 
   @ApiBearerAuth()
@@ -27,6 +29,18 @@ export class PatronController {
   @UseGuards(JwtAuthGuard)
   @Patch()
   async update(@Request() req, @Body() updatePatronDto: UpdatePatronDto) {
-    return await this.patronService.update(req.user.id, updatePatronDto);
+    const user = await this.patronService.update(req.user.id, updatePatronDto);
+    return  { user, success: true };
+
   }
+  
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch("/verify/:patronId")
+  async verify(@Param("patronId") patronId: string, @Request() req, @Body() verifyPatronDto: VerifyPatronDto) {
+    return await this.patronService.verifyPatron(req.user.id, patronId, verifyPatronDto);
+  }
+
+
+
 }

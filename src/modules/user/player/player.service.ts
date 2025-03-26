@@ -12,8 +12,8 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { UserService } from "../../user/user.service";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
-import { UpdateUserDto } from "../dto/update-user.dto";
 import { BaseUserDto } from "../dto/base-user.dto";
+import { GetUserDto } from "../dto/get-user.dto";
 
 @Injectable()
 export class PlayerService {
@@ -24,7 +24,7 @@ export class PlayerService {
     private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetPlayerDto> {
+  async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user || user.deleted) {
@@ -47,7 +47,7 @@ export class PlayerService {
 
     await this.playerRepository.save(player);
 
-    return this.getPlayer(id);
+    return this.userService.getUser(id);
   }
 
   async getPlayer(id: string): Promise<GetPlayerDto> {
@@ -79,7 +79,7 @@ export class PlayerService {
   async updatePlayer(
     id: string,
     updatePlayerDto: UpdatePlayerDto,
-  ): Promise<GetPlayerDto> {
+  ): Promise<GetUserDto> {
     const player = await this.playerRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -107,8 +107,8 @@ export class PlayerService {
     delete playerUpdates.gender;
   
     Object.assign(player, playerUpdates);
-    const updatedPlayer = await this.playerRepository.save(player);
+    await this.playerRepository.save(player);
   
-    return updatedPlayer as GetPlayerDto;
+    return this.userService.getUser(id);
   }
 }

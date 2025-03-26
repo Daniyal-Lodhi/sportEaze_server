@@ -10,3 +10,10 @@ export enum FundingType {
     TRAINING_SUPPORT = 4,
     OTHER = 5,
 }
+
+export enum PatronAccountStatus {
+    PENDING = 1,
+    REJECTED = 2,
+    MODIFICATION_REQUIRED = 3,
+    APPROVED = 4,
+}
