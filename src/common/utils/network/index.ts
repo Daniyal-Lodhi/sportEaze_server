@@ -1,4 +1,4 @@
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 
 export function canConnect(requesterRole: UserType, receiverRole: UserType): boolean {
     const connectionRules: Record<UserType, UserType[]> = {

@@ -12,7 +12,7 @@ import { Followers } from "./entities/follower.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ConnectionReqResponse, ConnectionStatus } from "src/common/enums/network/network.enum";
 import  {canConnect} from "src/common/utils/network/index";
-import { UserType } from "src/common/enums/user-type.enum";
+import { UserType } from "src/common/enums/user/user-type.enum";
 
 @Injectable()
 export class NetworkService {
