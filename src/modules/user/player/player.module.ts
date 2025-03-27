@@ -8,9 +8,10 @@ import { Player } from "./entities/player.entity";
 import { LocalAuthService } from "../../auth/local-auth/local-auth.service";
 import { JwtService } from "@nestjs/jwt";
 import { LocalAuthModule } from "src/modules/auth/local-auth/local-auth.module";
+import { NetworkModule } from "../network/network.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Player, User]), LocalAuthModule],
+  imports: [TypeOrmModule.forFeature([Player, User]), LocalAuthModule, NetworkModule],
   controllers: [PlayerController],
   providers: [PlayerService, UserService,],
 })

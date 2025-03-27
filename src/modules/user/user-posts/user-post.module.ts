@@ -19,9 +19,11 @@ import { PostCommentsService } from "./post-comments/post-comments.service";
 import { Comment } from "./entities/post-comment.entity";
 import { PostCommentsGateway } from "./post-comments/post-comments.gateway";
 import { PostLikesGateway } from "./post-likes/post-likes.gateway";
+import { NetworkService } from "../network/network.service";
+import { NetworkModule } from "../network/network.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment])],
+  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment]), NetworkModule],
   controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
   providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService, PostCommentsGateway, PostLikesGateway],
 })

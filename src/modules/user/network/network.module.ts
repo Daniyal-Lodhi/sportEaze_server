@@ -16,5 +16,6 @@ import { Followers } from "./entities/follower.entity";
   ],
   controllers: [NetworkController],
   providers: [NetworkService],
+  exports: [NetworkService]
 })
 export class NetworkModule {}

@@ -18,12 +18,14 @@ import { GetUserDto } from "./dto/get-user.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
+import { NetworkService } from "./network/network.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private localAuthSrv: LocalAuthService,
+    private networkService: NetworkService
   ) {}
 
   async RegisterUser(createUserDto: CreateUserDto): Promise<string> {
@@ -91,7 +93,7 @@ export class UserService {
     return [accessToken, await this.getUser(user.id)];
   }
 
-  async getUser(id: string): Promise<GetUserDto> {
+  async getUser(id: string, userId?: string | undefined): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ["player", "patron"]
@@ -101,10 +103,22 @@ export class UserService {
       throw new NotFoundException("User not found");
     }
 
+    let isFollowing: boolean | undefined = undefined;
+    let isConnected: boolean | undefined = undefined;
+    
+    if(userId) {
+
+      isFollowing = await this.networkService.isUserFollowingUser(userId, id);
+      isConnected = await this.networkService.isUserConnectedToUser(userId, id);
+    }
+
     return {
       ...user,
       player: user.player ?? undefined,
       patron: user.patron ?? undefined,
+      isFollowing,
+      isConnected
+      
     } as GetUserDto;
   }
 

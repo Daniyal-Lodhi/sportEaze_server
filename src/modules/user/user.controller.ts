@@ -12,13 +12,14 @@ import {
   UseGuards,
   Param,
   ParseUUIDPipe,
+  Query,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/local-auth/jwt-auth.guard";
 import { UserType } from "src/common/enums/user/user-type.enum";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { UUID } from "crypto";
@@ -139,11 +140,27 @@ export class UserController {
   }
 
   @Get("/:id")
-  async getById(@Param("id",  new ParseUUIDPipe()) id: string)
-  {
-    return await this.userService.getUser(id);
+  @ApiParam({
+    name: "id",
+    type: "string",
+    format: "uuid",
+    description: "The ID of the user",
+  })
+  @ApiQuery({
+    name: "userId",
+    type: "string",
+    format: "uuid",
+    required: false, // Explicitly making it optional
+    description: "Optional user ID of the requester",
+  })
+  async getById(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Query("userId") userId?: string
+  ) {
+    const validUserId = userId ? await new ParseUUIDPipe().transform(userId, { type: "query" }) : undefined;
+    return await this.userService.getUser(id, validUserId);
   }
-
+    
   @Get("/search/:searchTerm")
   async searchUserByNameOrUsername(@Param("searchTerm") searchTerm: string)
   {
