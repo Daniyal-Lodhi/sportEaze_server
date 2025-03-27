@@ -13,6 +13,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ConnectionReqResponse, ConnectionStatus } from "src/common/enums/network/network.enum";
 import  {canConnect} from "src/common/utils/network/index";
 import { UserType } from "src/common/enums/user/user-type.enum";
+import { UUID } from "crypto";
 
 @Injectable()
 export class NetworkService {
@@ -251,6 +252,20 @@ async unfollowPlayer(followerId: string, playerId: string) {
   }
   
   
+  async isUserFollowingUser(userId1: string, userId2: string)
+  {
+    return !!(await this.followRepository.findOne({where: {
+      followerId: userId1,
+      playerId: userId2,
+    }}));
+  }
 
+  async isUserConnectedToUser(userId1: string, userId2: string)
+  {
+    return !!(await this.connectionRepository.findOne({where: {
+      senderId: userId1,
+      receiverId: userId2,
+    }}));
+  }
   
 }
