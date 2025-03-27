@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { User } from "../../entities/user.entity";
 import { PostMedia } from "./post-media.entity";
-import { PostLikes } from "./post-like.entity";
+import { PostLike } from "./post-like.entity";
 import { Comment } from "./post-comment.entity";
 import { PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 
@@ -52,8 +52,8 @@ export class UserPost {
   @OneToMany(() => PostMedia, (postMedia) => postMedia.post)
   media: PostMedia[];
 
-  @OneToMany(() => PostLikes, (like) => like.post)
-  likes: PostLikes[];
+  @OneToMany(() => PostLike, (like) => like.post)
+  likes: PostLike[];
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];

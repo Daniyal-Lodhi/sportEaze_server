@@ -40,6 +40,6 @@ export class Mentor{
   @Column({ nullable: true })
   instaLink?: string;
 
-  @Column({type: "array",  nullable: true })
+  @Column({type: "text", array: true, nullable: true })
   verificationDocuments?: string[]; 
 }
