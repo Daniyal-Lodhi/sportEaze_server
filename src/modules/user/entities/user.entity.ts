@@ -16,6 +16,7 @@ import { Sport } from "src/common/enums/sport/sport.enum";
 import { Patron } from "../patron/entities/patron.entity";
 import { DEFAULT_FACTORY_CLASS_METHOD_KEY } from "@nestjs/common/module-utils/constants";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
+import { Mentor } from "../mentor/entities/mentor.entity";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {
@@ -73,6 +74,9 @@ export class User {
 
   @OneToOne(() => Patron, (patron) => patron.user)
   patron: Patron;
+
+  @OneToOne(() => Mentor, (mentor) => mentor.user)
+  mentor: Mentor;
   
   @OneToMany(() => UserPost, (post) => post.user) // Establish a one-to-many relationship with posts
   posts: UserPost[]; // A user can have multiple posts

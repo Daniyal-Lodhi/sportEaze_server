@@ -11,6 +11,7 @@ import { UserPostModule } from "./user-posts/user-post.module";
 import { FanController } from "./fan/fan.controller";
 import { PatronModule } from "./patron/patron.module";
 import { NetworkModule } from "./network/network.module";
+import { MentorModule } from "./mentor/mentor.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NetworkModule } from "./network/network.module";
     LocalAuthModule,
     PlayerModule,
     PatronModule,
+    MentorModule,
     UserPostModule,
     NetworkModule
   ],

@@ -42,9 +42,9 @@ export class MentorService {
     
         await this.userService.updateUser(id, updateUerDto, UserType.MENTOR);
     
-        const patron = Object.assign(new Mentor(), { id, ...mentorDetails });
+        const mentor = Object.assign(new Mentor(), { id, ...mentorDetails });
     
-        await this.mentorRepository.save(patron);
+        await this.mentorRepository.save(mentor);
     
         return this.userService.getUser(id);
   }
@@ -54,7 +54,7 @@ export class MentorService {
         const mentor = await this.mentorRepository.findOne({ where: { id }, relations: ['user'] });
     
         if (!mentor) {
-          throw new NotFoundException(`Patron with ID ${id} not found.`);
+          throw new NotFoundException(`Mentor with ID ${id} not found.`);
         }
     
         return mentor;
