@@ -96,7 +96,7 @@ export class UserService {
   async getUser(id: string, userId?: string | undefined): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ["player", "patron"]
+      relations: ["player", "patron", "mentor"]
     });
 
     if (user?.deleted || !user) {
@@ -116,6 +116,7 @@ export class UserService {
       ...user,
       player: user.player ?? undefined,
       patron: user.patron ?? undefined,
+      mentor: user.mentor ?? undefined,
       isFollowing,
       isConnected
       
