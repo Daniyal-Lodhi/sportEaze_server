@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity("achievements")
+@Entity("Achievements")
 export class Achievement {
   @PrimaryGeneratedColumn("increment") // Auto Increment Int
   id?: number;

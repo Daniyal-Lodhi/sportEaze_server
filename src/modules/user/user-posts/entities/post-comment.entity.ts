@@ -11,7 +11,7 @@ import {
 import { UserPost } from "./user-post.entity";
 import { User } from "../../entities/user.entity";
 
-@Entity("postComments")
+@Entity("PostComments")
 export class Comment {
   @PrimaryGeneratedColumn("uuid")
   id: string;

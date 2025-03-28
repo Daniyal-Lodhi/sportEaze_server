@@ -10,7 +10,7 @@ import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 import { PatronType, FundingType, PatronAccountStatus } from "src/common/enums/patron/patron.enum";
 import { Sport } from "src/common/enums/sport/sport.enum";
 
-@Entity("patrons")
+@Entity("Patrons")
 export class Patron {
   @PrimaryColumn("uuid")
   id: string;

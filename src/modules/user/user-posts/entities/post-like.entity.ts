@@ -11,8 +11,8 @@ import { UserPost } from "./user-post.entity";
 import { User } from "../../entities/user.entity";
 import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 
-@Entity("postLikes")
-export class PostLike {
+@Entity("PostLikes")
+export class PostLikes {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

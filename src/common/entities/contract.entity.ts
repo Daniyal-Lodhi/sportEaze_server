@@ -8,7 +8,7 @@ import {
 import { ContractStatus } from "../enums/contract-status.enum";
 import { Player } from "src/modules/user/player/entities/player.entity";
 
-@Entity("contracts")
+@Entity("Contracts")
 export class Contract {
   @PrimaryGeneratedColumn("increment")
   contractId?: number;

@@ -10,9 +10,9 @@ import {
 } from "typeorm";
 import { User } from "src/modules/user/entities/user.entity";
 
-@Entity("followers")
+@Entity("Followers")
 @Unique(["playerId", "followerId"]) // Ensures a user cannot follow the same player twice
-export class Follower {
+export class Followers {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

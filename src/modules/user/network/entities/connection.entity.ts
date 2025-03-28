@@ -12,7 +12,7 @@ import { User } from "src/modules/user/entities/user.entity";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
 
 
-@Entity("connections") // Specifies the table name as 'connections'
+@Entity("Connections") // Specifies the table name as 'connections'
 export class Connection {
   @PrimaryGeneratedColumn('uuid')
   id: string;

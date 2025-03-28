@@ -9,7 +9,7 @@ import {
 import { UserPost } from "./user-post.entity";
 import { isString } from "class-validator";
 
-@Entity("postMedia")
+@Entity("PostMedia")
 export class PostMedia {
   @PrimaryGeneratedColumn("uuid")
   id: string;

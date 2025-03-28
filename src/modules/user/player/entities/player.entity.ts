@@ -14,7 +14,7 @@ import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 
-@Entity("players")
+@Entity("Player")
 export class Player {
   @PrimaryColumn("uuid")
   id: string;
