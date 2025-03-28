@@ -1,5 +1,5 @@
 export enum MentorRole {
-  Coach = "Coach",
-  FitnessTrainer = "Fitness Trainer",
-  SportsPsychologist = "Sports Psychologist",
+  COACH = 1,
+  FITNESS_TRAINER = 2,
+  SPORTS_PSYCHOLOGIST = 3,
 }
