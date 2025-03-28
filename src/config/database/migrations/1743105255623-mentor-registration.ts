@@ -16,7 +16,6 @@ export class MentorRegistration1743105255623 implements MigrationInterface {
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "sportEaze"."mentors" DROP CONSTRAINT "FK_67a614446eab992e4d0580afebf"`);
-        await queryRunner.query(`ALTER TABLE "sportEaze"."Patrons" DROP CONSTRAINT "FK_b45fdbae11f4f877ec958600a26"`);
         await queryRunner.query(`ALTER TABLE "sportEaze"."Users" ALTER COLUMN "profilePicUrl" DROP DEFAULT`);
         await queryRunner.query(`ALTER TABLE "sportEaze"."Users" ALTER COLUMN "profilePicUrl" DROP NOT NULL`);
         await queryRunner.query(`UPDATE "sportEaze"."Users" SET "profilePicUrl" = NULL WHERE "profilePicUrl" = '${DEFAULT_USER_PROFILE_PIC_URL}'`);
