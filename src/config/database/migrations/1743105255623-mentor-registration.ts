@@ -26,6 +26,7 @@ export class MentorRegistration1743105255623 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "sportEaze"."Patrons" DROP CONSTRAINT "FK_b45fdbae11f4f877ec958600a26"`);
         await queryRunner.query(`ALTER TABLE "sportEaze"."Users" ALTER COLUMN "profilePicUrl" DROP DEFAULT`);
         await queryRunner.query(`ALTER TABLE "sportEaze"."Users" ALTER COLUMN "profilePicUrl" DROP NOT NULL`);
+        await queryRunner.query(`UPDATE "sportEaze"."Users" SET "profilePicUrl" = NULL WHERE "profilePicUrl" = '${DEFAULT_USER_PROFILE_PIC_URL}'`);
         await queryRunner.query(`DROP TABLE "sportEaze"."mentors"`);
         await queryRunner.query(`DROP TYPE "sportEaze"."mentors_sportinterests_enum"`);
         await queryRunner.query(`DROP TYPE "sportEaze"."mentors_role_enum"`);
