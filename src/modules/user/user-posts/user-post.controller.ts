@@ -89,16 +89,17 @@ async getPostById(@Response() res, @Param("postId") postId: string) {
   }
 }
 
-
-@Get("/get-posts")
+@UseGuards()
+@Get("/get-posts:/id")
 async getPost(
   @Request() req,
   @Response() res,
+  @Param("id") userId: string,
   @Query("pageSize") pageSize?: string,
   @Query("pageNo") pageNo?: string
 ) {
   try {
-    const userId = req.user.id;
+    // const userId = req.user.id;
     const page = pageNo ? parseInt(pageNo, 10) : 1;
     const size = pageSize ? parseInt(pageSize, 10) : 10; // Default: 10 posts per page
 
