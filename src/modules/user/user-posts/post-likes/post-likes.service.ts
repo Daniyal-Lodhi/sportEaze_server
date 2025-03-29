@@ -84,7 +84,10 @@ export class PostLikesService {
     reactions,
     likes: likes.map(like => ({
       userId: like.user?.id,  // Only return user ID
+      profilePicUrl: like.user?.profilePicUrl,
+      userFullName: like.user?.fullName,
       userName: like.user?.fullName, // Only return user name
+      userType: like.user?.userType
     })),
   };
 }
