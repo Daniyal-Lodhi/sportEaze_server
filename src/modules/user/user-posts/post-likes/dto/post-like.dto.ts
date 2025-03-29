@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 import { ReactTypeEnum } from 'src/common/enums/post/user-posts.enum';
@@ -10,8 +11,8 @@ export class LikePostDto {
     example: ReactTypeEnum.HEART
   })
   @IsEnum(ReactTypeEnum)
-  @IsNotEmpty()
-  reactType?: ReactTypeEnum;
+  @Optional()
+  reactType?: ReactTypeEnum = ReactTypeEnum.HEART;
 
   @ApiProperty({
     type: Boolean,
