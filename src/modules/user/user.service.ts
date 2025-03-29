@@ -112,13 +112,16 @@ export class UserService {
       isConnected = await this.networkService.isUserConnectedToUser(userId, id);
     }
 
+    const followerCount: number = await this.networkService.getFollowersCount(id);
+
     return {
       ...user,
       player: user.player ?? undefined,
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
-      isConnected
+      isConnected,
+      followerCount
       
     } as GetUserDto;
   }

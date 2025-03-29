@@ -268,4 +268,10 @@ async unfollowPlayer(followerId: string, playerId: string) {
     }}));
   }
   
+  async getFollowersCount(userId: string): Promise<number> {
+    return await this.followRepository.count({
+      where: { playerId: userId },
+    });
+  }
+  
 }
