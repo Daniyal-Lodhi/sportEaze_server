@@ -17,12 +17,13 @@ import { UserPostService } from "./user-post.service";
 import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
 
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+
 @Controller("api/user/post")
 export class UserPostController {
   constructor(private PostSrv: UserPostService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   // creating only text user posts
   @Post("/create-text-post")
   async createTextPost(
@@ -45,6 +46,8 @@ export class UserPostController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post("/create-media-post")
   async createMediaPost(
     @Body() CreateMediaPostDTO: CreateMediaPostDTO,
@@ -66,6 +69,8 @@ export class UserPostController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get("/get-post/:postId")
 async getPostById(@Response() res, @Param("postId") postId: string) {
   try {
@@ -89,12 +94,12 @@ async getPostById(@Response() res, @Param("postId") postId: string) {
   }
 }
 
-@UseGuards()
-@Get("/get-posts:/id")
+
+@Get("/get-posts/:userid")
 async getPost(
   @Request() req,
   @Response() res,
-  @Param("id") userId: string,
+  @Param("userid") userId: string,
   @Query("pageSize") pageSize?: string,
   @Query("pageNo") pageNo?: string
 ) {
