@@ -82,7 +82,7 @@ export class PostCommentsService {
           id: comment.user?.id,  // Only return user ID
           profilePicUrl: comment.user?.profilePicUrl,
           fullName: comment.user?.fullName,
-          username: comment.user?.fullName, // Only return user name
+          username: comment.user?.username, // Only return user name
           userType: comment.user?.userType
             },
       })),

@@ -10,6 +10,8 @@ import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
+import { unescape } from "querystring";
+import { isUndefined } from "util";
 
 @Injectable()
 export class UserPostService {
@@ -137,6 +139,10 @@ export class UserPostService {
   
     // ✅ Get comment count directly from the post object
     const commentCount = post.comments.length;
+    post.comments = undefined;
+    post.likes = undefined;
+
+    post.user = { ...post.user, email: undefined, dob: undefined, gender: undefined, sportInterests: undefined, deleted: undefined, createdAt: undefined, updatedAt: undefined };
   
     return {
       ...post,

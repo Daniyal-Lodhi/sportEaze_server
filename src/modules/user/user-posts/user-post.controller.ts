@@ -69,8 +69,6 @@ export class UserPostController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Get("/get-post/:postId")
 async getPostById(@Response() res, @Param("postId") postId: string) {
   try {
@@ -81,7 +79,8 @@ async getPostById(@Response() res, @Param("postId") postId: string) {
       post: {
         ...post,
         likeCount: post.likeCount|| 0, // Total likes count
-        reactions: post.reactions || {},   // Reaction type breakdown
+        // reactions: post.reactions || {},   // Reaction type breakdown
+        reactions: undefined,   // Reaction type breakdown
       },
     });
   } catch (error) {
