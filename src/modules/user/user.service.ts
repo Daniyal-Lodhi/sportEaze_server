@@ -114,16 +114,16 @@ export class UserService {
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
 
+
     return {
       ...user,
-      player: user.player ?? undefined,
+      player: user.player ? { ...user.player, followerCount } : undefined, 
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
       isConnected,
-      followerCount
-      
     } as GetUserDto;
+    
   }
 
   async updateUser(

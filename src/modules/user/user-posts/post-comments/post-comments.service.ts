@@ -79,9 +79,12 @@ export class PostCommentsService {
         content: comment.content,
         createdAt: comment.createdAt,
         user: {
-          userId: comment.user.id,
-          userName: comment.user.fullName,
-        },
+          id: comment.user?.id,  // Only return user ID
+          profilePicUrl: comment.user?.profilePicUrl,
+          fullName: comment.user?.fullName,
+          username: comment.user?.fullName, // Only return user name
+          userType: comment.user?.userType
+            },
       })),
     };
 }
