@@ -11,7 +11,7 @@ import {
   Param,
   Query,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
+import { JwtAuthGuard, OptionalJwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
 import { UserPostService } from "./user-post.service";
 import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
@@ -70,9 +70,11 @@ export class UserPostController {
   }
 
   @Get("/get-post/:postId")
-async getPostById(@Response() res, @Param("postId") postId: string) {
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiBearerAuth()
+async getPostById(@Request() req, @Response() res, @Param("postId") postId: string) {
   try {
-    const post = await this.PostSrv.getPostById(postId);
+    const post = await this.PostSrv.getPostById(postId, req.user?.id);
 
     res.status(200).json({
       success: true,

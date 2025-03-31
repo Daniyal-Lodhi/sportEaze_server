@@ -10,8 +10,7 @@ import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
-import { unescape } from "querystring";
-import { isUndefined } from "util";
+import { PostLikesService } from "./post-likes/post-likes.service";
 
 @Injectable()
 export class UserPostService {
@@ -21,6 +20,7 @@ export class UserPostService {
     @InjectRepository(PostMedia)
     private readonly postMediaRepository: Repository<PostMedia>,
     private readonly userSrv: UserService,
+    private readonly postLikeService: PostLikesService,
   ) {}
   async createTextPost(
     userId: string,
@@ -118,7 +118,7 @@ export class UserPostService {
   
   
 
-  async getPostById(id: string): Promise<GetPostDTO> {
+  async getPostById(id: string, userId?: string | undefined): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ["media", "likes", "user", 'comments'], // ✅ Include "comments" in relations
@@ -143,7 +143,9 @@ export class UserPostService {
     post.likes = undefined;
 
     post.user = { ...post.user, email: undefined, dob: undefined, gender: undefined, sportInterests: undefined, deleted: undefined, createdAt: undefined, updatedAt: undefined };
-  
+
+    const isLiked: boolean | undefined = await this.postLikeService.isUserLikedPost(id, userId);
+    
     return {
       ...post,
       likeCount,

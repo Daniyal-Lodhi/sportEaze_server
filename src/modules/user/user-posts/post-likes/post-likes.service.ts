@@ -93,6 +93,19 @@ export class PostLikesService {
 }
 
   
+async isUserLikedPost(postId: string, userId?: string | undefined): Promise<boolean | undefined> {
+
+  if(!userId) return undefined;
+
+  const like = await this.likeRepository.findOne({
+    where: {
+      postId,
+      userId
+    }
+  });
+  return !!like;
+}
+
   
 
 }
