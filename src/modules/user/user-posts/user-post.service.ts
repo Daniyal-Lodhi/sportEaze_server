@@ -151,6 +151,7 @@ export class UserPostService {
       likeCount,
       reactions,
       commentCount, // ✅ Included comment count
+      isLiked
     };
   }
 }
