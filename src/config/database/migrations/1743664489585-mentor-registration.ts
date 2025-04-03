@@ -1,11 +1,11 @@
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class MentorRegistration1743105255623 implements MigrationInterface {
-    name = 'MentorRegistration1743105255623'
+export class MentorRegistration1743664489585 implements MigrationInterface {
+    name = 'MentorRegistration1743664489585'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TYPE "sportEaze"."mentors_role_enum" AS ENUM('Coach', 'Fitness Trainer', 'Sports Psychologist')`);
+        await queryRunner.query(`CREATE TYPE "sportEaze"."mentors_role_enum" AS ENUM('1', '2', '3')`);
         await queryRunner.query(`CREATE TYPE "sportEaze"."mentors_sportinterests_enum" AS ENUM('1', '2', '3', '4', '5', '6')`);
         await queryRunner.query(`CREATE TABLE "sportEaze"."mentors" ("id" uuid NOT NULL, "role" "sportEaze"."mentors_role_enum" NOT NULL, "sportInterests" "sportEaze"."mentors_sportinterests_enum" array NOT NULL, "yearsOfExperience" character varying(50) NOT NULL, "currentAffiliation" character varying(255), "website" character varying, "linkedIn" character varying, "fbLink" character varying, "xLink" character varying, "instaLink" character varying, "verificationDocuments" text array, CONSTRAINT "PK_67a614446eab992e4d0580afebf" PRIMARY KEY ("id"))`);
         await queryRunner.query(`UPDATE "sportEaze"."Users" SET "profilePicUrl" = '${DEFAULT_USER_PROFILE_PIC_URL}' WHERE "profilePicUrl" IS NULL`);
