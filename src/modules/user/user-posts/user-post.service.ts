@@ -9,7 +9,7 @@ import { GetPostDTO } from "./dto/get-post.dto";
 import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user/user-type.enum";
-import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
+import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesService } from "./post-likes/post-likes.service";
 
 @Injectable()
@@ -35,6 +35,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
+      postType: PostTypeEnum.Text,
     });
 
 
@@ -58,6 +59,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
       userId,
+      postType: PostTypeEnum.Media,
     });
 
     const savedPost = await this.postRepository.save(post); // Save the post to the database
@@ -113,10 +115,6 @@ export class UserPostService {
       })),
     };
   }
-  
-  
-  
-  
 
   async getPostById(id: string, userId?: string | undefined): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
