@@ -101,10 +101,10 @@ export class NetworkController {
     const userId = req.user.id;
     const followers = await this.networkService.getFollowers(userId);
 
-    if (!followers || followers.length === 0) {
-      throw new NotFoundException("No followers found.");
-    }
+    // if (!followers || followers.length === 0) {
+    //   throw new NotFoundException("No followers found.");
+    // }
 
-    return { followers, count: followers.length,success:true };
+    return { followers, count: followers.length, success:true };
   }
 }

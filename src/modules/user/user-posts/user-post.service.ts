@@ -9,7 +9,8 @@ import { GetPostDTO } from "./dto/get-post.dto";
 import { UserService } from "../user.service";
 import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user/user-type.enum";
-import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
+import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
+import { PostLikesService } from "./post-likes/post-likes.service";
 
 @Injectable()
 export class UserPostService {
@@ -19,6 +20,7 @@ export class UserPostService {
     @InjectRepository(PostMedia)
     private readonly postMediaRepository: Repository<PostMedia>,
     private readonly userSrv: UserService,
+    private readonly postLikeService: PostLikesService,
   ) {}
   async createTextPost(
     userId: string,
@@ -33,6 +35,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
+      postType: PostTypeEnum.Text,
     });
 
 
@@ -56,6 +59,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
       userId,
+      postType: PostTypeEnum.Media,
     });
 
     const savedPost = await this.postRepository.save(post); // Save the post to the database
@@ -111,12 +115,8 @@ export class UserPostService {
       })),
     };
   }
-  
-  
-  
-  
 
-  async getPostById(id: string): Promise<GetPostDTO> {
+  async getPostById(id: string, userId?: string | undefined): Promise<GetPostDTO> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ["media", "likes", "user", 'comments'], // ✅ Include "comments" in relations
@@ -137,12 +137,19 @@ export class UserPostService {
   
     // ✅ Get comment count directly from the post object
     const commentCount = post.comments.length;
-  
+    post.comments = undefined;
+    post.likes = undefined;
+
+    post.user = { ...post.user, email: undefined, dob: undefined, gender: undefined, sportInterests: undefined, deleted: undefined, createdAt: undefined, updatedAt: undefined };
+
+    const isLiked: boolean | undefined = await this.postLikeService.isUserLikedPost(id, userId);
+    
     return {
       ...post,
       likeCount,
       reactions,
       commentCount, // ✅ Included comment count
+      isLiked
     };
   }
 }

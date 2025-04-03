@@ -63,7 +63,7 @@ export class PostLikesService {
     return { liked: true, likeCount, reactType };
   }
 
-  async getPostLikes(postId: string): Promise<{ likeCount: number; reactions: Record<ReactTypeEnum, number>; likes: { userId: string; userName: string }[] }> {
+  async getPostLikes(postId: string): Promise<{ likeCount: number; reactions: Record<ReactTypeEnum, number>; users: { id: string; username: string }[] }> {
   // Fetch all likes for the given post, including user details
   const likes = await this.likeRepository.find({
     where: { postId },
@@ -82,14 +82,30 @@ export class PostLikesService {
   return {
     likeCount,
     reactions,
-    likes: likes.map(like => ({
-      userId: like.user?.id,  // Only return user ID
-      userName: like.user?.fullName, // Only return user name
+    users: likes.map(like => ({
+      id: like.user?.id,  // Only return user ID
+      profilePicUrl: like.user?.profilePicUrl,
+      fullName: like.user?.fullName,
+      username: like.user?.username, // Only return user name
+      userType: like.user?.userType
     })),
   };
 }
 
   
+async isUserLikedPost(postId: string, userId?: string | undefined): Promise<boolean | undefined> {
+
+  if(!userId) return undefined;
+
+  const like = await this.likeRepository.findOne({
+    where: {
+      postId,
+      userId
+    }
+  });
+  return !!like;
+}
+
   
 
 }

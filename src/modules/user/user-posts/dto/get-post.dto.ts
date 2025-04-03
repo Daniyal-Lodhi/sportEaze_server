@@ -23,4 +23,6 @@ export class GetPostDTO {
   reactions: Partial<Record<ReactTypeEnum, number>>;
 
   commentCount: number;
+
+  isLiked?: boolean | undefined;
 }

@@ -12,7 +12,7 @@ export class Mentor{
     @JoinColumn({ name: "id" })
     user: User;
 
-
+  
   @Column({ type: "enum", enum: MentorRole })
   role: MentorRole;
 

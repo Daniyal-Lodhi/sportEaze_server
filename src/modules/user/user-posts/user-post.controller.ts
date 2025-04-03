@@ -11,18 +11,19 @@ import {
   Param,
   Query,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
+import { JwtAuthGuard, OptionalJwtAuthGuard } from "src/modules/auth/local-auth/jwt-auth.guard";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
 import { UserPostService } from "./user-post.service";
 import { CreateMediaPostDTO } from "./dto/create-media-post.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
 
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+
 @Controller("api/user/post")
 export class UserPostController {
   constructor(private PostSrv: UserPostService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   // creating only text user posts
   @Post("/create-text-post")
   async createTextPost(
@@ -45,6 +46,8 @@ export class UserPostController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post("/create-media-post")
   async createMediaPost(
     @Body() CreateMediaPostDTO: CreateMediaPostDTO,
@@ -67,16 +70,19 @@ export class UserPostController {
   }
 
   @Get("/get-post/:postId")
-async getPostById(@Response() res, @Param("postId") postId: string) {
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiBearerAuth()
+async getPostById(@Request() req, @Response() res, @Param("postId") postId: string) {
   try {
-    const post = await this.PostSrv.getPostById(postId);
+    const post = await this.PostSrv.getPostById(postId, req.user?.id);
 
     res.status(200).json({
       success: true,
       post: {
         ...post,
         likeCount: post.likeCount|| 0, // Total likes count
-        reactions: post.reactions || {},   // Reaction type breakdown
+        // reactions: post.reactions || {},   // Reaction type breakdown
+        reactions: undefined,   // Reaction type breakdown
       },
     });
   } catch (error) {
@@ -90,15 +96,16 @@ async getPostById(@Response() res, @Param("postId") postId: string) {
 }
 
 
-@Get("/get-posts")
+@Get("/get-posts/:userid")
 async getPost(
   @Request() req,
   @Response() res,
+  @Param("userid") userId: string,
   @Query("pageSize") pageSize?: string,
   @Query("pageNo") pageNo?: string
 ) {
   try {
-    const userId = req.user.id;
+    // const userId = req.user.id;
     const page = pageNo ? parseInt(pageNo, 10) : 1;
     const size = pageSize ? parseInt(pageSize, 10) : 10; // Default: 10 posts per page
 
