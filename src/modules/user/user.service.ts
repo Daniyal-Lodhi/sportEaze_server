@@ -223,4 +223,17 @@ export class UserService {
   
       return users as GetUserDto[];
   }  
+
+  async getUserType(id?: string | undefined): Promise<UserType | null> {
+
+    if(!id) return null;
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ["userType"],
+    });
+  
+    return user?.userType ?? null;
+  }
+
 }

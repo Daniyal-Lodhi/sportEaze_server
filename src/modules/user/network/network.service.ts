@@ -273,5 +273,15 @@ async unfollowPlayer(followerId: string, playerId: string) {
       where: { playerId: userId },
     });
   }
+
+  async getFollowing(userId: string): Promise<{ id: string }[]> {
+    const following = await this.followRepository.find({
+      where: {
+        followerId: userId,
+      },
+      select: ["playerId"],
+    });
   
+    return following.map(follow => ({ id: follow.playerId }));
+  }
 }

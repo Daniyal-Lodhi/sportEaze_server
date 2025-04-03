@@ -10,8 +10,8 @@ export class FeedController {
   @UseGuards(OptionalJwtAuthGuard)
   @ApiBearerAuth()
   @Get("/:pageNo/:pageSize")
-  async getNewsFeed(@Request() req, @Param("pageNo") pageNo: number, @Param("pageSize") pageSize: number) {
-    return await this.feedService.getNewsFeed(pageNo, pageSize, req.user?.id);
+  async getUserFeed(@Request() req, @Param("pageNo") pageNo: number, @Param("pageSize") pageSize: number) {
+    return await this.feedService.getUserFeed(pageNo, pageSize, req.user?.id);
   }
 
 }

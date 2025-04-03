@@ -8,10 +8,13 @@ import { PostLikesService } from '../user/user-posts/post-likes/post-likes.servi
 import { PostLikes } from '../user/user-posts/entities/post-like.entity';
 import { User } from '../user/entities/user.entity';
 import { PostLikesGateway } from '../user/user-posts/post-likes/post-likes.gateway';
+import { UserService } from '../user/user.service';
+import { LocalAuthModule } from '../auth/local-auth/local-auth.module';
+import { NetworkModule } from '../user/network/network.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes])],
+  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes, User]), NetworkModule, LocalAuthModule],
   controllers: [FeedController],
-  providers: [FeedService, PostLikesService, PostLikesGateway],
+  providers: [FeedService, PostLikesService, PostLikesGateway, UserService],
 })
 export class FeedModule {}
