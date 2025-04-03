@@ -18,6 +18,7 @@ import { UserPostModule } from "./modules/user/user-posts/user-post.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { SportModule } from './modules/sport/sport.module';
+import { FeedModule } from './modules/feed/feed.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SportModule } from './modules/sport/sport.module';
     ConfigModule,
     DatabaseModule,
     UserModule,
+    FeedModule,
   ],
   controllers: [AppController],
   providers: [AppService]
