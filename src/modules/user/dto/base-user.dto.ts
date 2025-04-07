@@ -1,16 +1,17 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MinLength, Matches, IsDateString, IsEnum } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, MinLength, Matches, IsDateString, IsEnum, IsOptional } from "class-validator";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { GenderType } from "src/common/enums/user/gender-type.enum";
 
 export class BaseUserDto {
 
-    @ApiProperty({
-        description: "The URL of the user's profile picture.",
-        example: DEFAULT_USER_PROFILE_PIC_URL,
-      })
-      @IsString()
-      profilePicUrl: string;
+  @ApiPropertyOptional({
+    description: "The URL of the user's profile picture.",
+    example: 'https://yourdomain.com/default-profile-pic.png',
+  })
+  @IsString()
+  @IsOptional()
+  profilePicUrl?: string = DEFAULT_USER_PROFILE_PIC_URL; // Default profile picture URL
     
   
     @ApiProperty({

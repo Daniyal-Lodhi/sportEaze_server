@@ -104,11 +104,11 @@ export class FeedService {
   }
 
   private async getDefaultFeed(pageNo: number, pageSize: number, userId?: string): Promise<any> {
-    const countPerPage = Math.floor(pageSize / 2);
+    // const countPerPage = Math.floor(pageSize / 2);
 
     const posts = await this.userPostRepo.find({
-      skip: (pageNo - 1) * countPerPage,
-      take: countPerPage,
+      skip: (pageNo - 1) * pageSize,
+      take: pageSize,
       relations: ["media", "user", "likes", "comments"],
     });
 
