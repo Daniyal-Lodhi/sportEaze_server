@@ -284,4 +284,20 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
     return following.map(follow => ({ id: follow.playerId }));
   }
+
+  async getConnections(userId: string): Promise<{ id: string }[]> {
+    const connections = await this.connectionRepository.find({
+      where: [
+        { senderId: userId, status: ConnectionStatus.ACCEPTED },
+        { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+      ],
+      select: ["senderId", "receiverId"],
+    });
+  
+    const connectedIds = connections.map(connection => {
+      return connection.senderId === userId ? connection.receiverId : connection.senderId;
+    });
+  
+    return connectedIds.map(id => ({ id }));
+  }
 }
