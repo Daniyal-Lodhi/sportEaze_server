@@ -26,7 +26,7 @@ export class FeedService {
     const userType = await this.userService.getUserType(userId);
     console.log(userType);
 
-    if (userType === UserType.FAN) {
+    if (userType === UserType.FAN || userType === UserType.MENTOR) {
       console.log("Fetching feed for FAN user");
 
       const followedPlayers = await this.networkService.getFollowing(userId);
