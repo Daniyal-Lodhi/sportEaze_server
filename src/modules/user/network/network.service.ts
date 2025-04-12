@@ -50,10 +50,12 @@ export class NetworkService {
     // 3. Check if a connection already exists
     const existingConnection = await this.connectionRepository.findOne({
       where: [
-        { senderId: requester_id, receiverId: receiver_id, status: Not(In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED])) },
-        { senderId: receiver_id, receiverId: requester_id, status: Not(In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED])) },
+        { senderId: requester_id, receiverId: receiver_id, status: Not(ConnectionStatus.REJECTED) },
+        { senderId: receiver_id, receiverId: requester_id, status: Not(ConnectionStatus.REJECTED) },
       ],
     });
+
+    console.log(existingConnection, requester_id, receiver_id);
 
     if (existingConnection) {
       throw new ConflictException("Connection request already exists.");
@@ -90,6 +92,7 @@ export class NetworkService {
       connection.status = ConnectionStatus.ACCEPTED;
     } else if (action === ConnectionReqResponse.REJECT) {
       connection.status = ConnectionStatus.REJECTED;
+      await this.connectionRepository.remove(connection); // Remove the connection request
     } else {
       throw new Error("Invalid action. Use ACCEPT or REJECT.");
     }
@@ -112,7 +115,7 @@ async getPendingConnectionRequests(userId: string) {
     const pendingRequests = await this.connectionRepository.find({
       where: [
         { receiverId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
-        { senderId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
+        // { senderId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
       ],
       relations: ["sender"], // Fetch sender details
     });
