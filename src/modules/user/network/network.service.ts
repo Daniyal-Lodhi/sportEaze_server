@@ -276,14 +276,24 @@ async unfollowPlayer(followerId: string, playerId: string) {
       ],
       select: ["id", "status"],
     });
-  
-    return connection;
+    
+    // console.log(connection, userId1, userId2);
+    return connection ?? { id: undefined, status: ConnectionStatus.REJECTED };
   }
   
   
   async getFollowersCount(userId: string): Promise<number> {
     return await this.followRepository.count({
       where: { playerId: userId },
+    });
+  }
+
+  async getConnectionsCount(userId: string): Promise<number> {
+    return await this.connectionRepository.count({
+      where: [
+        { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+        { senderId: userId, status: ConnectionStatus.ACCEPTED },
+      ]
     });
   }
 

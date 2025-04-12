@@ -20,13 +20,15 @@ import { RegisterUserDto } from "./dto/register-user.dto";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { NetworkService } from "./network/network.service";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
+import { SharedPostsService } from "./user-posts/shared-posts/shared-posts.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private localAuthSrv: LocalAuthService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    // private sharedPostService: SharedPostsService,
   ) {}
 
   async RegisterUser(createUserDto: CreateUserDto): Promise<string> {
@@ -114,11 +116,14 @@ export class UserService {
     }
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
+    const connectionCount: number = await this.networkService.getConnectionsCount(id);
+
+    // const sharedPostCount = await this.sharedPostService.getSharedPostCount(id);
 
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, connectionCount } : undefined, 
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
