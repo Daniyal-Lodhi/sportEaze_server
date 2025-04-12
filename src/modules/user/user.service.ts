@@ -107,7 +107,7 @@ export class UserService {
     }
 
     let isFollowing: boolean | undefined = undefined;
-    let connection: {id: string, status: ConnectionStatus} = { id: undefined, status: ConnectionStatus.REJECTED };
+    let connection: {id: string, status: ConnectionStatus, receiverId: string} = { id: undefined, status: ConnectionStatus.REJECTED, receiverId: undefined };
     
     if(userId) {
 
