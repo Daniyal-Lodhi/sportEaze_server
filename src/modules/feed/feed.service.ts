@@ -66,7 +66,7 @@ export class FeedService {
       },
       skip: (pageNo - 1) * pageSize,
       take: pageSize,
-      relations: ["user", "media", "likes", "comments"],
+      relations: ["user", "originalPost", "originalPost.media", "originalPost.likes", "originalPost.comments"],
     });
 
     console.log("Shared posts from connections:", sharedPostsData);
