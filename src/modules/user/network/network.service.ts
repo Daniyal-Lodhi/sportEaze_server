@@ -119,17 +119,17 @@ async getPendingConnectionRequests(userId: string) {
     if (!pendingRequests.length) {
       throw new NotFoundException("No pending connection requests found.");
     }
-  
+    
     return pendingRequests.map((request) => ({
       requestId: request.id,
-      userId: request.senderId,
-      userName: request.sender.username, // Assuming 'name' exists in User entity
       status: request.status,
-      userType:request.sender.userType,
-      fullName:request.sender.fullName,
-      profilePic:request.sender.profilePicUrl,
-      success:true 
-    }));
+      user: {
+        id: request.senderId,
+        profilePicUrl:request.sender.profilePicUrl,
+        fullName:request.sender.fullName,
+        username: request.sender.username,
+        userType:request.sender.userType,
+      }}));
   }
 
   // get a user's connection
@@ -268,16 +268,16 @@ async unfollowPlayer(followerId: string, playerId: string) {
     }}));
   }
 
-  async getConnectionStatusBetweenUsers(userId1: string, userId2: string): Promise<ConnectionStatus | undefined> {
+  async getConnectionStatusBetweenUsers(userId1: string, userId2: string): Promise<{id: string, status: ConnectionStatus}> {
     const connection = await this.connectionRepository.findOne({
       where: [
         { senderId: userId1, receiverId: userId2 },
         { senderId: userId2, receiverId: userId1 },
       ],
-      select: ["status"],
+      select: ["id", "status"],
     });
   
-    return connection ? (connection.status as ConnectionStatus) : undefined;
+    return connection;
   }
   
   

@@ -105,12 +105,12 @@ export class UserService {
     }
 
     let isFollowing: boolean | undefined = undefined;
-    let connectionStatus: ConnectionStatus | undefined = undefined;
+    let connection: {id: string, status: ConnectionStatus} = { id: undefined, status: ConnectionStatus.REJECTED };
     
     if(userId) {
 
       isFollowing = await this.networkService.isUserFollowingUser(userId, id);
-      connectionStatus = await this.networkService.getConnectionStatusBetweenUsers(userId, id);
+      connection = await this.networkService.getConnectionStatusBetweenUsers(userId, id);
     }
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
@@ -122,7 +122,7 @@ export class UserService {
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
-      connectionStatus,
+      connection,
     } as GetUserDto;
     
   }

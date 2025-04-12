@@ -5,12 +5,13 @@ import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
 
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+
 @Controller("api/user/post/shared-posts")
 export class SharedPostsController {
   constructor(private readonly sharedPostsService: SharedPostsService) {}
-
+  
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   async create(@Body() createSharedPostDto: CreateSharedPostDto, @Request() req, @Response() res) {
     try {
@@ -26,11 +27,11 @@ export class SharedPostsController {
     }  
   }
 
-  @Get()
-  async get(@Request() req, @Response() res)
+  @Get(":id")
+  async get(@Request() req, @Response() res, @Param("id") id: string)
   {
     try {
-      const sharedPosts = await this.sharedPostsService.getSharedPostsByUserId(req.user.id);
+      const sharedPosts = await this.sharedPostsService.getSharedPostsByUserId(id);
 
      res.status(200).json({success: true, ...{sharedPosts}});
    } catch (error) {
@@ -42,6 +43,8 @@ export class SharedPostsController {
    }  
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch(":id")
   async update(@Param("id") id: string, @Body() updateSharedPost: UpdateSharedPostDto, @Request() req, @Response() res)
   {
