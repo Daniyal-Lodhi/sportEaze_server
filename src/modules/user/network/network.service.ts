@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { Connection } from "./entities/connection.entity";
 import { Followers } from "./entities/follower.entity";
@@ -50,8 +50,8 @@ export class NetworkService {
     // 3. Check if a connection already exists
     const existingConnection = await this.connectionRepository.findOne({
       where: [
-        { senderId: requester_id, receiverId: receiver_id },
-        { senderId: receiver_id, receiverId: requester_id },
+        { senderId: requester_id, receiverId: receiver_id, status: Not(In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED])) },
+        { senderId: receiver_id, receiverId: requester_id, status: Not(In([ConnectionStatus.PENDING, ConnectionStatus.ACCEPTED])) },
       ],
     });
 
@@ -68,7 +68,7 @@ export class NetworkService {
 
     try {
       await this.connectionRepository.save(newConnection);
-      return { message: "Connection request sent.",success:true  };
+      return { message: "Connection request sent.", success:true, connection: { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId } };
     } catch (error) {
       console.log(error)
       throw new InternalServerErrorException("Failed to send connection request.");
@@ -112,12 +112,13 @@ async getPendingConnectionRequests(userId: string) {
     const pendingRequests = await this.connectionRepository.find({
       where: [
         { receiverId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
+        { senderId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
       ],
       relations: ["sender"], // Fetch sender details
     });
   
     if (!pendingRequests.length) {
-      throw new NotFoundException("No pending connection requests found.");
+     return [];
     }
     
     return pendingRequests.map((request) => ({
