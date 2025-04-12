@@ -107,4 +107,14 @@ export class NetworkController {
 
     return { followers, count: followers.length, success:true };
   }
+
+  @Delete("/connections/:connectionId")
+  @UseGuards(JwtAuthGuard)
+  async deleteConnection(@Request() req, @Param("connectionId") connectionId: string) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
+    }
+
+    return this.networkService.deleteConnection(connectionId, req.user.id);
+  }
 }

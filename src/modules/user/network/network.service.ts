@@ -142,7 +142,9 @@ async getPendingConnectionRequests(userId: string) {
       relations: ["sender", "receiver"],
     });
   
-    return connections.map((connection) => {
+    const totalConnectionCount = connections.length;
+  
+    const userConnections = connections.map((connection) => {
       const otherUser =
         connection.senderId === userId ? connection.receiver : connection.sender;
   
@@ -154,7 +156,13 @@ async getPendingConnectionRequests(userId: string) {
         userType: otherUser.userType,
       };
     });
+  
+    return {
+      totalConnectionCount,
+      connections: userConnections,
+    };
   }
+  
   
 
 //   to follow a player
@@ -305,4 +313,30 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
     return connectedIds.map(id => ({ id }));
   }
+
+  async deleteConnection(connectionId: string, userId: string) {
+    const connection = await this.connectionRepository.findOne({
+      where: [
+        { senderId: connectionId, receiverId: userId },
+        { senderId: userId, receiverId: connectionId },
+      ],
+    });
+  
+    if (!connection) {
+      throw new NotFoundException("Connection not found.");
+    }
+  
+    // Check if the user is either the sender or receiver
+    if (connection.senderId !== userId && connection.receiverId !== userId) {
+      throw new UnauthorizedException("You are not authorized to delete this connection.");
+    }
+  
+    try {
+      await this.connectionRepository.remove(connection);
+      return { message: "Connection deleted successfully.", success: true };
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to delete connection.");
+    }
+  }
+  
 }
