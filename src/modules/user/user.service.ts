@@ -196,7 +196,7 @@ export class UserService {
   }
 
 
-  async searchUserByNameOrUsername(searchTerm: string): Promise<GetUserDto[]> {
+  async searchUserByNameOrUsername(searchTerm: string, id?: any): Promise<GetUserDto[]> {
     // Ensure searchTerm is valid (optional)
     // if (!searchTerm || searchTerm.trim().length < 2) {
     //   throw new BadRequestException("Search term must be at least 2 characters long.");
@@ -204,8 +204,8 @@ export class UserService {
   
       const users = await this.userRepository.find({
         where: [
-          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()) },
-          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()) }
+          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
+          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
         ],
         select: {
           id: true,
