@@ -19,6 +19,7 @@ import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { NetworkService } from "./network/network.service";
+import { ConnectionStatus } from "src/common/enums/network/network.enum";
 
 @Injectable()
 export class UserService {
@@ -104,12 +105,12 @@ export class UserService {
     }
 
     let isFollowing: boolean | undefined = undefined;
-    let isConnected: boolean | undefined = undefined;
+    let connectionStatus: ConnectionStatus | undefined = undefined;
     
     if(userId) {
 
       isFollowing = await this.networkService.isUserFollowingUser(userId, id);
-      isConnected = await this.networkService.isUserConnectedToUser(userId, id);
+      connectionStatus = await this.networkService.getConnectionStatusBetweenUsers(userId, id);
     }
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
@@ -121,7 +122,7 @@ export class UserService {
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
-      isConnected,
+      connectionStatus,
     } as GetUserDto;
     
   }

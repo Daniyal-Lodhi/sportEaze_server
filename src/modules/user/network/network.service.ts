@@ -260,13 +260,18 @@ async unfollowPlayer(followerId: string, playerId: string) {
     }}));
   }
 
-  async isUserConnectedToUser(userId1: string, userId2: string)
-  {
-    return !!(await this.connectionRepository.findOne({where: {
-      senderId: userId1,
-      receiverId: userId2,
-    }}));
+  async getConnectionStatusBetweenUsers(userId1: string, userId2: string): Promise<ConnectionStatus | undefined> {
+    const connection = await this.connectionRepository.findOne({
+      where: [
+        { senderId: userId1, receiverId: userId2 },
+        { senderId: userId2, receiverId: userId1 },
+      ],
+      select: ["status"],
+    });
+  
+    return connection ? (connection.status as ConnectionStatus) : undefined;
   }
+  
   
   async getFollowersCount(userId: string): Promise<number> {
     return await this.followRepository.count({
