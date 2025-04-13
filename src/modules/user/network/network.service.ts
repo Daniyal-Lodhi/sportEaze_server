@@ -92,17 +92,17 @@ export class NetworkService {
       connection.status = ConnectionStatus.ACCEPTED;
     } else if (action === ConnectionReqResponse.REJECT) {
       connection.status = ConnectionStatus.REJECTED;
-      await this.connectionRepository.remove(connection); // Remove the connection request
     } else {
       throw new Error("Invalid action. Use ACCEPT or REJECT.");
     }
 
     try {
-      await this.connectionRepository.save(connection);
       if(action === ConnectionReqResponse.ACCEPT) {
+          await this.connectionRepository.save(connection);
           return { message: `Connection request accepted`,accepted:true };
       }
       else{
+        await this.connectionRepository.remove(connection);
         return { message: `Connection request rejected`,accepted:false,success:true  };
       }
     } catch (error) {
@@ -301,15 +301,30 @@ async unfollowPlayer(followerId: string, playerId: string) {
     });
   }
 
+  async getPendingConnectionsCount(userId: string): Promise<number> {
+    return await this.connectionRepository.count({
+      where: [
+        { receiverId: userId, status: ConnectionStatus.PENDING },
+      ]
+    });
+  }
+
   async getFollowing(userId: string): Promise<{ id: string }[]> {
     const following = await this.followRepository.find({
       where: {
         followerId: userId,
       },
       select: ["playerId"],
+      relations: ["player"],
     });
   
-    return following.map(follow => ({ id: follow.playerId }));
+    return following.map(follow => ({ 
+      id: follow.playerId,
+      userType: follow.player.userType,
+      profilePicUrl: follow.player.profilePicUrl,
+      fullName: follow.player.fullName,
+      username: follow.player.username 
+    }));
   }
 
   async getConnections(userId: string): Promise<{ id: string }[]> {

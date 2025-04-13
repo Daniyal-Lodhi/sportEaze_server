@@ -21,6 +21,7 @@ import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { NetworkService } from "./network/network.service";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
 import { SharedPostsService } from "./user-posts/shared-posts/shared-posts.service";
+import { UserPostService } from "./user-posts/user-post.service";
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private localAuthSrv: LocalAuthService,
     private networkService: NetworkService,
+    // private UserPostService: UserPostService,
     // private sharedPostService: SharedPostsService,
   ) {}
 
@@ -117,13 +119,14 @@ export class UserService {
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
     const connectionCount: number = await this.networkService.getConnectionsCount(id);
-
+    const pendingConnectionCount: number = await this.networkService.getPendingConnectionsCount(id);
+    // const postCount: number = await this.UserPostService.getUserPostCount(id);
     // const sharedPostCount = await this.sharedPostService.getSharedPostCount(id);
 
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount, connectionCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, connectionCount, pendingConnectionCount } : undefined, 
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,

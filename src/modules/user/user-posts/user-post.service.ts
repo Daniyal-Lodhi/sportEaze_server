@@ -152,4 +152,8 @@ export class UserPostService {
       isLiked
     };
   }
+
+  async getUserPostCount(userId: string): Promise<number> {
+    return await this.postRepository.count({ where: { userId } });
+  }
 }

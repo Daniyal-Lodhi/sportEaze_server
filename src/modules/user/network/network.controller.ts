@@ -117,4 +117,9 @@ export class NetworkController {
 
     return this.networkService.deleteConnection(connectionId, req.user.id);
   }
+
+  @Get("/following/:userId")
+  async getFollowing(@Param("userId") userId: string) {
+    return this.networkService.getFollowing(userId);
+  }
 }

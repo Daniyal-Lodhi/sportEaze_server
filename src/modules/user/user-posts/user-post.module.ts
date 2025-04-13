@@ -26,5 +26,6 @@ import { NetworkModule } from "../network/network.module";
   imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment]), NetworkModule],
   controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
   providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService, PostCommentsGateway, PostLikesGateway],
+  exports: [UserPostService]
 })
 export class UserPostModule { }
