@@ -35,7 +35,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
-      postType: PostTypeEnum.Text,
+      postType: PostTypeEnum.TEXT,
     });
 
 
@@ -59,7 +59,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
       userId,
-      postType: PostTypeEnum.Media,
+      postType: PostTypeEnum.MEDIA,
     });
 
     const savedPost = await this.postRepository.save(post); // Save the post to the database

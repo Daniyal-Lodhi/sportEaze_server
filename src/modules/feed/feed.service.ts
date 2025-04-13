@@ -7,6 +7,7 @@ import { SharedPost } from "../user/user-posts/entities/shared-post.entity";
 import { UserPost } from "../user/user-posts/entities/user-post.entity";
 import { PostLikesService } from "../user/user-posts/post-likes/post-likes.service";
 import { UserService } from "../user/user.service";
+import { PostTypeEnum } from "src/common/enums/post/user-posts.enum";
 
 @Injectable()
 export class FeedService {
@@ -66,7 +67,7 @@ export class FeedService {
       },
       skip: (pageNo - 1) * pageSize,
       take: pageSize,
-      relations: ["user", "originalPost", "originalPost.media", "originalPost.likes", "originalPost.comments"],
+      relations: ["user", "originalPost", "originalPost.media", "originalPost.likes", "originalPost.comments", "originalPost.user"],
     });
 
     console.log("Shared posts from connections:", sharedPostsData);
@@ -120,26 +121,35 @@ export class FeedService {
         const { likes, comments, ...restOriginalPost } = post.originalPost;
   
         return {
-          ...post, 
-          userId: undefined, 
-          user: { 
-            ...post.user, 
-            email: undefined, 
-            dob: undefined, 
-            gender: undefined, 
-            sportInterests: undefined, 
-            deleted: undefined, 
-            createdAt: undefined, 
-            updatedAt: undefined, 
+          sharedId: post.id,
+          id: restOriginalPost.id,
+          textContent: restOriginalPost.textContent,
+          visibility: restOriginalPost.visibility,
+          shareCount: restOriginalPost.shareCount,
+          postType: PostTypeEnum.SHARED,
+          createdAt: restOriginalPost.createdAt,
+          updatedAt: restOriginalPost.updatedAt,
+          media: restOriginalPost.media,
+          user: {
+            id: restOriginalPost.user?.id,
+            profilePicUrl: restOriginalPost.user?.profilePicUrl,
+            fullName: restOriginalPost.user?.fullName,
+            username: restOriginalPost.user?.username,
+            userType: restOriginalPost.user?.userType,
           },
-          originalPost: {
-            ...restOriginalPost,          
-            likeCount: likes?.length || 0, 
-            commentCount: comments?.length || 0, 
-            comments: undefined, 
-            likes: undefined, 
-            isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, userId), 
-          },
+          likeCount: likes?.length || 0,
+          commentCount: comments?.length || 0,
+          isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, userId),           
+          share: {
+            message: post.shareMessage,
+            user: {
+              id: post.user?.id,
+              profilePicUrl: post.user?.profilePicUrl,
+              fullName: post.user?.fullName,
+              username: post.user?.username,
+              userType: post.user?.userType,
+            }
+          }
         };
       }) 
     ); 
