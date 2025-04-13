@@ -128,4 +128,18 @@ async getPost(
   }
 }
 
+@Get("/shares/:postId")
+async getShares(@Param("postId") postId: string) {
+  try {
+    const shares = await this.PostSrv.getShares(postId);
+    return { success: true, shares };
+  } catch (error) {
+    console.error("[GET_USER_POST_CTRL]:", error);
+    throw new HttpException(
+      error.message || "Internal Server Error",
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+
+}
 }
