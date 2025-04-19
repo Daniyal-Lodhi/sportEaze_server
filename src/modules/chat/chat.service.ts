@@ -89,7 +89,7 @@ export class ChatService {
           username: otherUser?.username,
           userType: otherUser?.userType,
         },
-        lastMessage: {
+        message: {
           content: msg.content,
           senderId: msg.sender.id,
           sentAt: msg.sentAt
