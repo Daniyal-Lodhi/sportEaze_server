@@ -75,13 +75,23 @@ export class ChatService {
         { chat: { user1: { id: userId } } },
         { chat: { user2: { id: userId } } },
       ],
-      relations: ["chat", 'chat.user1', 'chat.user2', "sender"],
+      relations: ["chat", "chat.user1", "chat.user2", "sender"],
+      order: { sentAt: "DESC" }, // important to get latest messages first
     });
   
-    return msgs.map(msg => {
+    const seenChats = new Set();
+    const latestChats = [];
+  
+    for (const msg of msgs) {
+      const chatId = msg.chat.id;
+      if (seenChats.has(chatId)) continue; // skip duplicates
+  
+      seenChats.add(chatId);
+  
       const otherUser = msg.chat.user1.id === userId ? msg.chat.user2 : msg.chat.user1;
-      return {
-        chatId: msg.chat.id,
+  
+      latestChats.push({
+        chatId: chatId,
         user: {
           id: otherUser?.id,
           profilePicUrl: otherUser?.profilePicUrl,
@@ -92,9 +102,12 @@ export class ChatService {
         message: {
           content: msg.content,
           senderId: msg.sender.id,
-          sentAt: msg.sentAt
+          sentAt: msg.sentAt,
         },
-      };
-    });
-  }  
+      });
+    }
+  
+    return latestChats;
+  }
 }
+  
