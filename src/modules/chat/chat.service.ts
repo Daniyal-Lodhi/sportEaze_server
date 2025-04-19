@@ -63,4 +63,37 @@ export class ChatService {
       order: { sentAt: 'ASC' },
     });
   }
+
+  async getUserChats(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+  
+    const msgs = await this.messageRepository.find({
+      where: [
+        { chat: { user1: { id: userId } } },
+        { chat: { user2: { id: userId } } },
+      ],
+      relations: ["chat", 'chat.user1', 'chat.user2', "sender"],
+    });
+  
+    return msgs.map(msg => {
+      const otherUser = msg.chat.user1.id === userId ? msg.chat.user2 : msg.chat.user1;
+      return {
+        chatId: msg.chat.id,
+        user: {
+          id: otherUser?.id,
+          profilePicUrl: otherUser?.profilePicUrl,
+          fullName: otherUser?.fullName,
+          username: otherUser?.username,
+          userType: otherUser?.userType,
+        },
+        lastMessage: {
+          content: msg.content,
+          senderId: msg.sender.id,
+        },
+      };
+    });
+  }  
 }

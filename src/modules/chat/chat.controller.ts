@@ -23,4 +23,10 @@ import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
   async getMessages(@Param('chatId') chatId: string) {
     return this.chatService.getMessagesByChat(chatId);
   }
+
+  @Get("/user/:userId")
+  async getUserChats(@Param('userId') userId: string) {
+    return this.chatService.getUserChats(userId);
+  }
+
 }
