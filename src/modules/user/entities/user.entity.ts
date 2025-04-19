@@ -17,6 +17,7 @@ import { Patron } from "../patron/entities/patron.entity";
 import { DEFAULT_FACTORY_CLASS_METHOD_KEY } from "@nestjs/common/module-utils/constants";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { Mentor } from "../mentor/entities/mentor.entity";
+import { Chat } from "src/modules/chat/entities/chat.entity";
 
 @Entity("Users") // Specifies the table name as 'users'
 export class User {
@@ -83,9 +84,6 @@ export class User {
   
   @OneToMany(() => SharedPost, (sharedPost) => sharedPost.user) // Establish a one-to-many relationship with posts
   sharedPosts: SharedPost[]; // A user can have multiple shared posts
-
-
-
 
 
 
