@@ -25,19 +25,29 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth.token || client.handshake.headers.authorization?.split(' ')[1];
+      const token =
+        client.handshake.auth.token ||
+        client.handshake.headers.authorization?.split(' ')[1];
+  
       const payload = this.jwtService.verify(token);
-
       client.data.user = payload;
+  
       this.clients.set(payload.id, client);
-
+  
       console.log(`Connected: ${payload.id}`);
+  
+      client.emit("success-connection", {
+        message: "Connection successful",
+        userId: payload.id,
+      });
+  
     } catch (err) {
+      console.error("Connection failed:", err.message || err);
       client.disconnect();
     }
-  }
+  }  
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     const user = client.data.user;
     if (user) {
       this.clients.delete(user.id);
@@ -46,7 +56,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('sendMessage')
-  handleSendMessage(
+  async handleSendMessage(
     @MessageBody() data: CreateChatDto,
     @ConnectedSocket() client: Socket,
   ) {
