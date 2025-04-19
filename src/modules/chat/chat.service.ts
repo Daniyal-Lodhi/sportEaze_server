@@ -92,6 +92,7 @@ export class ChatService {
         lastMessage: {
           content: msg.content,
           senderId: msg.sender.id,
+          sentAt: msg.sentAt
         },
       };
     });
