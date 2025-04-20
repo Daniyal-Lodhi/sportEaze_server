@@ -92,7 +92,7 @@ export class ChatService {
   
       latestChats.push({
         chatId: chatId,
-        user: {
+        receiver: {
           id: otherUser?.id,
           profilePicUrl: otherUser?.profilePicUrl,
           fullName: otherUser?.fullName,
