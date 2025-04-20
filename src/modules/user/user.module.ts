@@ -12,6 +12,7 @@ import { FanController } from "./fan/fan.controller";
 import { PatronModule } from "./patron/patron.module";
 import { NetworkModule } from "./network/network.module";
 import { MentorModule } from "./mentor/mentor.module";
+import { SponsoredPostModule } from "./ads/sp-ads.module";
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { MentorModule } from "./mentor/mentor.module";
     PatronModule,
     MentorModule,
     UserPostModule,
-    NetworkModule
+    NetworkModule,
+    SponsoredPostModule,
   ],
   controllers: [UserController, FanController],
   providers: [UserService],

@@ -2,6 +2,9 @@ export enum PostTypeEnum {
   Text = 1,
   Media = 2,
 }
+export enum PostCategoryEnum {
+  SPONSORED_POST = 1,
+}
 export enum PostVisibilityEnum {
   PUBLIC = 1,
   PRIVATE = 2,
