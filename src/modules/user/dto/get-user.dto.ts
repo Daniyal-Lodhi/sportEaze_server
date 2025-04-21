@@ -5,6 +5,7 @@ import {
   IsDateString,
   MinLength,
   Matches,
+  IsBoolean,
 } from "class-validator";
 import { GenderType } from "src/common/enums/user/gender-type.enum";
 import { UserType } from "src/common/enums/user/user-type.enum";
@@ -51,4 +52,7 @@ export class GetUserDto {
   @IsString()
   @IsOptional()
   profilePicUrl?: string;
+
+  @IsBoolean()
+  isAdmin?: boolean;
 }

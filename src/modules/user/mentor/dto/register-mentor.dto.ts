@@ -56,4 +56,12 @@ export class RegisterMentorDto extends BaseUserDto {
     @IsArray()
     @IsString({ each: true })
     verificationDocuments?: string[];
+
+    @ApiProperty({ description: "Bio of the mentor", example: "Experienced mentor with a passion for sports." })
+    @IsString()
+    bio: string;
+
+    @ApiProperty({ description: "Primary sport of the mentor", enum: Sport, example: Sport.FOOTBALL })
+    @IsEnum(Sport)
+    primarySport: Sport;
 }

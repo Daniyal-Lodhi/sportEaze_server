@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 
 export class VerifyPatronDto {
     
@@ -7,4 +8,11 @@ export class VerifyPatronDto {
         example: "Approved after verifying the documents."
     })
     adminReviewComment?: string;
+
+    @ApiProperty({
+        description: "The status of the patron's account after verification",
+        enum: PatronAccountStatus,
+        example: PatronAccountStatus.APPROVED
+    })
+    status: PatronAccountStatus;
 }

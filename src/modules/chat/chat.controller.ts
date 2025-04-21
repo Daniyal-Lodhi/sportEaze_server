@@ -19,14 +19,19 @@ import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
   }
 
 
-  @Get('/:chatId')
-  async getMessages(@Param('chatId') chatId: string) {
-    return this.chatService.getMessagesByChat(chatId);
+  @Get('/:user2Id')
+  async getMessages(@Request() req, @Param('chatId') user2: string) {
+    return this.chatService.getMessagesByUserIds(req.user.id, user2);
   }
 
   @Get("/user/:userId")
   async getUserChats(@Param('userId') userId: string) {
     return this.chatService.getUserChats(userId);
+  }
+
+  @Post("/read/:chatId")
+  async markAsRead(@Param('chatId') chatId: string, @Request() req) {
+    return this.chatService.markAsRead(chatId, req.user.id);
   }
 
 }

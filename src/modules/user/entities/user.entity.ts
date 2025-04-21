@@ -86,7 +86,8 @@ export class User {
   sharedPosts: SharedPost[]; // A user can have multiple shared posts
 
 
-
+  @Column({ type: "boolean", default: false })
+  isAdmin: boolean;
 
   // @Column({ type: "varchar", length: 100, nullable: true })
   // city?: string;

@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Patron } from './entities/patron.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user.service';
 import { UserType } from 'src/common/enums/user/user-type.enum';
@@ -10,6 +10,7 @@ import { UpdatePatronDto } from './dto/update-patron.dto';
 import { BaseUserDto } from '../dto/base-user.dto';
 import { VerifyPatronDto } from './dto/verify-patron.dto';
 import { GetUserDto } from '../dto/get-user.dto';
+import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 
 @Injectable()
 export class PatronService {
@@ -85,7 +86,7 @@ export class PatronService {
     const user = await this.userService.getUser(adminId);
     const patron = await this.getPatronById(patronId);
 
-    if(user.email !== "admin@sporteaze.com") {
+    if(user.isAdmin == false) {
       throw new UnauthorizedException("Only Admins can verify patrons")
     }
 
@@ -95,4 +96,14 @@ export class PatronService {
     });
   }
 
+
+  async getPatrons(adminId: string): Promise<any> {
+    const user = await this.userService.getUser(adminId);
+    
+    if(user.isAdmin == false) {
+      throw new UnauthorizedException("Only Admins can view patron registrations")
+    }
+
+    return await this.patronRepository.find({ where: { status: Not(PatronAccountStatus.APPROVED) } });
+  }
 }
