@@ -106,7 +106,7 @@ export class ChatService {
         
     const messages = await this.messageRepository.find({
       where: { chat: { id: chat.id } },
-      order: { sentAt: 'ASC' },
+      // order: { sentAt: 'ASC' },
       relations: ['sender'],
     });
 

@@ -17,10 +17,10 @@ export class ChatSocketHandler {
     this.clients = map;
   }
 
-  handleSendMessage(senderId: string, createChatDto: CreateChatDto) {
+  async handleSendMessage(senderId: string, createChatDto: CreateChatDto) {
     const { content, recipientId } = createChatDto;
 
-    const msg = this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
+    const msg = await this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
 
     const recipientSocket = this.clients.get(recipientId);
     const senderSocket = this.clients.get(senderId);
