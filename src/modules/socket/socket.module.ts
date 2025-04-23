@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { ChatService } from '../chat/chat.service';
 import { ChatModule } from '../chat/chat.module';
+import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { ChatModule } from '../chat/chat.module';
         };
       },
     }),  ],
-  providers: [SocketGateway, ChatSocketHandler],
+  providers: [SocketGateway, ChatSocketHandler, PatronSocketHandler],
 })
 
 export class SocketModule {}

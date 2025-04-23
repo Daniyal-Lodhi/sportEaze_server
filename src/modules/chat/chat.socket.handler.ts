@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { MESSAGE_SENT, RECEIVE_MESSAGE } from 'src/common/consts/socket-events';
 
 @Injectable()
 export class ChatSocketHandler {
@@ -19,17 +20,21 @@ export class ChatSocketHandler {
   handleSendMessage(senderId: string, createChatDto: CreateChatDto) {
     const { content, recipientId } = createChatDto;
 
-    this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
+    const msg = this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
 
     const recipientSocket = this.clients.get(recipientId);
+    const senderSocket = this.clients.get(senderId);
 
     if (recipientSocket) {
-      recipientSocket.emit('receive_message', {
-        from: senderId,
-        message: content,
-      });
+      recipientSocket.emit(RECEIVE_MESSAGE, msg);
     } else {
       console.log(`Recipient ${recipientId} not connected`);
+    }
+
+    if(senderSocket)  {
+    senderSocket.emit(MESSAGE_SENT, msg);
+    }else {
+      console.log(`Sender ${senderId} not connected`);
     }
   }
 }

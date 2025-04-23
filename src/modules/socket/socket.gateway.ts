@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
+import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
+import { SEND_MESSAGE } from 'src/common/consts/socket-events';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -19,8 +21,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private jwtService: JwtService,
     private chatSocketHandler: ChatSocketHandler,
+    private patronSocketHandler: PatronSocketHandler,
   ) {
     this.chatSocketHandler.setClientsMap(this.clients); // give the handler access
+    this.patronSocketHandler.setClientsMap(this.clients);
   }
 
   async handleConnection(client: Socket) {
@@ -55,7 +59,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('sendMessage')
+  @SubscribeMessage(SEND_MESSAGE)
   async handleSendMessage(
     @MessageBody() data: CreateChatDto,
     @ConnectedSocket() client: Socket,
