@@ -55,9 +55,7 @@ export class ChatService {
     
     await this.messageRepository.save(message);
 
-    const unreadCount = await this.messageRepository.count({
-      where: { sender: { id: Not(recipient.id) }, chat: { id: chat.id }, isRead: false },
-    });
+    const unreadCount = await this.getUnreadMessagesCount(senderId, chat.id);
 
 
     return {
@@ -112,9 +110,7 @@ export class ChatService {
       relations: ['sender'],
     });
 
-    const unreadCount = await this.messageRepository.count({
-      where: { sender: { id: Not(user1Id) }, chat: { id: chat.id }, isRead: false },
-    });
+    const unreadCount = await this.getUnreadMessagesCount(user2Id, chat.id);
 
     return {
       chatId: chat.id,
@@ -200,6 +196,15 @@ export class ChatService {
     }
   
     return { message: 'Messages marked as read' };
+  }
+
+  async getUnreadMessagesCount(userId: string, chatId: string): Promise<number> {
+    const unreadCount = await this.messageRepository.count({
+      where: { sender: { id: userId }, chat: { id: chatId }, isRead: false },
+      relations: ['sender', 'chat'],
+    });
+  
+    return unreadCount;
   }
 }
   
