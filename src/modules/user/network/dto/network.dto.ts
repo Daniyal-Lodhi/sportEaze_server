@@ -17,7 +17,7 @@ export class RespondToConnectionRequestDto {
   @IsNotEmpty()
   requesterId: string;
 
-  @ApiProperty({ description: "Action to take on the request", example: "ACCEPT" })
+  @ApiProperty({ description: "Action to take on the request", example: ConnectionReqResponse.ACCEPT })
   @IsEnum(ConnectionReqResponse)
   @IsNotEmpty()
   action: ConnectionReqResponse;

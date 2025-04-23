@@ -17,7 +17,6 @@ export class CreateSharedPostDto {
   
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   shareMessage?: string;
 
 //   @IsOptional()

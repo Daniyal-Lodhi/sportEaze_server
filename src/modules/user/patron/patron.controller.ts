@@ -42,5 +42,11 @@ export class PatronController {
   }
 
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get("/")
+  async getRegistration(@Request() req) {
+    return await this.patronService.getPatrons(req.user.id);
+  }
 
 }

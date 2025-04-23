@@ -19,13 +19,18 @@ import { LoginUserDto } from "./dto/login-user.dto";
 import { RegisterUserDto } from "./dto/register-user.dto";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { NetworkService } from "./network/network.service";
+import { ConnectionStatus } from "src/common/enums/network/network.enum";
+import { SharedPostsService } from "./user-posts/shared-posts/shared-posts.service";
+import { UserPostService } from "./user-posts/user-post.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private localAuthSrv: LocalAuthService,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    // private UserPostService: UserPostService,
+    // private sharedPostService: SharedPostsService,
   ) {}
 
   async RegisterUser(createUserDto: CreateUserDto): Promise<string> {
@@ -104,24 +109,28 @@ export class UserService {
     }
 
     let isFollowing: boolean | undefined = undefined;
-    let isConnected: boolean | undefined = undefined;
+    let connection: {id: string, status: ConnectionStatus, receiverId: string} = { id: undefined, status: ConnectionStatus.REJECTED, receiverId: undefined };
     
     if(userId) {
 
       isFollowing = await this.networkService.isUserFollowingUser(userId, id);
-      isConnected = await this.networkService.isUserConnectedToUser(userId, id);
+      connection = await this.networkService.getConnectionStatusBetweenUsers(userId, id);
     }
 
     const followerCount: number = await this.networkService.getFollowersCount(id);
+    const connectionCount: number = await this.networkService.getConnectionsCount(id);
+    const pendingConnectionCount: number = await this.networkService.getPendingConnectionsCount(id);
+    // const postCount: number = await this.UserPostService.getUserPostCount(id);
+    // const sharedPostCount = await this.sharedPostService.getSharedPostCount(id);
 
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, connectionCount, pendingConnectionCount } : undefined, 
       patron: user.patron ?? undefined,
       mentor: user.mentor ?? undefined,
       isFollowing,
-      isConnected,
+      connection,
     } as GetUserDto;
     
   }
@@ -195,7 +204,7 @@ export class UserService {
   }
 
 
-  async searchUserByNameOrUsername(searchTerm: string): Promise<GetUserDto[]> {
+  async searchUserByNameOrUsername(searchTerm: string, id?: any): Promise<GetUserDto[]> {
     // Ensure searchTerm is valid (optional)
     // if (!searchTerm || searchTerm.trim().length < 2) {
     //   throw new BadRequestException("Search term must be at least 2 characters long.");
@@ -203,8 +212,8 @@ export class UserService {
   
       const users = await this.userRepository.find({
         where: [
-          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()) },
-          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()) }
+          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
+          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
         ],
         select: {
           id: true,
@@ -223,4 +232,17 @@ export class UserService {
   
       return users as GetUserDto[];
   }  
+
+  async getUserType(id?: string | undefined): Promise<UserType | null> {
+
+    if(!id) return null;
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ["userType"],
+    });
+  
+    return user?.userType ?? null;
+  }
+
 }

@@ -1,6 +1,7 @@
 export enum PostTypeEnum {
-  Text = 1,
-  Media = 2,
+  TEXT = 1,
+  MEDIA = 2,
+  SHARED = 3,
 }
 export enum PostVisibilityEnum {
   PUBLIC = 1,

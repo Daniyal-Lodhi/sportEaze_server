@@ -153,9 +153,11 @@ export class UserController {
   }
     
   @Get("/search/:searchTerm")
-  async searchUserByNameOrUsername(@Param("searchTerm") searchTerm: string)
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiBearerAuth()
+  async searchUserByNameOrUsername(@Param("searchTerm") searchTerm: string, @Request() req)
   {
-    return await this.userService.searchUserByNameOrUsername(searchTerm);
+    return await this.userService.searchUserByNameOrUsername(searchTerm, req.user?.id);
   }
 
 }

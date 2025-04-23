@@ -18,14 +18,23 @@ import { UserPostModule } from "./modules/user/user-posts/user-post.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { SportModule } from './modules/sport/sport.module';
+import { FeedModule } from './modules/feed/feed.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { SocketModule } from "./modules/socket/socket.module";
+import { AppSettingsModule } from './app-settings/app-settings.module';
 
 @Module({
   imports: [
+    LocalAuthModule,
+    SocketModule,
     SportModule,
     // LoggerModule,
     ConfigModule,
     DatabaseModule,
     UserModule,
+    FeedModule,
+    ChatModule,
+    AppSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService]

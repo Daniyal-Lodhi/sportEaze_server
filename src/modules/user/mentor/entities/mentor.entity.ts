@@ -19,8 +19,14 @@ export class Mentor{
   @Column({ type: "enum", enum: Sport, array: true })
   sportInterests: Sport[];
 
-  @Column({ length: 50 })
-  yearsOfExperience: string;
+  @Column({ type: "enum", enum: Sport, nullable: true })
+  primarySport: Sport;
+
+  @Column({ nullable: true })
+  bio: string;
+
+  @Column({ nullable: true })
+  yearsOfExperience: number;
 
   @Column({ length: 255, nullable: true })
   currentAffiliation?: string;
