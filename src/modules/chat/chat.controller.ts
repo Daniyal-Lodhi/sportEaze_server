@@ -20,7 +20,7 @@ import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 
 
   @Get('/:user2Id')
-  async getMessages(@Request() req, @Param('chatId') user2: string) {
+  async getMessages(@Request() req, @Param('user2Id') user2: string) {
     return this.chatService.getMessagesByUserIds(req.user.id, user2);
   }
 
