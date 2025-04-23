@@ -11,12 +11,14 @@ import { BaseUserDto } from '../dto/base-user.dto';
 import { VerifyPatronDto } from './dto/verify-patron.dto';
 import { GetUserDto } from '../dto/get-user.dto';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
+import { PatronSocketHandler } from './patron.socket.handler';
 
 @Injectable()
 export class PatronService {
   constructor(
     @InjectRepository(Patron) private readonly patronRepository: Repository<Patron>,
-    private readonly userService: UserService,            
+    private readonly userService: UserService,
+    private readonly patronSocketHandler: PatronSocketHandler,    
   ) {}
   
 
@@ -94,6 +96,8 @@ export class PatronService {
       ...patron,
       verifyPatronDto
     });
+
+    this.patronSocketHandler.emitPatronVerification(patronId, verifyPatronDto.status);
   }
 
 

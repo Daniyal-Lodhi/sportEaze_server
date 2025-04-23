@@ -5,6 +5,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Message } from './entities/messages.entity';
 import { Chat } from './entities/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { send } from 'process';
 
 @Injectable()
 export class ChatService {
@@ -22,7 +23,7 @@ export class ChatService {
   async sendMessageBetweenUsers(
     senderId: string,
     createChatDto: CreateChatDto
-  ): Promise<Message> {
+  ): Promise<any> {
 
     const sender = await this.userRepository.findOne({ where: { id: senderId } });
     const recipient = await this.userRepository.findOne({ where: { id: createChatDto.recipientId } });
@@ -52,7 +53,29 @@ export class ChatService {
     const { content } = createChatDto;
     const message = this.messageRepository.create({ content, chat, sender });
     
-    return await this.messageRepository.save(message);
+    await this.messageRepository.save(message);
+
+    const unreadCount = await this.messageRepository.count({
+      where: { sender: { id: Not(recipient.id) }, chat: { id: chat.id }, isRead: false },
+    });
+
+
+    return {
+      chatId: chat.id,
+      unreadCount,
+      receiver: {
+        id: recipient?.id,
+        profilePicUrl: recipient?.profilePicUrl,
+        fullName: recipient?.fullName,
+        username: recipient?.username,
+        userType: recipient?.userType,
+      },
+      messages:{
+        content: message.content,
+        senderId: message.sender.id,
+        sentAt: message.sentAt,
+      }
+    };
   }
 
   async getMessagesByUserIds(user1Id: string, user2Id: string): Promise<any> {
@@ -134,7 +157,7 @@ export class ChatService {
           username: otherUser?.username,
           userType: otherUser?.userType,
         },
-        message: {
+        messages: {
           content: msg.content,
           senderId: msg.sender.id,
           sentAt: msg.sentAt,
