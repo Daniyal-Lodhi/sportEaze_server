@@ -71,6 +71,7 @@ export class ChatService {
         userType: recipient?.userType,
       },
       messages:{
+        id: message.id,
         content: message.content,
         senderId: message.sender.id,
         sentAt: message.sentAt,
@@ -114,6 +115,7 @@ export class ChatService {
         userType: otherUser?.userType,
       },
       messages: messages.map(msg => ({
+        id: msg.id,
         content: msg.content,
         senderId: msg.sender.id,
         sentAt: msg.sentAt,
@@ -158,6 +160,7 @@ export class ChatService {
           userType: otherUser?.userType,
         },
         messages: {
+          id: msg.id,
           content: msg.content,
           senderId: msg.sender.id,
           sentAt: msg.sentAt,
