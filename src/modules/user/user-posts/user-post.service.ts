@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
@@ -11,14 +11,14 @@ import { GetUserDto } from "../dto/get-user.dto";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesService } from "./post-likes/post-likes.service";
+import { SharedPost } from "./entities/shared-post.entity";
 
 @Injectable()
 export class UserPostService {
   constructor(
-    @InjectRepository(UserPost)
-    private readonly postRepository: Repository<UserPost>,
-    @InjectRepository(PostMedia)
-    private readonly postMediaRepository: Repository<PostMedia>,
+    @InjectRepository(UserPost) private readonly postRepository: Repository<UserPost>,
+    @InjectRepository(PostMedia) private readonly postMediaRepository: Repository<PostMedia>,
+    @InjectRepository(SharedPost) private readonly sharedPostRepository: Repository<SharedPost>,
     private readonly userSrv: UserService,
     private readonly postLikeService: PostLikesService,
   ) {}
@@ -35,7 +35,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
-      postType: PostTypeEnum.Text,
+      postType: PostTypeEnum.TEXT,
     });
 
 
@@ -59,7 +59,7 @@ export class UserPostService {
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
       userId,
-      postType: PostTypeEnum.Media,
+      postType: PostTypeEnum.MEDIA,
     });
 
     const savedPost = await this.postRepository.save(post); // Save the post to the database
@@ -151,5 +151,28 @@ export class UserPostService {
       commentCount, // ✅ Included comment count
       isLiked
     };
+  }
+
+  async getUserPostCount(userId: string): Promise<number> {
+    return await this.postRepository.count({ where: { userId } });
+  }
+
+  async getShares(postId: string)
+  {
+    const users = await this.sharedPostRepository.find({
+      where: { originalPost: { id: postId } },
+      relations: ["user"],
+      select: ["user"],
+    });
+    
+    return users.map((user) => {
+      return {
+        id: user.user.id,
+        profilePicUrl: user.user.profilePicUrl,
+        fullName: user.user.fullName,
+        username: user.user.username,
+        UserType: user.user.userType,
+      };
+    })
   }
 }

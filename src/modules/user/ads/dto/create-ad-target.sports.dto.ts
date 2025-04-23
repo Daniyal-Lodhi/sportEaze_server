@@ -13,7 +13,7 @@ import {
   Length,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { PostCategoryEnum, MediaType } from "src/common/enums/post/user-posts.enum";
+import { MediaType } from "src/common/enums/post/user-posts.enum";
 import { Sport } from "src/common/enums/sport/sport.enum";
 
 export class SponsoredPostTargetSportDTO {

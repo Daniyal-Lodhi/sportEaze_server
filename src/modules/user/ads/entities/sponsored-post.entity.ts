@@ -10,7 +10,7 @@ import {
     OneToMany,
 } from "typeorm";
 import { User } from "../../entities/user.entity";
-import { PostCategoryEnum } from "src/common/enums/post/user-posts.enum";
+import { PostTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { SponsoredPostMedia } from "./sp-media-urls.entity";
 import { SponsoredPostTargetSport } from "./sp-target-sports.entity";
 
@@ -27,8 +27,8 @@ export class SponsoredPost {
     @JoinColumn({ name: "userId" })
     user: User;
 
-    @Column({ type: "enum",enum:PostCategoryEnum })
-    postType: PostCategoryEnum;
+    @Column({ type: "enum",enum:PostTypeEnum })
+    postType: PostTypeEnum;
 
 
     @Column("text")

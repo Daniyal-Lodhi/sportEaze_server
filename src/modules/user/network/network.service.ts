@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { In, Not, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { Connection } from "./entities/connection.entity";
 import { Followers } from "./entities/follower.entity";
@@ -50,10 +50,12 @@ export class NetworkService {
     // 3. Check if a connection already exists
     const existingConnection = await this.connectionRepository.findOne({
       where: [
-        { senderId: requester_id, receiverId: receiver_id },
-        { senderId: receiver_id, receiverId: requester_id },
+        { senderId: requester_id, receiverId: receiver_id, status: Not(ConnectionStatus.REJECTED) },
+        { senderId: receiver_id, receiverId: requester_id, status: Not(ConnectionStatus.REJECTED) },
       ],
     });
+
+    console.log(existingConnection, requester_id, receiver_id);
 
     if (existingConnection) {
       throw new ConflictException("Connection request already exists.");
@@ -68,7 +70,7 @@ export class NetworkService {
 
     try {
       await this.connectionRepository.save(newConnection);
-      return { message: "Connection request sent.",success:true  };
+      return { message: "Connection request sent.", success:true, connection: { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId } };
     } catch (error) {
       console.log(error)
       throw new InternalServerErrorException("Failed to send connection request.");
@@ -95,11 +97,12 @@ export class NetworkService {
     }
 
     try {
-      await this.connectionRepository.save(connection);
       if(action === ConnectionReqResponse.ACCEPT) {
+          await this.connectionRepository.save(connection);
           return { message: `Connection request accepted`,accepted:true };
       }
       else{
+        await this.connectionRepository.remove(connection);
         return { message: `Connection request rejected`,accepted:false,success:true  };
       }
     } catch (error) {
@@ -112,24 +115,25 @@ async getPendingConnectionRequests(userId: string) {
     const pendingRequests = await this.connectionRepository.find({
       where: [
         { receiverId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
+        // { senderId: userId, status: ConnectionStatus.PENDING }, // Requests sent to the user
       ],
       relations: ["sender"], // Fetch sender details
     });
   
     if (!pendingRequests.length) {
-      throw new NotFoundException("No pending connection requests found.");
+     return [];
     }
-  
+    
     return pendingRequests.map((request) => ({
       requestId: request.id,
-      userId: request.senderId,
-      userName: request.sender.username, // Assuming 'name' exists in User entity
       status: request.status,
-      userType:request.sender.userType,
-      fullName:request.sender.fullName,
-      profilePic:request.sender.profilePicUrl,
-      success:true 
-    }));
+      user: {
+        id: request.senderId,
+        profilePicUrl:request.sender.profilePicUrl,
+        fullName:request.sender.fullName,
+        username: request.sender.username,
+        userType:request.sender.userType,
+      }}));
   }
 
   // get a user's connection
@@ -142,7 +146,9 @@ async getPendingConnectionRequests(userId: string) {
       relations: ["sender", "receiver"],
     });
   
-    return connections.map((connection) => {
+    const totalConnectionCount = connections.length;
+  
+    const userConnections = connections.map((connection) => {
       const otherUser =
         connection.senderId === userId ? connection.receiver : connection.sender;
   
@@ -154,7 +160,13 @@ async getPendingConnectionRequests(userId: string) {
         userType: otherUser.userType,
       };
     });
+  
+    return {
+      totalConnectionCount,
+      connections: userConnections,
+    };
   }
+  
   
 
 //   to follow a player
@@ -260,18 +272,100 @@ async unfollowPlayer(followerId: string, playerId: string) {
     }}));
   }
 
-  async isUserConnectedToUser(userId1: string, userId2: string)
-  {
-    return !!(await this.connectionRepository.findOne({where: {
-      senderId: userId1,
-      receiverId: userId2,
-    }}));
+  async getConnectionStatusBetweenUsers(userId1: string, userId2: string): Promise<{id: string, status: ConnectionStatus, receiverId: string}> {
+    const connection = await this.connectionRepository.findOne({
+      where: [
+        { senderId: userId1, receiverId: userId2 },
+        { senderId: userId2, receiverId: userId1 },
+      ],
+      select: ["id", "status", "receiverId"],
+    });
+    
+    // console.log(connection, userId1, userId2);
+    return connection ?? { id: undefined, status: ConnectionStatus.REJECTED, receiverId: undefined };
   }
+  
   
   async getFollowersCount(userId: string): Promise<number> {
     return await this.followRepository.count({
       where: { playerId: userId },
     });
+  }
+
+  async getConnectionsCount(userId: string): Promise<number> {
+    return await this.connectionRepository.count({
+      where: [
+        { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+        { senderId: userId, status: ConnectionStatus.ACCEPTED },
+      ]
+    });
+  }
+
+  async getPendingConnectionsCount(userId: string): Promise<number> {
+    return await this.connectionRepository.count({
+      where: [
+        { receiverId: userId, status: ConnectionStatus.PENDING },
+      ]
+    });
+  }
+
+  async getFollowing(userId: string): Promise<{ id: string }[]> {
+    const following = await this.followRepository.find({
+      where: {
+        followerId: userId,
+      },
+      select: ["playerId"],
+      relations: ["player"],
+    });
+  
+    return following.map(follow => ({ 
+      id: follow.playerId,
+      userType: follow.player.userType,
+      profilePicUrl: follow.player.profilePicUrl,
+      fullName: follow.player.fullName,
+      username: follow.player.username 
+    }));
+  }
+
+  async getConnections(userId: string): Promise<{ id: string }[]> {
+    const connections = await this.connectionRepository.find({
+      where: [
+        { senderId: userId, status: ConnectionStatus.ACCEPTED },
+        { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+      ],
+      select: ["senderId", "receiverId"],
+    });
+  
+    const connectedIds = connections.map(connection => {
+      return connection.senderId === userId ? connection.receiverId : connection.senderId;
+    });
+  
+    return connectedIds.map(id => ({ id }));
+  }
+
+  async deleteConnection(connectionId: string, userId: string) {
+    const connection = await this.connectionRepository.findOne({
+      where: [
+        { senderId: connectionId, receiverId: userId },
+        { senderId: userId, receiverId: connectionId },
+      ],
+    });
+  
+    if (!connection) {
+      throw new NotFoundException("Connection not found.");
+    }
+  
+    // Check if the user is either the sender or receiver
+    if (connection.senderId !== userId && connection.receiverId !== userId) {
+      throw new UnauthorizedException("You are not authorized to delete this connection.");
+    }
+  
+    try {
+      await this.connectionRepository.remove(connection);
+      return { message: "Connection deleted successfully.", success: true };
+    } catch (error) {
+      throw new InternalServerErrorException("Failed to delete connection.");
+    }
   }
   
 }

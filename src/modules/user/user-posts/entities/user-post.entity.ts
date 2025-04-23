@@ -42,7 +42,7 @@ export class UserPost {
   @Column({
     type: "enum",
     enum: PostTypeEnum,
-    default: PostTypeEnum.Text
+    default: PostTypeEnum.TEXT
   })
   postType: PostTypeEnum;
 

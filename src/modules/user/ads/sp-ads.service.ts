@@ -3,7 +3,7 @@ import { SponsoredPost } from "./entities/sponsored-post.entity";
 import { SponsoredPostMedia } from "./entities/sp-media-urls.entity";
 import { SponsoredPostTargetSport } from "./entities/sp-target-sports.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
-import { PostCategoryEnum,  MediaType  } from "src/common/enums/post/user-posts.enum";
+import { MediaType  } from "src/common/enums/post/user-posts.enum";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserService } from "../user.service";

@@ -11,7 +11,7 @@ import {
     ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { MediaType, PostCategoryEnum } from "src/common/enums/post/user-posts.enum";
+import { MediaType, PostTypeEnum } from "src/common/enums/post/user-posts.enum";
 
 
 
@@ -87,9 +87,9 @@ class BudgetDTO {
 
 
 export class CreateSponsoredPostDTO {
-    @ApiProperty({ enum: PostCategoryEnum, example: PostCategoryEnum.SPONSORED_POST })
-    @IsEnum(PostCategoryEnum)
-    post_type: PostCategoryEnum;
+    @ApiProperty({ enum: PostTypeEnum, example: PostTypeEnum.SPONSORED_POST })
+    @IsEnum(PostTypeEnum)
+    post_type: PostTypeEnum;
 
     @ApiProperty({ type: () => AdContentDTO })
     @ValidateNested() 
