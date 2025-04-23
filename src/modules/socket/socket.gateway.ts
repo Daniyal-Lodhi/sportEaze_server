@@ -12,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
 import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
-import { SEND_MESSAGE } from 'src/common/consts/socket-events';
+import { IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -68,5 +68,20 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Sender: ${JSON.stringify(sender)}`);
     console.log(`data: ${JSON.stringify(data)}`);
     this.chatSocketHandler.handleSendMessage(sender.id, data);
+  }
+
+  @SubscribeMessage(IS_MSG_TYPING)
+  async handleIsMsgTyping(
+    @MessageBody() data: { chatId: string; receiverId: string, contentLength: number },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const recieverSocket = this.clients.get(data.receiverId);
+
+    if(recieverSocket) {
+      recieverSocket.emit(IS_MSG_TYPING, data);
+    }
+    else {
+      console.log(`Receiver socket not found for userId: ${data.receiverId}`);
+    }
   }
 }
