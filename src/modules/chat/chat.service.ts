@@ -78,6 +78,8 @@ export class ChatService {
   }
 
   async getMessagesByUserIds(user1Id: string, user2Id: string): Promise<any> {
+    
+    // Find the chat between the two users
     const chat = await this.chatRepository.findOne({
       where: [
         { user1: { id: user1Id }, user2: { id: user2Id } },
@@ -85,42 +87,54 @@ export class ChatService {
       ],
       relations: ['user1', 'user2'],
     });
-
-    const otherUser = chat.user1.id === user1Id ? chat.user2 : chat.user1;
-
-    
+  
+    let receiver = null;
+  
+    // If chat does not exist, fetch the receiver's data
     if (!chat) {
+      receiver = await this.userRepository.findOne({
+        where: { id: user2Id },
+        select: ['id', 'profilePicUrl', 'fullName', 'username', 'userType'],
+      });
+  
       return {
-        chatId: chat.id,
+        chatId: null,
         unreadCount: 0,
-        receiver: {
-          id: otherUser?.id,
-          profilePicUrl: otherUser?.profilePicUrl,
-          fullName: otherUser?.fullName,
-          username: otherUser?.username,
-          userType: otherUser?.userType,
-        },
+        receiver: receiver
+          ? {
+              id: receiver.id,
+              profilePicUrl: receiver.profilePicUrl,
+              fullName: receiver.fullName,
+              username: receiver.username,
+              userType: receiver.userType,
+            }
+          : null,
         messages: [],
       };
     }
-        
+  
+  
+    // Determine the other user in the chat
+    const otherUser = chat.user1.id === user1Id ? chat.user2 : chat.user1;
+  
+    // Fetch messages for the chat
     const messages = await this.messageRepository.find({
       where: { chat: { id: chat.id } },
-      // order: { sentAt: 'ASC' },
       relations: ['sender'],
     });
-
+  
+    // Get unread message count
     const unreadCount = await this.getUnreadMessagesCount(user2Id, chat.id);
-
+  
     return {
       chatId: chat.id,
       unreadCount,
       receiver: {
-        id: otherUser?.id,
-        profilePicUrl: otherUser?.profilePicUrl,
-        fullName: otherUser?.fullName,
-        username: otherUser?.username,
-        userType: otherUser?.userType,
+        id: otherUser.id,
+        profilePicUrl: otherUser.profilePicUrl,
+        fullName: otherUser.fullName,
+        username: otherUser.username,
+        userType: otherUser.userType,
       },
       messages: messages.map(msg => ({
         id: msg.id,
@@ -128,8 +142,7 @@ export class ChatService {
         senderId: msg.sender.id,
         sentAt: msg.sentAt,
       })),
-    }
-    
+    };
   }
 
   async getUserChats(userId: string) {
