@@ -2,7 +2,13 @@ export enum PostTypeEnum {
   TEXT = 1,
   MEDIA = 2,
   SHARED = 3,
+  ADVERTISE_POST = 4,
 }
+
+// export enum PostCategoryEnum {
+//   SPONSORED_POST = 1,
+// }
+
 export enum PostVisibilityEnum {
   PUBLIC = 1,
   PRIVATE = 2,
