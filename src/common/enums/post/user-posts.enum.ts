@@ -3,6 +3,7 @@ export enum PostTypeEnum {
   MEDIA = 2,
   SHARED = 3,
   ADVERTISE_POST = 4,
+  SPONSORED_POST = 5
 }
 
 // export enum PostCategoryEnum {

@@ -87,18 +87,30 @@ export class ChatService {
       ],
       relations: ['user1', 'user2'],
     });
+
+    const otherUser = chat.user1.id === user1Id ? chat.user2 : chat.user1;
+
     
     if (!chat) {
-      return [];
+      return {
+        chatId: chat.id,
+        unreadCount: 0,
+        receiver: {
+          id: otherUser?.id,
+          profilePicUrl: otherUser?.profilePicUrl,
+          fullName: otherUser?.fullName,
+          username: otherUser?.username,
+          userType: otherUser?.userType,
+        },
+        messages: [],
+      };
     }
-    
+        
     const messages = await this.messageRepository.find({
       where: { chat: { id: chat.id } },
       order: { sentAt: 'ASC' },
       relations: ['sender'],
     });
-
-    const otherUser = chat.user1.id === user1Id ? chat.user2 : chat.user1;
 
     const unreadCount = await this.messageRepository.count({
       where: { sender: { id: Not(user1Id) }, chat: { id: chat.id }, isRead: false },
