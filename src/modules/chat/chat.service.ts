@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { User } from 'src/modules/user/entities/user.entity';
 import { Message } from './entities/messages.entity';
 import { Chat } from './entities/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { send } from 'process';
 
 @Injectable()
 export class ChatService {
@@ -22,9 +23,7 @@ export class ChatService {
   async sendMessageBetweenUsers(
     senderId: string,
     createChatDto: CreateChatDto
-  ): Promise<Message> {
-
-    console.log(1);
+  ): Promise<any> {
 
     const sender = await this.userRepository.findOne({ where: { id: senderId } });
     const recipient = await this.userRepository.findOne({ where: { id: createChatDto.recipientId } });
@@ -54,14 +53,75 @@ export class ChatService {
     const { content } = createChatDto;
     const message = this.messageRepository.create({ content, chat, sender });
     
-    return await this.messageRepository.save(message);
+    await this.messageRepository.save(message);
+
+    const unreadCount = await this.messageRepository.count({
+      where: { sender: { id: Not(recipient.id) }, chat: { id: chat.id }, isRead: false },
+    });
+
+
+    return {
+      chatId: chat.id,
+      unreadCount,
+      receiver: {
+        id: recipient?.id,
+        profilePicUrl: recipient?.profilePicUrl,
+        fullName: recipient?.fullName,
+        username: recipient?.username,
+        userType: recipient?.userType,
+      },
+      messages:{
+        id: message.id,
+        content: message.content,
+        senderId: message.sender.id,
+        sentAt: message.sentAt,
+      }
+    };
   }
 
-  async getMessagesByChat(chatId: string): Promise<Message[]> {
-    return await this.messageRepository.find({
-      where: { chat: { id: chatId } },
-      order: { sentAt: 'ASC' },
+  async getMessagesByUserIds(user1Id: string, user2Id: string): Promise<any> {
+    const chat = await this.chatRepository.findOne({
+      where: [
+        { user1: { id: user1Id }, user2: { id: user2Id } },
+        { user1: { id: user2Id }, user2: { id: user1Id } },
+      ],
+      relations: ['user1', 'user2'],
     });
+    
+    if (!chat) {
+      return [];
+    }
+    
+    const messages = await this.messageRepository.find({
+      where: { chat: { id: chat.id } },
+      order: { sentAt: 'ASC' },
+      relations: ['sender'],
+    });
+
+    const otherUser = chat.user1.id === user1Id ? chat.user2 : chat.user1;
+
+    const unreadCount = await this.messageRepository.count({
+      where: { sender: { id: Not(user1Id) }, chat: { id: chat.id }, isRead: false },
+    });
+
+    return {
+      chatId: chat.id,
+      unreadCount,
+      receiver: {
+        id: otherUser?.id,
+        profilePicUrl: otherUser?.profilePicUrl,
+        fullName: otherUser?.fullName,
+        username: otherUser?.username,
+        userType: otherUser?.userType,
+      },
+      messages: messages.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        senderId: msg.sender.id,
+        sentAt: msg.sentAt,
+      })),
+    }
+    
   }
 
   async getUserChats(userId: string) {
@@ -92,14 +152,15 @@ export class ChatService {
   
       latestChats.push({
         chatId: chatId,
-        user: {
+        receiver: {
           id: otherUser?.id,
           profilePicUrl: otherUser?.profilePicUrl,
           fullName: otherUser?.fullName,
           username: otherUser?.username,
           userType: otherUser?.userType,
         },
-        message: {
+        messages: {
+          id: msg.id,
           content: msg.content,
           senderId: msg.sender.id,
           sentAt: msg.sentAt,
@@ -108,6 +169,25 @@ export class ChatService {
     }
   
     return latestChats;
+  }
+
+  async markAsRead(chatId: string, id: string)
+  {
+    const messages = await this.messageRepository.find({
+      where: {
+        chat: { id: chatId },
+        sender: { id: Not(id) },
+        isRead: false,
+      },
+      relations: ['chat', 'sender'],
+    });
+  
+    if (messages.length > 0) {
+      const messageIds = messages.map(msg => msg.id);
+      await this.messageRepository.update(messageIds, { isRead: true });
+    }
+  
+    return { message: 'Messages marked as read' };
   }
 }
   

@@ -21,6 +21,7 @@ import { SportModule } from './modules/sport/sport.module';
 import { FeedModule } from './modules/feed/feed.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { SocketModule } from "./modules/socket/socket.module";
+import { AppSettingsModule } from './app-settings/app-settings.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { SocketModule } from "./modules/socket/socket.module";
     UserModule,
     FeedModule,
     ChatModule,
+    AppSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService]

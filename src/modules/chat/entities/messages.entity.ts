@@ -18,6 +18,9 @@ export class Message {
   @JoinColumn({ name: "senderId" })
   sender: User;
 
+  @Column({ default: false })
+  isRead: boolean;
+
   @CreateDateColumn()
   sentAt: Date;
 }
