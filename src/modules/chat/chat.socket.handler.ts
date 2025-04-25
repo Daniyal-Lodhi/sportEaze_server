@@ -20,19 +20,19 @@ export class ChatSocketHandler {
   async handleSendMessage(senderId: string, createChatDto: CreateChatDto) {
     const { content, recipientId } = createChatDto;
 
-    const msg = await this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
+    const [ msgForSender, msgForReceiver ]  = await this.chatService.sendMessageBetweenUsers(senderId, createChatDto);
 
     const recipientSocket = this.clients.get(recipientId);
     const senderSocket = this.clients.get(senderId);
 
     if (recipientSocket) {
-      recipientSocket.emit(RECEIVE_MESSAGE, msg);
+      recipientSocket.emit(RECEIVE_MESSAGE, msgForReceiver);
     } else {
       console.log(`Recipient ${recipientId} not connected`);
     }
 
     if(senderSocket)  {
-    senderSocket.emit(MESSAGE_SENT, msg);
+    senderSocket.emit(MESSAGE_SENT, msgForSender);
     }else {
       console.log(`Sender ${senderId} not connected`);
     }

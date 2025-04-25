@@ -23,7 +23,7 @@ export class ChatService {
   async sendMessageBetweenUsers(
     senderId: string,
     createChatDto: CreateChatDto
-  ): Promise<any> {
+  ): Promise<[any, any]> {
 
     const sender = await this.userRepository.findOne({ where: { id: senderId } });
     const recipient = await this.userRepository.findOne({ where: { id: createChatDto.recipientId } });
@@ -58,7 +58,7 @@ export class ChatService {
     const unreadCount = await this.getUnreadMessagesCount(senderId, chat.id);
 
 
-    return {
+    return [{
       chatId: chat.id,
       unreadCount,
       receiver: {
@@ -74,7 +74,24 @@ export class ChatService {
         senderId: message.sender.id,
         sentAt: message.sentAt,
       }
-    };
+    },
+    {
+      chatId: chat.id,
+      unreadCount,
+      receiver: {
+        id: sender?.id,
+        profilePicUrl: sender?.profilePicUrl,
+        fullName: sender?.fullName,
+        username: sender?.username,
+        userType: sender?.userType,
+      },
+      messages:{
+        id: message.id,
+        content: message.content,
+        senderId: message.sender.id,
+        sentAt: message.sentAt,
+      }
+    }];
   }
 
   async getMessagesByUserIds(user1Id: string, user2Id: string): Promise<any> {
