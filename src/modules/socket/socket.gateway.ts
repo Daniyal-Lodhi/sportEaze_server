@@ -78,7 +78,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const recieverSocket = this.clients.get(data.receiverId);
 
     if(recieverSocket) {
-      recieverSocket.emit(IS_MSG_TYPING, data);
+      recieverSocket.emit(IS_MSG_TYPING, {...data, senderId: client.data.user.id});
     }
     else {
       console.log(`Receiver socket not found for userId: ${data.receiverId}`);
