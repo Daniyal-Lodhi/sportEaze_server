@@ -56,12 +56,13 @@ export class ChatService {
     
     await this.messageRepository.save(message);
 
-    const unreadCount = await this.getUnreadMessagesCount(senderId, chat.id);
+    const unreadCountForReceiver = await this.getUnreadMessagesCount(senderId, chat.id);
+    const unreadCountForSender = await this.getUnreadMessagesCount(createChatDto.recipientId, chat.id);
 
 
     return [{
       chatId: chat.id,
-      unreadCount,
+      unreadCount: unreadCountForSender,
       receiver: {
         id: recipient?.id,
         profilePicUrl: recipient?.profilePicUrl,
@@ -78,7 +79,7 @@ export class ChatService {
     },
     {
       chatId: chat.id,
-      unreadCount,
+      unreadCount: unreadCountForReceiver,
       receiver: {
         id: sender?.id,
         profilePicUrl: sender?.profilePicUrl,
