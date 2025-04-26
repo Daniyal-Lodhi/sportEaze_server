@@ -22,5 +22,11 @@ export class Message {
   @Column({ default: false })
   isRead: boolean;
 
-  @CreateDateColumn()
-  sentAt: Date;}
+  @Column()
+  sentAt: Date;
+
+  @BeforeInsert()
+  setSentAt() {
+    this.sentAt = dayjs().tz(LOCAL_TZ).toDate();
+  }
+}
