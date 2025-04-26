@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, BeforeInsert } from "typeorm";
 import { Chat } from "./chat.entity";
 import { User } from "src/modules/user/entities/user.entity";
+import dayjs, { LOCAL_TZ } from "src/common/utils/dayjs.helper";
 
 @Entity("Messages")
 export class Message {
@@ -21,6 +22,11 @@ export class Message {
   @Column({ default: false })
   isRead: boolean;
 
-  @CreateDateColumn()
+  @Column()
   sentAt: Date;
+
+  @BeforeInsert()
+  setSentAt() {
+    this.sentAt = dayjs().tz(LOCAL_TZ).toDate();
+  }
 }
