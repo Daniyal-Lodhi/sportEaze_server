@@ -152,6 +152,10 @@ export class UserService {
       );
     }
 
+    if(userType == UserType.SUPERUSER) {
+        throw new BadRequestException('Invalid user type');      
+    }
+
     if ('username' in updateUserDto) {
       if (await this.doesUsernameExist((updateUserDto as RegisterUserDto).username)) {
         throw new ConflictException('Username already taken');

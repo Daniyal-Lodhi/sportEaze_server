@@ -52,7 +52,4 @@ export class GetUserDto {
   @IsString()
   @IsOptional()
   profilePicUrl?: string;
-
-  @IsBoolean()
-  isAdmin?: boolean;
 }

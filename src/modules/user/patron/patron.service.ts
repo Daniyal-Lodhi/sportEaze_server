@@ -12,6 +12,7 @@ import { VerifyPatronDto } from './dto/verify-patron.dto';
 import { GetUserDto } from '../dto/get-user.dto';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 import { PatronSocketHandler } from './patron.socket.handler';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class PatronService {
@@ -88,7 +89,7 @@ export class PatronService {
     const user = await this.userService.getUser(adminId);
     const patron = await this.getPatronById(patronId);
 
-    if(user.isAdmin == false) {
+    if(user.userType == UserType.SUPERUSER) {
       throw new UnauthorizedException("Only Admins can verify patrons")
     }
 
@@ -104,7 +105,7 @@ export class PatronService {
   async getPatrons(adminId: string): Promise<any> {
     const user = await this.userService.getUser(adminId);
     
-    if(user.isAdmin == false) {
+    if(user.userType == UserType.SUPERUSER) {
       throw new UnauthorizedException("Only Admins can view patron registrations")
     }
 

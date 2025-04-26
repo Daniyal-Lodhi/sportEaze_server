@@ -89,10 +89,6 @@ export class User {
   @OneToMany(() => SharedPost, (sharedPost) => sharedPost.user) // Establish a one-to-many relationship with posts
   sponsoredPosts: SponsoredPost[]; 
 
-
-  @Column({ type: "boolean", default: false })
-  isAdmin: boolean;
-
   // @Column({ type: "varchar", length: 100, nullable: true })
   // city?: string;
 
