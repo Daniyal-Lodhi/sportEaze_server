@@ -190,6 +190,7 @@ export class ChatService {
   
       latestChats.push({
         chatId: chatId,
+        unreadCount: await this.getUnreadMessagesCount(otherUser.id, chatId),
         receiver: {
           id: otherUser?.id,
           profilePicUrl: otherUser?.profilePicUrl,
