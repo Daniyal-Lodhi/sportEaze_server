@@ -138,6 +138,7 @@ export class ChatService {
     const messages = await this.messageRepository.find({
       where: { chat: { id: chat.id } },
       relations: ['sender'],
+      order: { sentAt: 'DESC' },
     });
   
     // Get unread message count
