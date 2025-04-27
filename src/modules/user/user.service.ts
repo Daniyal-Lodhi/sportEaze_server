@@ -74,7 +74,8 @@ export class UserService {
     // asking for recover and sending error if user is flagged deleted
     if (user && user.deleted && !loginUserDto.recover) {
       throw new ConflictException(
-        "This account was deleted, send an additional field 'recover:true' for account recovery.",
+        // "This account was deleted, send an additional field 'recover:true' for account recovery.",
+        "Invalid credentials",
       );
     }
     // setting delete flag to false
