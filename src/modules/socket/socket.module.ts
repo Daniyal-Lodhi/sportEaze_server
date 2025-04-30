@@ -6,10 +6,13 @@ import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { ChatService } from '../chat/chat.service';
 import { ChatModule } from '../chat/chat.module';
 import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
+import { ContractSocketHandler } from '../contracts/contract.socket.handler';
+import { ContractsModule } from '../contracts/contracts.module';
 
 @Module({
   imports: [
     ChatModule,
+    ContractsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -20,7 +23,7 @@ import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
         };
       },
     }),  ],
-  providers: [SocketGateway, ChatSocketHandler, PatronSocketHandler],
+  providers: [SocketGateway, ChatSocketHandler, PatronSocketHandler, ContractSocketHandler],
 })
 
 export class SocketModule {}

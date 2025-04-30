@@ -8,11 +8,12 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
 import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
-import { IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
+import { CONTRACT_RECEIVED, IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
+import { ContractSocketHandler } from '../contracts/contract.socket.handler';
+import { CreateContractDto } from '../contracts/dto/create-contract.dto';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -22,9 +23,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwtService: JwtService,
     private chatSocketHandler: ChatSocketHandler,
     private patronSocketHandler: PatronSocketHandler,
+    private contractSocketHandler: ContractSocketHandler,
   ) {
     this.chatSocketHandler.setClientsMap(this.clients); // give the handler access
-    this.patronSocketHandler.setClientsMap(this.clients);
+    this.patronSocketHandler.setClientsMap(this.clients); // give the handler access
+    this.contractSocketHandler.setClientsMap(this.clients); // give the handler access
   }
 
   async handleConnection(client: Socket) {
@@ -83,5 +86,15 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     else {
       console.log(`Receiver socket not found for userId: ${data.receiverId}`);
     }
+  }
+
+  @SubscribeMessage(CONTRACT_RECEIVED)
+  async handleContractReceived(
+    @MessageBody() data: CreateContractDto,
+    @ConnectedSocket() client: Socket
+  ) {
+    const sender = client.data.user;
+    console.log(`Sender: ${JSON.stringify(sender)}`);
+    this.contractSocketHandler.handleContractReceived(sender.id, data);
   }
 }
