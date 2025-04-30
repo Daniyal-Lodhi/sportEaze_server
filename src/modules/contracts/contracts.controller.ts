@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Req } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
@@ -18,13 +18,13 @@ export class ContractsController {
   }
 
   @Get()
-  findAll() {
-    return this.contractsService.findAll();
+  async findAll(@Request() req) {
+    return await this.contractsService.findAll(req.user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contractsService.findOne(+id);
+  @Get(':patronId')
+  async findOne(@Request() req, @Param('patronId') id: string) {
+    return await this.contractsService.findOne(req.user.id, id);
   }
 
   @Patch(':id')

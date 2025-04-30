@@ -53,12 +53,18 @@ export class ContractsService {
     return savedContract;
   }
   
-  findAll() {
-    return `This action returns all contracts`;
+  async findAll(id: string): Promise<Contract[]> {
+    return await this.contractRepo.find({
+      where: { player: { id } },
+      relations: ['patron', 'player', 'milestones'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contract`;
+  async findOne(playerId: string, patronId: string): Promise<Contract | null> {
+    return await this.contractRepo.findOne({
+      where: { player: { id: playerId }, patron: { id: patronId } },
+      relations: ['patron', 'player', 'milestones'],
+    });
   }
 
   update(id: number, updateContractDto: UpdateContractDto) {
