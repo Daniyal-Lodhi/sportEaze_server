@@ -23,7 +23,7 @@ import { RegisterPlayerDto } from "./dto/register-player.dto";
 
 @Controller("api/user/player")
 export class PlayerController {
-  constructor(private readonly playerService: PlayerService) {}
+  constructor(private readonly playerService: PlayerService) { }
 
   @Post()
   @ApiBearerAuth()
@@ -62,7 +62,7 @@ export class PlayerController {
         updatePlayerDto,
       );
 
-      res.status(200).json({user: updatedPlayer, success: true});
+      res.status(200).json({ user: updatedPlayer, success: true });
     } catch (error) {
       console.error("[UPDATE_PLAYER_CTRL]:", error);
       throw new HttpException(
@@ -98,4 +98,30 @@ export class PlayerController {
       );
     }
   }
+
+  @Get("trending-player")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getTrendingPlayers(@Request() req, @Response() res) {
+    try {
+      if (!req.user || !req.user.id) {
+        throw new UnauthorizedException("Invalid user credentials");
+      }
+
+      const trendingPlayers = await this.playerService.getTrendingPlayers(req.user.id);
+
+      res.status(200).json({
+        players: trendingPlayers,
+        success: true,
+        message: "Trending players fetched successfully",
+      });
+    } catch (error) {
+      console.error("[GET_TRENDING_PLAYERS_CTRL]:", error);
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
 }
