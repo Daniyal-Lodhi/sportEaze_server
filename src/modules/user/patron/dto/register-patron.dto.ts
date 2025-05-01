@@ -94,19 +94,22 @@ export class RegisterPatronDto extends OmitType(BaseUserDto, ['dob', 'gender'] a
     example: "https://facebook.com/example"
   })
   @IsString()
-  fbLink: string;
-
+  @IsOptional()
+  fbLink?: string;
+  
   @ApiProperty({
     description: "Twitter/X profile link.",
     example: "https://twitter.com/example"
   })
   @IsString()
-  xLink: string;
-
+  @IsOptional()
+  xLink?: string;
+  
   @ApiProperty({
     description: "Instagram profile link.",
     example: "https://instagram.com/example"
   })
   @IsString()
-  instaLink: string;
+  @IsOptional()
+  instaLink?: string;
 }
