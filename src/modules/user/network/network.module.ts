@@ -7,6 +7,7 @@ import { NetworkService } from "./network.service";
 import { NetworkController } from "./network.controller";
 import { Connection } from "./entities/connection.entity";
 import { Followers } from "./entities/follower.entity";
+import { NetworkSocketHandler } from "./network.socket.handler";
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { Followers } from "./entities/follower.entity";
     JwtModule,
   ],
   controllers: [NetworkController],
-  providers: [NetworkService],
-  exports: [NetworkService]
+  providers: [NetworkService, NetworkSocketHandler],
+  exports: [NetworkService, NetworkSocketHandler]
 })
 export class NetworkModule {}

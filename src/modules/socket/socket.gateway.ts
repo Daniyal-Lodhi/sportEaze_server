@@ -13,6 +13,7 @@ import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
 import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
 import { IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
+import { NetworkSocketHandler } from '../user/network/network.socket.handler';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -22,9 +23,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwtService: JwtService,
     private chatSocketHandler: ChatSocketHandler,
     private patronSocketHandler: PatronSocketHandler,
+    private networkSocketHandler: NetworkSocketHandler,
   ) {
     this.chatSocketHandler.setClientsMap(this.clients); // give the handler access
     this.patronSocketHandler.setClientsMap(this.clients);
+    this.networkSocketHandler.setClientsMap(this.clients);
   }
 
   async handleConnection(client: Socket) {

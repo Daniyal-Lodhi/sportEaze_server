@@ -14,6 +14,7 @@ import { ConnectionReqResponse, ConnectionStatus } from "src/common/enums/networ
 import  {canConnect} from "src/common/utils/network/index";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { UUID } from "crypto";
+import { NetworkSocketHandler } from "./network.socket.handler";
 
 @Injectable()
 export class NetworkService {
@@ -21,6 +22,7 @@ export class NetworkService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Connection) private connectionRepository: Repository<Connection>,
     @InjectRepository(Followers) private followRepository: Repository<Followers>,
+    private readonly networkSocketHandler: NetworkSocketHandler,
   ) {}
 
 //   sent connection request
@@ -70,7 +72,11 @@ export class NetworkService {
 
     try {
       await this.connectionRepository.save(newConnection);
-      return { message: "Connection request sent.", success:true, connection: { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId } };
+      const connection = { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId };
+
+      this.networkSocketHandler.sendConnectionRequestNotification(requester_id, receiver_id, connection);
+
+      return { message: "Connection request sent.", success:true, connection };
     } catch (error) {
       console.log(error)
       throw new InternalServerErrorException("Failed to send connection request.");
@@ -97,14 +103,23 @@ export class NetworkService {
     }
 
     try {
-      if(action === ConnectionReqResponse.ACCEPT) {
-          await this.connectionRepository.save(connection);
-          return { message: `Connection request accepted`,accepted:true };
-      }
-      else{
+      const isAccepted = action === ConnectionReqResponse.ACCEPT;
+
+      if (isAccepted) {
+        await this.connectionRepository.save(connection);
+      } else {
         await this.connectionRepository.remove(connection);
-        return { message: `Connection request rejected`,accepted:false,success:true  };
       }
+      
+      this.networkSocketHandler.sendConnectionRequestNotification(receiverId, requesterId, connection);
+      
+      return {
+        message: `Connection request ${isAccepted ? 'accepted' : 'rejected'}`,
+        accepted: isAccepted,
+        success: !isAccepted || undefined
+      };
+      
+
     } catch (error) {
       throw new InternalServerErrorException("Failed to update connection request.");
     }
@@ -362,6 +377,7 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
     try {
       await this.connectionRepository.remove(connection);
+      this.networkSocketHandler.sendConnectionRequestNotification(userId, connectionId, connection);
       return { message: "Connection deleted successfully.", success: true };
     } catch (error) {
       throw new InternalServerErrorException("Failed to delete connection.");

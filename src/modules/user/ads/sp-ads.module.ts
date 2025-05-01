@@ -12,10 +12,11 @@ import { JwtService } from "@nestjs/jwt";
 import { NetworkService } from "../network/network.service";
 import { Connection } from "../network/entities/connection.entity";
 import { Followers } from "../network/entities/follower.entity";
+import { NetworkSocketHandler } from "../network/network.socket.handler";
 
 @Module({
   imports: [TypeOrmModule.forFeature([User,SponsoredPost,SponsoredPostTargetSport,SponsoredPostMedia,Connection,Followers])],
   controllers: [SponsoredPostsController],
-  providers: [SponsoredPostService,UserService,LocalAuthService,JwtService,NetworkService],
+  providers: [SponsoredPostService,UserService,LocalAuthService,JwtService,NetworkService, NetworkSocketHandler],
 })
 export class SponsoredPostModule { }
