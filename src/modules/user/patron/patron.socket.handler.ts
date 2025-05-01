@@ -3,21 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { PATRON_VERIFICATION } from 'src/common/consts/socket-events';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
+import { socketClients } from 'src/modules/socket/socket.gateway';
 
 @Injectable()
 export class PatronSocketHandler {
-  public clients: Map<string, Socket>;
-
-  constructor() {
-    this.clients = new Map();
-  }
-
-  setClientsMap(map: Map<string, Socket>) {
-    this.clients = map;
-  }
-
   emitPatronVerification(patronId: string, status: PatronAccountStatus) {
-    const patronSocket = this.clients.get(patronId);
+    const patronSocket = socketClients.get(patronId);
     if (patronSocket) {
       patronSocket.emit(PATRON_VERIFICATION, { status });
     } else {
