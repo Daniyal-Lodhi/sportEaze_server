@@ -105,7 +105,9 @@ export class PatronService {
   async getPatrons(adminId: string): Promise<any> {
     const user = await this.userService.getUser(adminId);
     
-    if(user.userType == UserType.SUPERUSER) {
+    console.log(user);
+
+    if(user.userType != UserType.SUPERUSER) {
       throw new UnauthorizedException("Only Admins can view patron registrations")
     }
 
