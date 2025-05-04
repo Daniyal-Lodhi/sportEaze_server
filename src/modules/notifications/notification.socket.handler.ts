@@ -5,8 +5,8 @@ import { NOTIFICATION } from 'src/common/consts/socket-events';
 
 @Injectable()
 export class NotificationSocketHandler {
-    SendNotification(notification: any) {
-        const receiverSocket = socketClients.get(notification.userId);
+    SendNotification(notification: any, recipientUserId: string) {
+        const receiverSocket = socketClients.get(recipientUserId);
 
         if (receiverSocket) {
             receiverSocket.emit(NOTIFICATION, notification);

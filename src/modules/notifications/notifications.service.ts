@@ -17,7 +17,7 @@ export class NotificationsService {
     private readonly notificationSocketHandler: NotificationSocketHandler,
   ) {}
 
-  async create(actorId: string, createNotificationDto: CreateNotificationDto): Promise<Notification> {
+  async create(actorId: string, createNotificationDto: CreateNotificationDto): Promise<any> {
     const { type, recipientUserId } = createNotificationDto;
 
     const recipientUser = await this.userRepo.findOne({ where: { id: recipientUserId } });
@@ -44,8 +44,36 @@ export class NotificationsService {
 
     await this.notificationRepo.save(notification);
 
-    this.notificationSocketHandler.SendNotification(notification);
-
-    return notification;
+    // console.log(`Notification created: ${notification}`);
+    console.log(`Sending notification to user ${recipientUserId}`);
+    
+    const unreadCount = await this.notificationRepo.count({
+      where: { recipientUser: { id : recipientUserId }, isRead: false },
+    });
+    
+    const result = {
+      notifications: [
+        {
+          id: notification.id,
+          type: notification.type,
+          redirect: notification.redirect,
+          data: {
+            message: notification.message,
+            user: {
+              id: actorUser.id,
+              profilePicUrl: actorUser.profilePicUrl,
+              fullName: actorUser.fullName,
+              username: actorUser.username,
+              UserType: actorUser.userType,      
+            }
+          }
+        }
+      ],
+      unreadCount: unreadCount,
+    };
+    
+    this.notificationSocketHandler.SendNotification(result, recipientUserId);
+    console.log(result);
+    return result;
   }
 }
