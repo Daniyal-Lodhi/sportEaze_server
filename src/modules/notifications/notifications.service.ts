@@ -123,7 +123,9 @@ export class NotificationsService {
         }
       })),
       unreadCount,
-    };  
+    };
+
+    return result;
   }
 
   async markAsRead(userId: string): Promise<any> {
