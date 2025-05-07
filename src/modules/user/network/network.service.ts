@@ -282,7 +282,13 @@ async unfollowPlayer(followerId: string, playerId: string) {
     });
   
     // Extract only the follower details
-    return followers.map(follow => follow.follower);
+    return followers.map(follow => ({
+      id: follow.follower.id,
+      profilePicUrl: follow.follower.profilePicUrl,
+      fullName: follow.follower.fullName,
+      username: follow.follower.username,
+      userType: follow.follower.userType,
+  }));
   }
   
   
