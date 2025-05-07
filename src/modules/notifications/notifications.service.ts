@@ -96,11 +96,17 @@ export class NotificationsService {
     });
 
     const result = {
-      notifications: notifications.map(notification => ({
+      notifications: notifications.map(notification => {
+        
+      let redirectData = {};
+        if(notification.type === NotificationType.FOLLOW) {
+          redirectData = {followerId:  notification.actorUser.id};
+        }
+        
+        return {
         id: notification.id,
         type: notification.type,
-        redirect:{
-        },
+        redirect: redirectData,
         data: {
           message: notification.message,
           user: {
@@ -112,7 +118,8 @@ export class NotificationsService {
           },
           createdAt: formatToLocalDateTime(notification.createdAt),
         }
-      })),
+      }
+    }),
       unreadCount,
     };
 
