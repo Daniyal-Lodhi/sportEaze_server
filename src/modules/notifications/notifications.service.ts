@@ -57,7 +57,7 @@ export class NotificationsService {
     let redirectData = {};
 
     if(type === NotificationType.FOLLOW) {
-      redirectData = {follower_id:  actorId};
+      redirectData = {followerId:  actorId};
     }
 
     const result = {
