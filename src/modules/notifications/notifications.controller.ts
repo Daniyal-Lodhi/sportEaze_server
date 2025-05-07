@@ -13,4 +13,10 @@ export class NotificationsController {
   async findAll(@Request() req) {
     return await this.notificationsService.findAll(req.user.id);
   }
+
+  @Post("/read")
+  async markAsRead(@Request() req) {
+    return await this.notificationsService.markAsRead(req.user.id);
+  }
+
 }

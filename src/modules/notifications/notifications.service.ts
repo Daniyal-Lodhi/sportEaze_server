@@ -84,5 +84,46 @@ export class NotificationsService {
       relations: ['actorUser'],
       order: { createdAt: 'DESC' },
     });
+
+    const unreadCount = await this.notificationRepo.count({
+      where: { recipientUser: { id: userId }, isRead: false },
+    });
+
+    const result = {
+      notifications: notifications.map(notification => ({
+        id: notification.id,
+        type: notification.type,
+        redirect: notification.redirect,
+        data: {
+          message: notification.message,
+          user: {
+            id: notification.actorUser.id,
+            profilePicUrl: notification.actorUser.profilePicUrl,
+            fullName: notification.actorUser.fullName,
+            username: notification.actorUser.username,
+            UserType: notification.actorUser.userType,
+          },
+          createdAt: formatToLocalDateTime(notification.createdAt),
+        }
+      })),
+      unreadCount,
+    };  
+  }
+
+  async markAsRead(userId: string): Promise<any> {
+    const notifications = await this.notificationRepo.find({
+      where: { recipientUser: { id: userId }, isRead: false },
+    });
+
+    if (notifications.length === 0) {
+      return { message: 'No unread notifications' };
+    }
+
+    await this.notificationRepo.update(
+      { recipientUser: { id: userId }, isRead: false },
+      { isRead: true },
+    );
+
+    return { message: 'Notifications marked as read' };
   }
 }
