@@ -1,7 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { NotificationType } from "src/common/enums/notifications/notifications.enum";
-import { UserType } from "src/common/enums/user/user-type.enum";
 import { User } from "src/modules/user/entities/user.entity";
+import dayjs, { LOCAL_TZ } from "src/common/utils/dayjs.helper";
 
 @Entity("notifications")
 export class Notification {
@@ -27,4 +27,12 @@ export class Notification {
 
     @Column({ default: false })
     isRead: boolean;
+
+    @Column()
+    createdAt: Date;
+
+    @BeforeInsert()
+    setCreatedAt() {
+        this.createdAt = dayjs().tz(LOCAL_TZ).toDate();
+    }
 }

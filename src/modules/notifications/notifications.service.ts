@@ -6,6 +6,7 @@ import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { NotificationSocketHandler } from './notification.socket.handler';
+import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
 
 @Injectable()
 export class NotificationsService {
@@ -17,21 +18,26 @@ export class NotificationsService {
     private readonly notificationSocketHandler: NotificationSocketHandler,
   ) {}
 
-  async create(actorId: string, createNotificationDto: CreateNotificationDto): Promise<any> {
-    const { type, recipientUserId } = createNotificationDto;
+  private generateMessage(type: NotificationType, actorName: string): string {
+    const messages = {
+      [NotificationType.CONNECTION_REQUEST]: `${actorName} has sent you a connection request`,
+      [NotificationType.CONNECTION_ACCEPTED]: `${actorName} has accepted your connection request`,
+      [NotificationType.FOLLOW]: `${actorName} has started following you`,
+    };
+    return messages[type] || '';
+  }
 
-    const recipientUser = await this.userRepo.findOne({ where: { id: recipientUserId } });
-    const actorUser = await this.userRepo.findOne({ where: { id: actorId } });
+  async create(actorId: string, { type, recipientUserId }: CreateNotificationDto): Promise<any> {
+    const [recipientUser, actorUser] = await Promise.all([
+      this.userRepo.findOne({ where: { id: recipientUserId } }),
+      this.userRepo.findOne({ where: { id: actorId } }),
+    ]);
 
     if (!recipientUser || !actorUser) {
-      throw new NotFoundException("One or both users not found");
+      throw new NotFoundException('One or both users not found');
     }
 
-    let message = "";
-
-    if (type === NotificationType.CONNECTION_REQUEST) {
-      message = `${actorUser.fullName} has sent you a connection request`;
-    }
+    const message = this.generateMessage(type, actorUser.fullName);
 
     const notification = this.notificationRepo.create({
       type,
@@ -44,36 +50,39 @@ export class NotificationsService {
 
     await this.notificationRepo.save(notification);
 
-    // console.log(`Notification created: ${notification}`);
-    console.log(`Sending notification to user ${recipientUserId}`);
-    
     const unreadCount = await this.notificationRepo.count({
-      where: { recipientUser: { id : recipientUserId }, isRead: false },
+      where: { recipientUser: { id: recipientUserId }, isRead: false },
     });
-    
+
     const result = {
-      notifications: [
-        {
-          id: notification.id,
-          type: notification.type,
-          redirect: notification.redirect,
-          data: {
-            message: notification.message,
-            user: {
-              id: actorUser.id,
-              profilePicUrl: actorUser.profilePicUrl,
-              fullName: actorUser.fullName,
-              username: actorUser.username,
-              UserType: actorUser.userType,      
-            }
-          }
+      notifications: [{
+        id: notification.id,
+        type: notification.type,
+        redirect: notification.redirect,
+        data: {
+          message: notification.message,
+          user: {
+            id: actorUser.id,
+            profilePicUrl: actorUser.profilePicUrl,
+            fullName: actorUser.fullName,
+            username: actorUser.username,
+            UserType: actorUser.userType,
+          },
+          createdAt: formatToLocalDateTime(notification.createdAt),
         }
-      ],
-      unreadCount: unreadCount,
+      }],
+      unreadCount,
     };
-    
+
     this.notificationSocketHandler.SendNotification(result, recipientUserId);
-    console.log(result);
     return result;
+  }
+
+  async findAll(userId: string): Promise<any> {
+    const notifications = await this.notificationRepo.find({
+      where: { recipientUser: { id: userId } },
+      relations: ['actorUser'],
+      order: { createdAt: 'DESC' },
+    });
   }
 }

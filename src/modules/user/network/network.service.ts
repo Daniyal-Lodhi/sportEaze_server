@@ -112,6 +112,7 @@ export class NetworkService {
 
       if (isAccepted) {
         await this.connectionRepository.save(connection);
+        this.notificationService.create(requesterId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: receiverId});
       } else {
         await this.connectionRepository.remove(connection);
       }
@@ -229,6 +230,7 @@ async followPlayer(followerId: string, playerId: string) {
   
     try {
       await this.followRepository.save(newFollow);
+      this.notificationService.create(followerId, {type: NotificationType.FOLLOW, recipientUserId: playerId});
       return { message: "Successfully followed the player.",success:true  };
     } catch (error) {
       console.log(error)
