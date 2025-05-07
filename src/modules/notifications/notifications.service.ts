@@ -72,7 +72,7 @@ export class NotificationsService {
             profilePicUrl: actorUser.profilePicUrl,
             fullName: actorUser.fullName,
             username: actorUser.username,
-            UserType: actorUser.userType,
+            userType: actorUser.userType,
           },
           createdAt: formatToLocalDateTime(notification.createdAt),
         }
@@ -114,7 +114,7 @@ export class NotificationsService {
             profilePicUrl: notification.actorUser.profilePicUrl,
             fullName: notification.actorUser.fullName,
             username: notification.actorUser.username,
-            UserType: notification.actorUser.userType,
+            userType: notification.actorUser.userType,
           },
           createdAt: formatToLocalDateTime(notification.createdAt),
         }
