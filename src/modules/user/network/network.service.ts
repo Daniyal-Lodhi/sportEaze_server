@@ -117,7 +117,7 @@ export class NetworkService {
         await this.connectionRepository.remove(connection);
       }
       
-      this.networkSocketHandler.HandleConnectionRequest(receiverId, requesterId, connection);
+      this.networkSocketHandler.HandleConnectionRespond(receiverId, requesterId, connection);
       
       return {
         message: `Connection request ${isAccepted ? 'accepted' : 'rejected'}`,
@@ -384,7 +384,6 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
     try {
       await this.connectionRepository.remove(connection);
-      this.networkSocketHandler.HandleConnectionRespond(userId, connectionId, connection);
       return { message: "Connection deleted successfully.", success: true };
     } catch (error) {
       throw new InternalServerErrorException("Failed to delete connection.");
