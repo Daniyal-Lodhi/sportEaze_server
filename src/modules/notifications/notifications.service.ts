@@ -69,8 +69,6 @@ export class NotificationsService {
         type: notification.type,
         redirect:
         {
-          id: notification.redirect,
-          type: this.getRedirectType(notification.type),
         },
         data: {
           message: notification.message,
@@ -107,8 +105,6 @@ export class NotificationsService {
         id: notification.id,
         type: notification.type,
         redirect:{
-          id: notification.redirect,
-          type: this.getRedirectType(notification.type),
         },
         data: {
           message: notification.message,
