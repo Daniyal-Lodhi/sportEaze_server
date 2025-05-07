@@ -171,7 +171,7 @@ export class UserPostService {
         profilePicUrl: user.user.profilePicUrl,
         fullName: user.user.fullName,
         username: user.user.username,
-        UserType: user.user.userType,
+        userType: user.user.userType,
       };
     })
   }

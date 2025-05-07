@@ -22,6 +22,7 @@ import { FeedModule } from './modules/feed/feed.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { SocketModule } from "./modules/socket/socket.module";
 import { AppSettingsModule } from './app-settings/app-settings.module';
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
     FeedModule,
     ChatModule,
     AppSettingsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService]

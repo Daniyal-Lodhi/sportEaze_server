@@ -5,8 +5,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Message } from './entities/messages.entity';
 import { Chat } from './entities/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { send } from 'process';
-import dayjs, { LOCAL_TZ } from 'src/common/utils/dayjs.helper';
+import dayjs, { formatToLocalDateTime, LOCAL_TZ } from 'src/common/utils/dayjs.helper';
 
 @Injectable()
 export class ChatService {
@@ -74,7 +73,7 @@ export class ChatService {
         id: message.id,
         content: message.content,
         senderId: message.sender.id,
-        sentAt: dayjs(message.sentAt).tz(LOCAL_TZ).format('YYYY-MM-DD HH:mm:ss'), // Format the date as needed
+        sentAt: formatToLocalDateTime(message.sentAt), // Format the date as needed
       }
     },
     {
@@ -160,7 +159,7 @@ export class ChatService {
         id: msg.id,
         content: msg.content,
         senderId: msg.sender.id,
-        sentAt: dayjs(msg.sentAt).tz(LOCAL_TZ).format('YYYY-MM-DD HH:mm:ss'), // Format the date as needed
+        sentAt: formatToLocalDateTime(msg.sentAt)
       })),
     };
   }

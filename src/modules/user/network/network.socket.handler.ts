@@ -6,7 +6,7 @@ import { socketClients } from 'src/modules/socket/socket.gateway';
 
 @Injectable()
 export class NetworkSocketHandler {
-  sendConnectionRequestNotification(requester_id: string, receiver_id: string, connection: { id: string; status: ConnectionStatus; receiverId: string; }) {
+  HandleConnectionRequest(requester_id: string, receiver_id: string, connection: { id: string; status: ConnectionStatus; receiverId: string; }) {
     const receiverSocket = socketClients.get(receiver_id);
     
     const data = { ...connection, requester_id, receiver_id };
@@ -18,7 +18,7 @@ export class NetworkSocketHandler {
     }
   }
   
-  sendConnectionRespondNotification(requester_id: string, receiver_id: string, connection: { id: string; status: ConnectionStatus; receiverId: string; }) {
+  HandleConnectionRespond(requester_id: string, receiver_id: string, connection: { id: string; status: ConnectionStatus; receiverId: string; }) {
     const receiverSocket = socketClients.get(receiver_id);
 
     const data = { ...connection, requester_id, receiver_id };

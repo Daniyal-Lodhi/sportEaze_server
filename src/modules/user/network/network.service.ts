@@ -15,6 +15,8 @@ import  {canConnect} from "src/common/utils/network/index";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { UUID } from "crypto";
 import { NetworkSocketHandler } from "./network.socket.handler";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { NotificationType } from "src/common/enums/notifications/notifications.enum";
 
 @Injectable()
 export class NetworkService {
@@ -23,6 +25,7 @@ export class NetworkService {
     @InjectRepository(Connection) private connectionRepository: Repository<Connection>,
     @InjectRepository(Followers) private followRepository: Repository<Followers>,
     private readonly networkSocketHandler: NetworkSocketHandler,
+    private readonly notificationService: NotificationsService,
   ) {}
 
 //   sent connection request
@@ -74,7 +77,9 @@ export class NetworkService {
       await this.connectionRepository.save(newConnection);
       const connection = { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId };
 
-      this.networkSocketHandler.sendConnectionRequestNotification(requester_id, receiver_id, connection);
+      this.networkSocketHandler.HandleConnectionRequest(requester_id, receiver_id, connection);
+
+      this.notificationService.create(requester_id, {type: NotificationType.CONNECTION_REQUEST, recipientUserId: receiver_id});
 
       return { message: "Connection request sent.", success:true, connection };
     } catch (error) {
@@ -107,11 +112,12 @@ export class NetworkService {
 
       if (isAccepted) {
         await this.connectionRepository.save(connection);
+        this.notificationService.create(requesterId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: receiverId});
       } else {
         await this.connectionRepository.remove(connection);
       }
       
-      this.networkSocketHandler.sendConnectionRequestNotification(receiverId, requesterId, connection);
+      this.networkSocketHandler.HandleConnectionRespond(receiverId, requesterId, connection);
       
       return {
         message: `Connection request ${isAccepted ? 'accepted' : 'rejected'}`,
@@ -224,6 +230,7 @@ async followPlayer(followerId: string, playerId: string) {
   
     try {
       await this.followRepository.save(newFollow);
+      this.notificationService.create(followerId, {type: NotificationType.FOLLOW, recipientUserId: playerId});
       return { message: "Successfully followed the player.",success:true  };
     } catch (error) {
       console.log(error)
@@ -275,7 +282,13 @@ async unfollowPlayer(followerId: string, playerId: string) {
     });
   
     // Extract only the follower details
-    return followers.map(follow => follow.follower);
+    return followers.map(follow => ({
+      id: follow.follower.id,
+      profilePicUrl: follow.follower.profilePicUrl,
+      fullName: follow.follower.fullName,
+      username: follow.follower.username,
+      userType: follow.follower.userType,
+  }));
   }
   
   
@@ -377,7 +390,6 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
     try {
       await this.connectionRepository.remove(connection);
-      this.networkSocketHandler.sendConnectionRespondNotification(userId, connectionId, connection);
       return { message: "Connection deleted successfully.", success: true };
     } catch (error) {
       throw new InternalServerErrorException("Failed to delete connection.");
