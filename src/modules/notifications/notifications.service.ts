@@ -27,15 +27,6 @@ export class NotificationsService {
     return messages[type] || '';
   }
 
-  private getRedirectType(type: NotificationType): NotificationRedirectType {
-    const redirectTypes = {
-      [NotificationType.CONNECTION_REQUEST]: NotificationRedirectType.USER_ID,
-      [NotificationType.CONNECTION_ACCEPTED]: NotificationRedirectType.USER_ID,
-      [NotificationType.FOLLOW]: NotificationRedirectType.USER_ID,
-    };
-    return redirectTypes[type] || NotificationRedirectType.USER_ID;
-  }
-
   async create(actorId: string, { type, recipientUserId }: CreateNotificationDto): Promise<any> {
     const [recipientUser, actorUser] = await Promise.all([
       this.userRepo.findOne({ where: { id: recipientUserId } }),
@@ -63,13 +54,17 @@ export class NotificationsService {
       where: { recipientUser: { id: recipientUserId }, isRead: false },
     });
 
+    let redirectData = {};
+
+    if(type === NotificationType.FOLLOW) {
+      redirectData = {follower_id:  actorId};
+    }
+
     const result = {
       notifications: [{
         id: notification.id,
         type: notification.type,
-        redirect:
-        {
-        },
+        redirect: redirectData,
         data: {
           message: notification.message,
           user: {
