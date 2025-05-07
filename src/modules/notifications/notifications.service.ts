@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
+import { NotificationRedirectType, NotificationType } from 'src/common/enums/notifications/notifications.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -25,6 +25,15 @@ export class NotificationsService {
       [NotificationType.FOLLOW]: `${actorName} has started following you`,
     };
     return messages[type] || '';
+  }
+
+  private getRedirectType(type: NotificationType): NotificationRedirectType {
+    const redirectTypes = {
+      [NotificationType.CONNECTION_REQUEST]: NotificationRedirectType.USER_ID,
+      [NotificationType.CONNECTION_ACCEPTED]: NotificationRedirectType.USER_ID,
+      [NotificationType.FOLLOW]: NotificationRedirectType.USER_ID,
+    };
+    return redirectTypes[type] || NotificationRedirectType.USER_ID;
   }
 
   async create(actorId: string, { type, recipientUserId }: CreateNotificationDto): Promise<any> {
@@ -58,7 +67,11 @@ export class NotificationsService {
       notifications: [{
         id: notification.id,
         type: notification.type,
-        redirect: notification.redirect,
+        redirect:
+        {
+          id: notification.redirect,
+          type: this.getRedirectType(notification.type),
+        },
         data: {
           message: notification.message,
           user: {
@@ -93,7 +106,10 @@ export class NotificationsService {
       notifications: notifications.map(notification => ({
         id: notification.id,
         type: notification.type,
-        redirect: notification.redirect,
+        redirect:{
+          id: notification.redirect,
+          type: this.getRedirectType(notification.type),
+        },
         data: {
           message: notification.message,
           user: {
