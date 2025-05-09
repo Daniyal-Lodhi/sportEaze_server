@@ -102,7 +102,7 @@ export class UserService {
   async getUser(id: string, userId?: string | undefined): Promise<GetUserDto> {
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ["player", "patron", "mentor"]
+      relations: ["player", "patron", "mentor", "patron.wallet", "player.wallet"],
     });
 
     if (user?.deleted || !user) {

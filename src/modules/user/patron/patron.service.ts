@@ -12,12 +12,13 @@ import { VerifyPatronDto } from './dto/verify-patron.dto';
 import { GetUserDto } from '../dto/get-user.dto';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 import { PatronSocketHandler } from './patron.socket.handler';
-import { User } from '../entities/user.entity';
+import { Wallet } from 'src/common/entities/wallet.entity';
 
 @Injectable()
 export class PatronService {
   constructor(
     @InjectRepository(Patron) private readonly patronRepository: Repository<Patron>,
+    @InjectRepository(Wallet) private readonly walletRepository: Repository<Wallet>,
     private readonly userService: UserService,
     private readonly patronSocketHandler: PatronSocketHandler,    
   ) {}
@@ -50,13 +51,17 @@ export class PatronService {
 
     const patron = Object.assign(new Patron(), { id, ...patronDetails });
 
+    const wallet = this.walletRepository.create({ total: 0, pending: 0 });
+    await this.walletRepository.save(wallet);
+    patron.wallet = wallet;
+
     await this.patronRepository.save(patron);
 
     return this.userService.getUser(id);
   }
 
   async getPatronById(id: string): Promise<Patron> {
-    const patron = await this.patronRepository.findOne({ where: { id }, relations: ['user'] });
+    const patron = await this.patronRepository.findOne({ where: { id }, relations: ['user', "wallet"] });
 
     if (!patron) {
       throw new NotFoundException(`Patron with ID ${id} not found.`);
@@ -79,7 +84,12 @@ export class PatronService {
   
     // Update patron details
     Object.assign(patron, { id, ...patronDetails });
-  
+    
+    patron.wallet.total = patronDetails.walletTotal ?? patron.wallet.total;
+    patron.wallet.pending = patronDetails.walletPending ?? patron.wallet.pending;
+
+    await this.walletRepository.save(patron.wallet);
+
     await this.patronRepository.save(patron);
   
     return this.userService.getUser(id);
