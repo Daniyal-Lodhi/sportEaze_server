@@ -99,28 +99,47 @@ export class PatronService {
     const user = await this.userService.getUser(adminId);
     const patron = await this.getPatronById(patronId);
 
-    if(user.userType == UserType.SUPERUSER) {
+    if(user.userType != UserType.SUPERUSER) {
       throw new UnauthorizedException("Only Admins can verify patrons")
     }
 
-    this.patronRepository.save({
+    await this.patronRepository.save({
       ...patron,
-      verifyPatronDto
+      ...verifyPatronDto
     });
 
     this.patronSocketHandler.emitPatronVerification(patronId, verifyPatronDto.status);
+
+    const updatedPatron = await this.userService.getUser(patronId);
+
+    return {
+      message: "Patron verified successfully",
+      user: updatedPatron,
+    };
   }
 
 
   async getPatrons(adminId: string): Promise<any> {
     const user = await this.userService.getUser(adminId);
     
-    console.log(user);
+    // console.log(user);
 
     if(user.userType != UserType.SUPERUSER) {
       throw new UnauthorizedException("Only Admins can view patron registrations")
     }
 
-    return await this.patronRepository.find({ where: { status: Not(PatronAccountStatus.APPROVED) } });
+    const patronIds = await this.patronRepository.find({ where: { status: Not(PatronAccountStatus.APPROVED) }, select: ['id'] });
+
+    // console.log(patronIds);
+
+    let patrons = [];
+
+    for (const element of patronIds) {
+      const user = await this.userService.getUser(element.id);
+      patrons.push(user);
+    }
+
+    return patrons;
+
   }
 }

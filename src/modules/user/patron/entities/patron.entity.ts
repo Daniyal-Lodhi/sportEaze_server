@@ -53,8 +53,8 @@ export class Patron {
   @Column({type: "enum", enum: PatronAccountStatus, default: PatronAccountStatus.PENDING})
   status: PatronAccountStatus;
 
-  @Column({ type: "uuid", nullable: true })
-  reviewedByAdminId?: string | null;
+  // @Column({ type: "uuid", nullable: true })
+  // reviewedByAdminId?: string | null;
 
   @Column({ type: "text", nullable: true })
   adminReviewComment?: string | null;
