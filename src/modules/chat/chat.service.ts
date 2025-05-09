@@ -6,6 +6,8 @@ import { Message } from './entities/messages.entity';
 import { Chat } from './entities/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
 import dayjs, { formatToLocalDateTime, LOCAL_TZ } from 'src/common/utils/dayjs.helper';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
 
 @Injectable()
 export class ChatService {
@@ -18,6 +20,8 @@ export class ChatService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    private readonly notificationService: NotificationsService,
   ) {}
 
   async sendMessageBetweenUsers(
@@ -58,6 +62,7 @@ export class ChatService {
     const unreadCountForReceiver = await this.getUnreadMessagesCount(senderId, chat.id);
     const unreadCountForSender = await this.getUnreadMessagesCount(createChatDto.recipientId, chat.id);
 
+    this.notificationService.create(senderId, {type: NotificationType.MSG_RECEIVED, recipientUserId: createChatDto.recipientId});
 
     return [{
       chatId: chat.id,

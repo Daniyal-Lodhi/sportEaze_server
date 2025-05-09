@@ -11,10 +11,13 @@ import { PostLikesGateway } from '../user/user-posts/post-likes/post-likes.gatew
 import { UserService } from '../user/user.service';
 import { LocalAuthModule } from '../auth/local-auth/local-auth.module';
 import { NetworkModule } from '../user/network/network.module';
+import { NotificationsService } from '../notifications/notifications.service';
+import { Notification } from '../notifications/entities/notification.entity';
+import { NotificationSocketHandler } from '../notifications/notification.socket.handler';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes, User]), NetworkModule, LocalAuthModule],
+  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes, User, Notification]), NetworkModule, LocalAuthModule],
   controllers: [FeedController],
-  providers: [FeedService, PostLikesService, PostLikesGateway, UserService],
+  providers: [FeedService, PostLikesService, PostLikesGateway, UserService, NotificationsService, NotificationSocketHandler],
 })
 export class FeedModule {}

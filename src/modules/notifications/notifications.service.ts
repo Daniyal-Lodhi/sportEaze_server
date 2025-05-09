@@ -23,6 +23,7 @@ export class NotificationsService {
       [NotificationType.CONNECTION_REQUEST]: `${actorName} has sent you a connection request`,
       [NotificationType.CONNECTION_ACCEPTED]: `${actorName} has accepted your connection request`,
       [NotificationType.FOLLOW]: `${actorName} has started following you`,
+      [NotificationType.POST_LIKED]: `${actorName} has liked your post`,
     };
     return messages[type] || '';
   }
