@@ -14,14 +14,17 @@ import { GetPlayerDto } from "./dto/get-player.dto";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
 import { BaseUserDto } from "../dto/base-user.dto";
 import { GetUserDto } from "../dto/get-user.dto";
+import { Wallet } from "src/common/entities/wallet.entity";
 
 @Injectable()
 export class PlayerService {
   constructor(
     private readonly userService: UserService,
-    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(User) 
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Player)
     private readonly playerRepository: Repository<Player>,
+    @InjectRepository(Wallet) private readonly walletRepository: Repository<Wallet>,
   ) {}
 
   async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetUserDto> {
@@ -44,6 +47,10 @@ export class PlayerService {
     await this.userService.updateUser(id, updateUserDto, UserType.PLAYER);
 
     const player = Object.assign(new Player(), { id, ...playerDetails });
+
+    const wallet = this.walletRepository.create({ total: 0, pending: 0 });
+    await this.walletRepository.save(wallet);
+    player.wallet = wallet;
 
     await this.playerRepository.save(player);
 
@@ -82,7 +89,7 @@ export class PlayerService {
   ): Promise<GetUserDto> {
     const player = await this.playerRepository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', "wallet"],
     });
   
     if (!player) {
@@ -100,15 +107,20 @@ export class PlayerService {
       await this.userRepository.save(player.user);
     }
   
-    const playerUpdates = { ...updatePlayerDto };
+    const {walletTotal, walletPending, ...playerUpdates} = { ...updatePlayerDto };
+    
     delete playerUpdates.profilePicUrl;
     delete playerUpdates.fullName;
     delete playerUpdates.dob;
     delete playerUpdates.gender;
   
     Object.assign(player, playerUpdates);
+    player.wallet.total = walletTotal ?? player.wallet.total;
+    player.wallet.pending = walletPending ?? player.wallet.pending;
+
     await this.playerRepository.save(player);
-  
+    await this.walletRepository.save(player.wallet);
+    
     return this.userService.getUser(id);
   }
 

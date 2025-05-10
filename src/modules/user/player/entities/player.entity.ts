@@ -13,6 +13,7 @@ import {
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
+import { Wallet } from "src/common/entities/wallet.entity";
 
 @Entity("Player")
 export class Player {
@@ -66,6 +67,10 @@ export class Player {
   
   @OneToMany(() => RatingAndReview, (ratingAndReview) => ratingAndReview.player)
   ratingAndReviews: RatingAndReview[];
+
+  @OneToOne(() => Wallet)
+    @JoinColumn({ name: "walletId" })
+    wallet: Wallet
 }
 
 // socialMedialinks: put in player table, make get, update and delete api for socialmedia links

@@ -2,6 +2,9 @@ export enum NotificationType {
     CONNECTION_REQUEST = 1,
     CONNECTION_ACCEPTED = 2,
     FOLLOW = 3,
+    POST_LIKED = 4,
+    POST_COMMENTED = 5,
+    MSG_RECEIVED = 6,
 }
 
 

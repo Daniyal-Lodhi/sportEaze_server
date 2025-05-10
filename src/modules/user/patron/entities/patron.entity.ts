@@ -9,6 +9,7 @@ import {
 import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 import { PatronType, FundingType, PatronAccountStatus } from "src/common/enums/patron/patron.enum";
 import { Sport } from "src/common/enums/sport/sport.enum";
+import { Wallet } from "src/common/entities/wallet.entity";
 
 @Entity("Patron")
 export class Patron {
@@ -52,10 +53,13 @@ export class Patron {
   @Column({type: "enum", enum: PatronAccountStatus, default: PatronAccountStatus.PENDING})
   status: PatronAccountStatus;
 
-  @Column({ type: "uuid", nullable: true })
-  reviewedByAdminId?: string | null;
+  // @Column({ type: "uuid", nullable: true })
+  // reviewedByAdminId?: string | null;
 
   @Column({ type: "text", nullable: true })
   adminReviewComment?: string | null;
 
+  @OneToOne(() => Wallet)
+  @JoinColumn({ name: "walletId" })
+  wallet: Wallet
 }
