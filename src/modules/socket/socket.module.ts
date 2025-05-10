@@ -8,6 +8,7 @@ import { ChatModule } from '../chat/chat.module';
 import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
 import { ContractSocketHandler } from '../contracts/contract.socket.handler';
 import { ContractsModule } from '../contracts/contracts.module';
+import { NetworkSocketHandler } from '../user/network/network.socket.handler';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { ContractsModule } from '../contracts/contracts.module';
         };
       },
     }),  ],
-  providers: [SocketGateway, ChatSocketHandler, PatronSocketHandler, ContractSocketHandler],
+  providers: [SocketGateway, ChatSocketHandler, PatronSocketHandler, NetworkSocketHandler, ContractSocketHandler],
 })
 
 export class SocketModule {}

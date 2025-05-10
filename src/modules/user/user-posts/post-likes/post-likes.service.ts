@@ -8,6 +8,8 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { PostLikes } from "../entities/post-like.entity";
 import { ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesGateway } from "./post-likes.gateway";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { NotificationType } from "src/common/enums/notifications/notifications.enum";
 
 @Injectable()
 export class PostLikesService {
@@ -16,7 +18,8 @@ export class PostLikesService {
     private readonly postRepository: Repository<UserPost>,
     @InjectRepository(PostLikes)
     private readonly likeRepository: Repository<PostLikes>,
-    private readonly postLikeGateway: PostLikesGateway
+    private readonly postLikeGateway: PostLikesGateway,
+    private readonly notificationsService: NotificationsService,
   ) {}
   async likePost(
     userId: string, 
@@ -59,6 +62,11 @@ export class PostLikesService {
     const likeCount = await this.likeRepository.count({ where: { postId } });
   
     this.postLikeGateway.emitLikePost(postId, likeCount);
+
+    if(!unlike)
+    {
+      this.notificationsService.create(userId, { type: NotificationType.POST_LIKED, recipientUserId: post.userId }, postId);
+    }
 
     return { liked: true, likeCount, reactType };
   }

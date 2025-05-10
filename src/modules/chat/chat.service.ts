@@ -5,8 +5,9 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Message } from './entities/messages.entity';
 import { Chat } from './entities/chat.entity';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { send } from 'process';
-import dayjs, { LOCAL_TZ } from 'src/common/utils/dayjs.helper';
+import dayjs, { formatToLocalDateTime, LOCAL_TZ } from 'src/common/utils/dayjs.helper';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
 
 @Injectable()
 export class ChatService {
@@ -19,6 +20,8 @@ export class ChatService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    private readonly notificationService: NotificationsService,
   ) {}
 
   async sendMessageBetweenUsers(
@@ -59,6 +62,7 @@ export class ChatService {
     const unreadCountForReceiver = await this.getUnreadMessagesCount(senderId, chat.id);
     const unreadCountForSender = await this.getUnreadMessagesCount(createChatDto.recipientId, chat.id);
 
+    this.notificationService.create(senderId, {type: NotificationType.MSG_RECEIVED, recipientUserId: createChatDto.recipientId}, chat.id);
 
     return [{
       chatId: chat.id,
@@ -74,7 +78,7 @@ export class ChatService {
         id: message.id,
         content: message.content,
         senderId: message.sender.id,
-        sentAt: dayjs(message.sentAt).tz(LOCAL_TZ).format('YYYY-MM-DD HH:mm:ss'), // Format the date as needed
+        sentAt: formatToLocalDateTime(message.sentAt), // Format the date as needed
       }
     },
     {
@@ -160,7 +164,7 @@ export class ChatService {
         id: msg.id,
         content: msg.content,
         senderId: msg.sender.id,
-        sentAt: dayjs(msg.sentAt).tz(LOCAL_TZ).format('YYYY-MM-DD HH:mm:ss'), // Format the date as needed
+        sentAt: formatToLocalDateTime(msg.sentAt)
       })),
     };
   }

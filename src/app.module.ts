@@ -23,6 +23,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { SocketModule } from "./modules/socket/socket.module";
 import { AppSettingsModule } from './app-settings/app-settings.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ContractsModule } from './modules/contracts/contracts.module';
     ChatModule,
     AppSettingsModule,
     ContractsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService]

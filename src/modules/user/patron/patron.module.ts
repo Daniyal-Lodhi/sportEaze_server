@@ -10,9 +10,10 @@ import { LocalAuthService } from 'src/modules/auth/local-auth/local-auth.service
 import { JwtService } from '@nestjs/jwt';
 import { NetworkModule } from '../network/network.module';
 import { PatronSocketHandler } from './patron.socket.handler';
+import { Wallet } from 'src/common/entities/wallet.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patron, User]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Patron, User, Wallet]), LocalAuthModule, NetworkModule],
   controllers: [PatronController],
   providers: [PatronService, UserService, PatronSocketHandler],
 })

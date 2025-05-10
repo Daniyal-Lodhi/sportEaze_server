@@ -10,25 +10,20 @@ import { Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
-import { PatronSocketHandler } from '../user/patron/patron.socket.handler';
 import { CONTRACT_RECEIVED, IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
 import { ContractSocketHandler } from '../contracts/contract.socket.handler';
 import { CreateContractDto } from '../contracts/dto/create-contract.dto';
 
+export const socketClients: Map<string, Socket> = new Map();
+
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  private clients: Map<string, Socket> = new Map();
 
   constructor(
     private jwtService: JwtService,
     private chatSocketHandler: ChatSocketHandler,
-    private patronSocketHandler: PatronSocketHandler,
     private contractSocketHandler: ContractSocketHandler,
-  ) {
-    this.chatSocketHandler.setClientsMap(this.clients); // give the handler access
-    this.patronSocketHandler.setClientsMap(this.clients); // give the handler access
-    this.contractSocketHandler.setClientsMap(this.clients); // give the handler access
-  }
+  ) { }
 
   async handleConnection(client: Socket) {
     try {
@@ -39,7 +34,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = this.jwtService.verify(token);
       client.data.user = payload;
   
-      this.clients.set(payload.id, client);
+      socketClients.set(payload.id, client);
   
       console.log(`Connected: ${payload.id}`);
   
@@ -57,7 +52,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const user = client.data.user;
     if (user) {
-      this.clients.delete(user.id);
+      socketClients.delete(user.id);
       console.log(`Disconnected: ${user.id}`);
     }
   }
@@ -78,7 +73,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { chatId: string; receiverId: string, contentLength: number },
     @ConnectedSocket() client: Socket,
   ) {
-    const recieverSocket = this.clients.get(data.receiverId);
+    const recieverSocket = socketClients.get(data.receiverId);
 
     if(recieverSocket) {
       recieverSocket.emit(IS_MSG_TYPING, {...data, senderId: client.data.user.id});

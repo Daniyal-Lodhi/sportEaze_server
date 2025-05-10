@@ -5,6 +5,8 @@ import { UserPost } from "../entities/user-post.entity";
 import { Comment } from "../entities/post-comment.entity";
 import { UserService } from "../../user.service";
 import { PostCommentsGateway } from "./post-comments.gateway";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { NotificationType } from "src/common/enums/notifications/notifications.enum";
 
 @Injectable()
 export class PostCommentsService {
@@ -14,6 +16,7 @@ export class PostCommentsService {
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
     private readonly postCommentsGateway: PostCommentsGateway,
+    private readonly notificationService: NotificationsService,
   ) {}
 
   // ✅ Create a Comment or Reply
@@ -31,6 +34,8 @@ export class PostCommentsService {
     await this.commentRepository.save(newComment);
 
     this.postCommentsGateway.emitNewComment(postId, newComment); // ✅ Emit new comment to all clients 
+
+    this.notificationService.create(userId, { type: NotificationType.POST_COMMENTED, recipientUserId: post.userId }, postId);
 
     return { success: true, message: "Comment added successfully", comment: newComment };
   }

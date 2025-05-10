@@ -14,6 +14,9 @@ import { ConnectionReqResponse, ConnectionStatus } from "src/common/enums/networ
 import  {canConnect} from "src/common/utils/network/index";
 import { UserType } from "src/common/enums/user/user-type.enum";
 import { UUID } from "crypto";
+import { NetworkSocketHandler } from "./network.socket.handler";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { NotificationType } from "src/common/enums/notifications/notifications.enum";
 
 @Injectable()
 export class NetworkService {
@@ -21,6 +24,8 @@ export class NetworkService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Connection) private connectionRepository: Repository<Connection>,
     @InjectRepository(Followers) private followRepository: Repository<Followers>,
+    private readonly networkSocketHandler: NetworkSocketHandler,
+    private readonly notificationService: NotificationsService,
   ) {}
 
 //   sent connection request
@@ -70,7 +75,13 @@ export class NetworkService {
 
     try {
       await this.connectionRepository.save(newConnection);
-      return { message: "Connection request sent.", success:true, connection: { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId } };
+      const connection = { id: newConnection.id, status: newConnection.status, receiverId: newConnection.receiverId };
+
+      this.networkSocketHandler.HandleConnectionRequest(requester_id, receiver_id, connection);
+
+      this.notificationService.create(requester_id, {type: NotificationType.CONNECTION_REQUEST, recipientUserId: receiver_id});
+
+      return { message: "Connection request sent.", success:true, connection };
     } catch (error) {
       console.log(error)
       throw new InternalServerErrorException("Failed to send connection request.");
@@ -97,14 +108,24 @@ export class NetworkService {
     }
 
     try {
-      if(action === ConnectionReqResponse.ACCEPT) {
-          await this.connectionRepository.save(connection);
-          return { message: `Connection request accepted`,accepted:true };
-      }
-      else{
+      const isAccepted = action === ConnectionReqResponse.ACCEPT;
+
+      if (isAccepted) {
+        await this.connectionRepository.save(connection);
+        this.notificationService.create(requesterId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: receiverId});
+      } else {
         await this.connectionRepository.remove(connection);
-        return { message: `Connection request rejected`,accepted:false,success:true  };
       }
+      
+      this.networkSocketHandler.HandleConnectionRespond(receiverId, requesterId, connection);
+      
+      return {
+        message: `Connection request ${isAccepted ? 'accepted' : 'rejected'}`,
+        accepted: isAccepted,
+        success: !isAccepted || undefined
+      };
+      
+
     } catch (error) {
       throw new InternalServerErrorException("Failed to update connection request.");
     }
@@ -209,6 +230,7 @@ async followPlayer(followerId: string, playerId: string) {
   
     try {
       await this.followRepository.save(newFollow);
+      this.notificationService.create(followerId, {type: NotificationType.FOLLOW, recipientUserId: playerId});
       return { message: "Successfully followed the player.",success:true  };
     } catch (error) {
       console.log(error)
@@ -260,7 +282,13 @@ async unfollowPlayer(followerId: string, playerId: string) {
     });
   
     // Extract only the follower details
-    return followers.map(follow => follow.follower);
+    return followers.map(follow => ({
+      id: follow.follower.id,
+      profilePicUrl: follow.follower.profilePicUrl,
+      fullName: follow.follower.fullName,
+      username: follow.follower.username,
+      userType: follow.follower.userType,
+  }));
   }
   
   

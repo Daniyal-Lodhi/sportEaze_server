@@ -7,15 +7,19 @@ import { NetworkService } from "./network.service";
 import { NetworkController } from "./network.controller";
 import { Connection } from "./entities/connection.entity";
 import { Followers } from "./entities/follower.entity";
+import { NetworkSocketHandler } from "./network.socket.handler";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { Notification } from "src/modules/notifications/entities/notification.entity";
+import { NotificationSocketHandler } from "src/modules/notifications/notification.socket.handler";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User,Connection,Followers]),
+    TypeOrmModule.forFeature([User,Connection,Followers, Notification]),
     LocalAuthModule,
     JwtModule,
   ],
   controllers: [NetworkController],
-  providers: [NetworkService],
-  exports: [NetworkService]
+  providers: [NetworkService, NetworkSocketHandler, NotificationsService, NotificationSocketHandler],
+  exports: [NetworkService, NetworkSocketHandler]
 })
 export class NetworkModule {}

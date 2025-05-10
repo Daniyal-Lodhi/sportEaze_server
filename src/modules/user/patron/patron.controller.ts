@@ -44,7 +44,7 @@ export class PatronController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get("/")
+  @Get("/registrations")
   async getRegistration(@Request() req) {
     return await this.patronService.getPatrons(req.user.id);
   }
