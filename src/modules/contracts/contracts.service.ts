@@ -53,15 +53,15 @@ export class ContractsService {
     return savedContract;
   }
   
-  async findAll(id: string): Promise<Contract[]> {
+  async getContractsByUserId(id: string): Promise<Contract[]> {
     return await this.contractRepo.find({
-      where: { player: { id } },
+      where: [{ player: { id }}, { patron: { id } }],
       relations: ['patron', 'player', 'milestones'],
     });
   }
 
-  async findOne(playerId: string, patronId: string): Promise<Contract | null> {
-    return await this.contractRepo.findOne({
+  async getContractsWithPatron(playerId: string, patronId: string): Promise<Contract[] | []> {
+    return await this.contractRepo.find({
       where: { player: { id: playerId }, patron: { id: patronId } },
       relations: ['patron', 'player', 'milestones'],
     });

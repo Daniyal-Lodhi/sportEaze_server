@@ -13,27 +13,17 @@ export class ContractsController {
 
   @Post()
   create(@Request() req, @Body() createContractDto: CreateContractDto) {
-    console.log('req.user', req.user);
     return this.contractsService.create(req.user.id, createContractDto);
   }
 
-  @Get()
-  async findAll(@Request() req) {
-    return await this.contractsService.findAll(req.user.id);
+  @Get("/:userId")
+  async getContractsByUserId(@Param('userId') userId: string) {
+    return await this.contractsService.getContractsByUserId(userId);
   }
 
-  @Get(':patronId')
-  async findOne(@Request() req, @Param('patronId') id: string) {
-    return await this.contractsService.findOne(req.user.id, id);
+  @Get("/:patronId")
+  async getContractsWithPatron(@Param('patronId') patronId: string, @Request() req) {
+    return await this.contractsService.getContractsWithPatron(req.user.id, patronId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
-    return this.contractsService.update(+id, updateContractDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contractsService.remove(+id);
-  }
 }
