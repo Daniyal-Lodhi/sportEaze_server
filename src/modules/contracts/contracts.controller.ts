@@ -16,9 +16,9 @@ export class ContractsController {
     return this.contractsService.create(req.user.id, createContractDto);
   }
 
-  @Get("/:userId")
-  async getContractsByUserId(@Param('userId') userId: string) {
-    return await this.contractsService.getContractsByUserId(userId);
+  @Get()
+  async getContractsByUserId(@Request() req) {
+    return await this.contractsService.getContractsByUserId(req.user.id);
   }
 
   @Get("/:patronId")
