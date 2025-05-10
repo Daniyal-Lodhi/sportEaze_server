@@ -1,120 +1,138 @@
 import { Injectable } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
+import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+import { Repository } from 'typeorm';
 import { Contract } from './entities/contract.entity';
-import { Milestone } from './entities/milestones.entity';
 import { ContractStatus } from 'src/common/enums/contracts/contracts.enum';
+import { Milestone } from './entities/milestones.entity';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class ContractsService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
-    
+    private userRepo: Repository<User>, 
     @InjectRepository(Contract)
-    private readonly contractRepo: Repository<Contract>,
-    
+    private contractRepo: Repository<Contract>,
     @InjectRepository(Milestone)
-    private readonly milestoneRepo: Repository<Milestone>,
+    private milestoneRepo: Repository<Milestone>,
+
   ) {}
-
-  private formatUserProfile(user: User) {
-    return {
-      id: user.id,
-      profilePicUrl: user.profilePicUrl,
-      fullName: user.fullName,
-      username: user.username,
-      userType: user.userType,
-    };
-  }
-
-  private formatContract(contract: Contract) {
-    return {
-      ...contract,
-      patron: this.formatUserProfile(contract.patron.user),
-      player: this.formatUserProfile(contract.player.user),
-    };
-  }
-
-  async create(patronId: string, dto: CreateContractDto) {
-    const [patron, player] = await Promise.all([
-      this.userRepo.findOne({ where: { id: patronId } }),
-      this.userRepo.findOne({ where: { id: dto.playerId } }),
-    ]);
-
+  
+  async create(patronId: string, createContractDto: CreateContractDto) {
+    const patron = await this.userRepo.findOne({ where: { id: patronId } });
+    const player = await this.userRepo.findOne({ where: { id: createContractDto.playerId } });
+  
     if (!patron || !player) {
       throw new Error('Patron or Player not found');
     }
-
-    const milestones = dto.milestones.map(m => this.milestoneRepo.create(m));
-
-    const contract = this.contractRepo.create({
-      ...dto,
+  
+    // Prepare milestone entities
+    const milestones = createContractDto.milestones.map(milestoneDto =>
+      this.milestoneRepo.create({ ...milestoneDto }) // Contract will be added after
+    );
+  
+    let contract = this.contractRepo.create({
+      ...createContractDto,
       status: ContractStatus.PENDING,
       patron,
       player,
-      milestones,
+      milestones, // attach milestones
     });
-
+  
+    // Save contract first so it gets an ID
     const savedContract = await this.contractRepo.save(contract);
-
-    await Promise.all(
-      milestones.map(m => {
-        m.contract = savedContract;
-        return this.milestoneRepo.save(m);
-      }),
-    );
-
-    const completeContract = await this.contractRepo.findOne({
+  
+    // Set contract reference and save milestones
+    for (const milestone of milestones) {
+      milestone.contract = savedContract;
+      await this.milestoneRepo.save(milestone);
+    }
+    
+    contract = await this.contractRepo.findOne({
       where: { id: savedContract.id },
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
     });
 
-    return this.formatContract(completeContract);
+    return {
+      ...contract,
+      patron: {
+        id: contract.patron.user.id,
+        profilePicUrl: contract.patron.user.profilePicUrl,
+        fullName: contract.patron.user.fullName,
+        username: contract.patron.user.username,
+        userType: contract.patron.user.userType,
+      },
+      player: {
+        id: contract.player.user.id,
+        profilePicUrl: contract.player.user.profilePicUrl,
+        fullName: contract.player.user.fullName,
+        username: contract.player.user.username,
+        userType: contract.player.user.userType,
+
+      },
+    }
   }
-
-async getContractsByUserId(id: string, filter?: ContractStatus | 0) {
-  const baseOptions = {
-    relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
-  };
-
-  if (filter === 0 || filter === undefined) {
-    // No filtering — return all contracts where user is player or patron
-    return (
-      await this.contractRepo.find({
-        where: [
-          { player: { id } },
-          { patron: { id } },
-        ],
-        ...baseOptions,
-      })
-    ).map(this.formatContract.bind(this));
-  }
-
-  // Filter by status
-  return (
-    await this.contractRepo.find({
-      where: [
-        { player: { id }, status: filter },
-        { patron: { id }, status: filter },
-      ],
-      ...baseOptions,
-    })
-  ).map(this.formatContract.bind(this));
-}
-
-
-  async getContractsWithUser(user1Id: string, user2Id: string) {
+  
+  async getContractsByUserId(id: string) {
     const contracts = await this.contractRepo.find({
-      where: [
-        { player: { id: user1Id }, patron: { id: user2Id } },
-        { player: { id: user2Id }, patron: { id: user1Id } },
-      ],
+      where: [{ player: { id }}, { patron: { id } }],
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
     });
 
-    return contracts.map(this.formatContract.bind(this));
+    if (!contracts || contracts.length === 0) {
+      return [];
+    }
+
+    return contracts.map(contract => ({
+      ...contract,
+      patron: {
+        id: contract.patron.user.id,
+        profilePicUrl: contract.patron.user.profilePicUrl,
+        fullName: contract.patron.user.fullName,
+        username: contract.patron.user.username,
+        userType: contract.patron.user.userType,
+      },
+      player: {
+        id: contract.player.user.id,
+        profilePicUrl: contract.player.user.profilePicUrl,
+        fullName: contract.player.user.fullName,
+        username: contract.player.user.username,
+        userType: contract.player.user.userType,
+
+      },
+    }));
+  }
+
+  async getContractsWithUser(user1Id: string, user2Id: string) {
+    const contracts = await this.contractRepo.find({
+      where: [{ player: { id: user1Id }, patron: { id: user2Id } }, { player: { id: user2Id }, patron: { id: user1Id } }],
+      relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+    });
+
+    if (!contracts || contracts.length === 0) {
+      return [];
+    }
+
+    return contracts.map(contract => ({
+      ...contract,
+      patron: {
+        id: contract.patron.user.id,
+        profilePicUrl: contract.patron.user.profilePicUrl,
+        fullName: contract.patron.user.fullName,
+        username: contract.patron.user.username,
+        userType: contract.patron.user.userType,
+      },
+      player: {
+        id: contract.player.user.id,
+        profilePicUrl: contract.player.user.profilePicUrl,
+        fullName: contract.player.user.fullName,
+        username: contract.player.user.username,
+        userType: contract.player.user.userType,
+
+      },
+    }));
   }
 }
