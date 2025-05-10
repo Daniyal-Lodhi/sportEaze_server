@@ -24,6 +24,9 @@ export class NotificationsService {
       [NotificationType.CONNECTION_ACCEPTED]: `${actorName} has accepted your connection request`,
       [NotificationType.FOLLOW]: `${actorName} has started following you`,
       [NotificationType.POST_LIKED]: `${actorName} has liked your post`,
+      [NotificationType.POST_COMMENTED]: `${actorName} has commented on your post`,
+      [NotificationType.MSG_RECEIVED]: `${actorName} has sent you a message`,
+      
     };
     return messages[type] || '';
   }
