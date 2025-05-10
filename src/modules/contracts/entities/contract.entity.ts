@@ -25,6 +25,7 @@ export class Contract {
     @OneToMany(() => Milestone, milestone => milestone.contract)
     milestones: Milestone[];
 
+    @Column({type: "enum", enum: ContractStatus, default: ContractStatus.PENDING})
     status: ContractStatus;
 
     @BeforeInsert()
