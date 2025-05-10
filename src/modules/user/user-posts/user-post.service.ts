@@ -12,6 +12,7 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesService } from "./post-likes/post-likes.service";
 import { SharedPost } from "./entities/shared-post.entity";
+import { create } from "domain";
 
 @Injectable()
 export class UserPostService {
@@ -32,10 +33,13 @@ export class UserPostService {
       throw new Error("Only Player and Mentor can create post");
     }
 
+    if(createTextPost.contractId != null && createTextPost.milestoneId != null){
+      createTextPost.postType = PostTypeEnum.CONTRACT;
+    }
+    
     const post = this.postRepository.create({
       ...createTextPost,
       userId,
-      postType: PostTypeEnum.TEXT,
     });
 
 
@@ -56,10 +60,13 @@ export class UserPostService {
 
     const { media, ...CreateMediaPostDTOWoMedia } = CreateMediaPostDTO;
 
+    if(CreateMediaPostDTOWoMedia.contractId != null && CreateMediaPostDTOWoMedia.milestoneId != null){
+      CreateMediaPostDTOWoMedia.postType = PostTypeEnum.CONTRACT;
+    }
+
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
       userId,
-      postType: PostTypeEnum.MEDIA,
     });
 
     const savedPost = await this.postRepository.save(post); // Save the post to the database

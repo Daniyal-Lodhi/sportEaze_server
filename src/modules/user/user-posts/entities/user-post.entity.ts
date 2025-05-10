@@ -7,12 +7,15 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  OneToOne,
 } from "typeorm";
 import { User } from "../../entities/user.entity";
 import { PostMedia } from "./post-media.entity";
 import { PostLikes } from "./post-like.entity";
 import { Comment } from "./post-comment.entity";
 import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
+import { Milestone } from "src/modules/contracts/entities/milestones.entity";
 
 @Entity("Posts")
 export class UserPost {
@@ -61,4 +64,18 @@ export class UserPost {
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
+
+  @Column({nullable: true})
+  contractId?: string;
+  
+  @ManyToOne(() => Contract)
+  @JoinColumn({ name: "contractId" })
+  contract?: Contract;
+  
+  @Column({nullable: true})
+  milestoneId?: string;
+
+  @ManyToOne(() => Milestone)
+  @JoinColumn({ name: "milestoneId" })
+  milestone?: Milestone;
 }

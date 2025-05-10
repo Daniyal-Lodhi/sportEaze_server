@@ -10,11 +10,10 @@ import {
 } from "class-validator";
 import { PostTypeEnum, PostVisibilityEnum } from "src/common/enums/post/user-posts.enum";
 import { PostMediaDTO } from "./post-media.dto";
-import { PostLikesDTO } from "./post-likes.dto";
-import { CommentDTO } from "./post-comments.dto";
 import { Type } from "class-transformer";
+import { ContractDetailsDTO } from "./contract-details.dto";
 
-export class CreateMediaPostDTO {
+export class CreateMediaPostDTO extends ContractDetailsDTO {
   @ApiProperty({
     description: "The text content of the post",
     example: "This is a sample post",
@@ -23,14 +22,11 @@ export class CreateMediaPostDTO {
   @IsNotEmpty()
   textContent: string;
 
-  @IsString()
-  @IsOptional()
-  mediaThumbnail?: string;
 
   @IsNumber()
   @IsNotEmpty()
   @IsOptional()
-  postType:PostTypeEnum  = 1; 
+  postType:PostTypeEnum  = PostTypeEnum.MEDIA; 
 
   @ApiPropertyOptional({
     description: "The visibility of the post", 
@@ -41,13 +37,6 @@ export class CreateMediaPostDTO {
   @IsOptional()
   visibility?: PostVisibilityEnum;
 
-  @ApiPropertyOptional({
-    description: "The number of times the post has been shared",
-    example: 10,
-  })
-  @IsOptional()
-  shareCount: number;
-
   @ApiProperty({
     description: "The media attachments of the post",
     type: [PostMediaDTO],
@@ -57,10 +46,4 @@ export class CreateMediaPostDTO {
   @ValidateNested({ each: true }) // Ensures each array element is validated
   @Type(() => PostMediaDTO) // Specifies the type of array elements
   media: PostMediaDTO[];
-
-  @IsOptional()
-  likes?: PostLikesDTO[];
-
-  @IsOptional()
-  comments?: CommentDTO[];
 }
