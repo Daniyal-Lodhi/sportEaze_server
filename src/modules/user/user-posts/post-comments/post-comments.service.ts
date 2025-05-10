@@ -35,7 +35,7 @@ export class PostCommentsService {
 
     this.postCommentsGateway.emitNewComment(postId, newComment); // ✅ Emit new comment to all clients 
 
-    this.notificationService.create(userId, { type: NotificationType.POST_COMMENTED, recipientUserId: post.userId });
+    this.notificationService.create(userId, { type: NotificationType.POST_COMMENTED, recipientUserId: post.userId }, postId);
 
     return { success: true, message: "Comment added successfully", comment: newComment };
   }

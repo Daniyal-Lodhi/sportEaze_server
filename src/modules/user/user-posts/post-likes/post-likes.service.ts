@@ -65,7 +65,7 @@ export class PostLikesService {
 
     if(!unlike)
     {
-      this.notificationsService.create(userId, { type: NotificationType.POST_LIKED, recipientUserId: post.userId });
+      this.notificationsService.create(userId, { type: NotificationType.POST_LIKED, recipientUserId: post.userId }, postId);
     }
 
     return { liked: true, likeCount, reactType };

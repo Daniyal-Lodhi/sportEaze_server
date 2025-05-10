@@ -28,7 +28,7 @@ export class NotificationsService {
     return messages[type] || '';
   }
 
-  async create(actorId: string, { type, recipientUserId }: CreateNotificationDto): Promise<any> {
+  async create(actorId: string, { type, recipientUserId }: CreateNotificationDto, redirectId?: string): Promise<any> {
     const [recipientUser, actorUser] = await Promise.all([
       this.userRepo.findOne({ where: { id: recipientUserId } }),
       this.userRepo.findOne({ where: { id: actorId } }),
@@ -59,6 +59,12 @@ export class NotificationsService {
 
     if(type === NotificationType.FOLLOW) {
       redirectData = {followerId:  actorId};
+    }
+    else if(type === NotificationType.POST_LIKED || type === NotificationType.POST_COMMENTED) {
+      redirectData = {postId: redirectId};
+    }
+    else if(type === NotificationType.MSG_RECEIVED) {
+      redirectData = {chatId: redirectId};
     }
 
     const result = {

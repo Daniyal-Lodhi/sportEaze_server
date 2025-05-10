@@ -62,7 +62,7 @@ export class ChatService {
     const unreadCountForReceiver = await this.getUnreadMessagesCount(senderId, chat.id);
     const unreadCountForSender = await this.getUnreadMessagesCount(createChatDto.recipientId, chat.id);
 
-    this.notificationService.create(senderId, {type: NotificationType.MSG_RECEIVED, recipientUserId: createChatDto.recipientId});
+    this.notificationService.create(senderId, {type: NotificationType.MSG_RECEIVED, recipientUserId: createChatDto.recipientId}, chat.id);
 
     return [{
       chatId: chat.id,
