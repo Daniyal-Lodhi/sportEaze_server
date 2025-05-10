@@ -21,9 +21,9 @@ export class ContractsController {
     return await this.contractsService.getContractsByUserId(req.user.id);
   }
 
-  @Get("/:patronId")
-  async getContractsWithPatron(@Param('patronId') patronId: string, @Request() req) {
-    return await this.contractsService.getContractsWithPatron(req.user.id, patronId);
+  @Get("/:userId")
+  async getContractsWithPatron(@Param('userId') userId: string, @Request() req) {
+    return await this.contractsService.getContractsWithUser(req.user.id, userId);
   }
 
 }

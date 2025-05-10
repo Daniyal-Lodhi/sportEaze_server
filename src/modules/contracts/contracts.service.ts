@@ -60,9 +60,9 @@ export class ContractsService {
     });
   }
 
-  async getContractsWithPatron(playerId: string, patronId: string): Promise<Contract[] | []> {
+  async getContractsWithUser(user1Id: string, user2Id: string): Promise<Contract[] | []> {
     return await this.contractRepo.find({
-      where: { player: { id: playerId }, patron: { id: patronId } },
+      where: [{ player: { id: user1Id }, patron: { id: user2Id } }, { player: { id: user2Id }, patron: { id: user1Id } }],
       relations: ['patron', 'player', 'milestones'],
     });
   }
