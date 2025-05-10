@@ -1,5 +1,4 @@
 import { Achievement } from "src/common/entities/achievement.entity";
-import { Contract } from "src/common/entities/contract.entity";
 import { User } from "src/modules/user/entities/user.entity";
 import {
   Check,
@@ -13,6 +12,7 @@ import {
 import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
 import { Wallet } from "src/common/entities/wallet.entity";
 
 @Entity("Player")
@@ -62,11 +62,12 @@ export class Player {
   @Column()
   availableForSponsorship: boolean;
 
-  // @OneToMany(() => Contract, (contract) => contract.player)
-  // contracts: Contract[];
+  @OneToMany(() => Contract, (contract) => contract.player)
+  contracts: Contract[];
   
   @OneToMany(() => RatingAndReview, (ratingAndReview) => ratingAndReview.player)
   ratingAndReviews: RatingAndReview[];
+
 
   @OneToOne(() => Wallet)
     @JoinColumn({ name: "walletId" })
