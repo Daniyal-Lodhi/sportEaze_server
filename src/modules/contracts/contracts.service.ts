@@ -75,14 +75,36 @@ export class ContractsService {
     return this.formatContract(completeContract);
   }
 
-  async getContractsByUserId(id: string) {
-    const contracts = await this.contractRepo.find({
-      where: [{ player: { id } }, { patron: { id } }],
-      relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
-    });
+async getContractsByUserId(id: string, filter?: ContractStatus | 0) {
+  const baseOptions = {
+    relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+  };
 
-    return contracts.map(this.formatContract.bind(this));
+  if (filter === 0 || filter === undefined) {
+    // No filtering — return all contracts where user is player or patron
+    return (
+      await this.contractRepo.find({
+        where: [
+          { player: { id } },
+          { patron: { id } },
+        ],
+        ...baseOptions,
+      })
+    ).map(this.formatContract.bind(this));
   }
+
+  // Filter by status
+  return (
+    await this.contractRepo.find({
+      where: [
+        { player: { id }, status: filter },
+        { patron: { id }, status: filter },
+      ],
+      ...baseOptions,
+    })
+  ).map(this.formatContract.bind(this));
+}
+
 
   async getContractsWithUser(user1Id: string, user2Id: string) {
     const contracts = await this.contractRepo.find({
