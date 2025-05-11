@@ -194,4 +194,39 @@ export class ContractsService {
 
     return await this.getContractById(id);
   }
+
+
+async updateContract(id: string, updateContractDto: UpdateContractDto) {
+  const contract = await this.contractRepo.findOne({
+    where: { id },
+    relations: ['patron', 'player', 'milestones'],
+  });
+
+  if (!contract) {
+    throw new NotFoundException('Contract not found');
+  }
+
+  // Update simple fields
+  Object.assign(contract, {
+    ...updateContractDto,
+    milestones: undefined, // prevent accidental overwrite
+  });
+
+  // If milestones are provided
+  if (updateContractDto.milestones) {
+    // Remove existing milestones if needed (optional logic)
+    await this.milestoneRepo.delete({ contract: { id } });
+
+    // Save new milestones with proper contract reference
+    const newMilestones = updateContractDto.milestones.map(m => this.milestoneRepo.create({ ...m, contract }));
+    await this.milestoneRepo.save(newMilestones);
+
+    contract.milestones = newMilestones;
+  }
+
+  await this.contractRepo.save(contract);
+
+  return await this.getContractById(id);
+}
+
 }

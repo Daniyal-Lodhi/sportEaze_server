@@ -42,4 +42,10 @@ export class ContractsController {
   async acceptContract(@Param('contractId') contractId: string, @Request() req) {
     return await this.contractsService.acceptContract(contractId, req.user.id);
   }
+
+
+  @Patch("/:contractId")
+  async updateContract(@Param('contractId') contractId: string, @Body() updateContractDto: UpdateContractDto, @Request() req) {
+    return await this.contractsService.updateContract(contractId, updateContractDto);
+  }
 }
