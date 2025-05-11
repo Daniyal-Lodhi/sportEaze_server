@@ -59,6 +59,11 @@ export class ContractsService {
 
     return {
       ...contract,
+      milestones: contract.milestones.map(milestone => ({
+        id: milestone.id,
+        description: milestone.description,
+        amount: milestone.amount,
+        contractId: contract.id})),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -98,6 +103,11 @@ export class ContractsService {
 
     return contracts.map(contract => ({
       ...contract,
+      milestones: contract.milestones.map(milestone => ({
+        id: milestone.id,
+        description: milestone.description,
+        amount: milestone.amount,
+        contractId: contract.id})),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -128,6 +138,11 @@ export class ContractsService {
 
     return contracts.map(contract => ({
       ...contract,
+      milestones: contract.milestones.map(milestone => ({
+        id: milestone.id,
+        description: milestone.description,
+        amount: milestone.amount,
+        contractId: contract.id})),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -158,6 +173,11 @@ export class ContractsService {
 
     return contracts.map(contract => ({
       ...contract,
+      milestones: contract.milestones.map(milestone => ({
+        id: milestone.id,
+        description: milestone.description,
+        amount: milestone.amount,
+        contractId: contract.id})),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
