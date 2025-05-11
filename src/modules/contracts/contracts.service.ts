@@ -135,4 +135,34 @@ export class ContractsService {
       },
     }));
   }
+
+  async getContractById(id: string) {
+        const contracts = await this.contractRepo.find({
+      where: { id },
+      relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+    });
+
+    if (!contracts || contracts.length === 0) {
+      return [];
+    }
+
+    return contracts.map(contract => ({
+      ...contract,
+      patron: {
+        id: contract.patron.user.id,
+        profilePicUrl: contract.patron.user.profilePicUrl,
+        fullName: contract.patron.user.fullName,
+        username: contract.patron.user.username,
+        userType: contract.patron.user.userType,
+      },
+      player: {
+        id: contract.player.user.id,
+        profilePicUrl: contract.player.user.profilePicUrl,
+        fullName: contract.player.user.fullName,
+        username: contract.player.user.username,
+        userType: contract.player.user.userType,
+
+      },
+    }));
+  }
 }
