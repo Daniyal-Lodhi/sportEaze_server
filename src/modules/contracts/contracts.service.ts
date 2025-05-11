@@ -9,6 +9,8 @@ import { ContractStatus } from 'src/common/enums/contracts/contracts.enum';
 import { Milestone } from './entities/milestones.entity';
 import { contains } from 'class-validator';
 import { NotFoundError } from 'rxjs';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
 
 @Injectable()
 export class ContractsService {
@@ -19,6 +21,7 @@ export class ContractsService {
     private contractRepo: Repository<Contract>,
     @InjectRepository(Milestone)
     private milestoneRepo: Repository<Milestone>,
+    private readonly notificationService: NotificationsService,
 
   ) {}
   
@@ -56,6 +59,8 @@ export class ContractsService {
       where: { id: savedContract.id },
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
     });
+
+    this.notificationService.create(patronId, {type: NotificationType.CONTRACT_CREATED, recipientUserId: player.id}, contract.id);
 
     return {
       ...contract,
@@ -215,9 +220,10 @@ export class ContractsService {
 
     await this.contractRepo.save(contract);
 
+    this.notificationService.create(userId, {type: NotificationType.CONTRACT_ACCEPTED, recipientUserId: contract.patron.id}, contract.id);
+
     return await this.getContractById(id);
   }
-
 
 async updateContract(id: string, updateContractDto: UpdateContractDto) {
   const contract = await this.contractRepo.findOne({
@@ -248,6 +254,8 @@ async updateContract(id: string, updateContractDto: UpdateContractDto) {
   }
 
   await this.contractRepo.save(contract);
+
+  this.notificationService.create(contract.patron.id, {type: NotificationType.CONTRACT_UPDATED, recipientUserId: contract.player.id}, contract.id);
 
   return await this.getContractById(id);
 }

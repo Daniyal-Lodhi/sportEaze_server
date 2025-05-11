@@ -5,6 +5,9 @@ export enum NotificationType {
     POST_LIKED = 4,
     POST_COMMENTED = 5,
     MSG_RECEIVED = 6,
+    CONTRACT_CREATED,
+    CONTRACT_UPDATED,
+    CONTRACT_ACCEPTED,
 }
 
 

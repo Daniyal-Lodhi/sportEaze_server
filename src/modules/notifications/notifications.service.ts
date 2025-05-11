@@ -26,6 +26,9 @@ export class NotificationsService {
       [NotificationType.POST_LIKED]: `${actorName} has liked your post`,
       [NotificationType.POST_COMMENTED]: `${actorName} has commented on your post`,
       [NotificationType.MSG_RECEIVED]: `${actorName} has sent you a message`,
+      [NotificationType.CONTRACT_CREATED]: `${actorName} has created a contract for you`,
+      [NotificationType.CONTRACT_UPDATED]: `${actorName} has updated a contract for you`,
+      [NotificationType.CONTRACT_ACCEPTED]: `${actorName} has accepted a contract`,
       
     };
     return messages[type] || '';
