@@ -15,6 +15,7 @@ import { RegisterPlayerDto } from "./dto/register-player.dto";
 import { BaseUserDto } from "../dto/base-user.dto";
 import { GetUserDto } from "../dto/get-user.dto";
 import { Wallet } from "src/common/entities/wallet.entity";
+import { Endorsement } from "src/common/entities/endorsement.entity";
 
 @Injectable()
 export class PlayerService {
@@ -25,6 +26,7 @@ export class PlayerService {
     @InjectRepository(Player)
     private readonly playerRepository: Repository<Player>,
     @InjectRepository(Wallet) private readonly walletRepository: Repository<Wallet>,
+    @InjectRepository(Endorsement) private readonly endorsementRepository: Repository<Endorsement>,
   ) {}
 
   async RegisterPlayer(id: string, registerPlayerDto: RegisterPlayerDto): Promise<GetUserDto> {
@@ -198,9 +200,33 @@ export class PlayerService {
     return sortedPlayers;
   }
   
-  
+  async getEndorsements(playerid: string) {
 
+    const endorsements = await this.endorsementRepository.find({
+      where: { player: { id: playerid } },
+      relations: ["mentor", "mentor.user", "player" , "player.user"],
+    });
 
+    if (!endorsements) {
+      throw new NotFoundException(`Player with ID ${playerid} not found`);
+    }
 
-
+    return endorsements.map((endorsement) => ({
+      ...endorsement,
+      player: {
+        id: endorsement.player.id,
+        fullName: endorsement.player.user.fullName,
+        profilePicUrl: endorsement.player.user.profilePicUrl,
+        username: endorsement.player.user.username,
+        userType: endorsement.player.user.userType,
+      },
+      mentor: {
+        id: endorsement.mentor.id,
+        fullName: endorsement.mentor.user.fullName,
+        profilePicUrl: endorsement.mentor.user.profilePicUrl,
+        username: endorsement.mentor.user.username,
+        userType: endorsement.mentor.user.userType,
+      }
+    }));
+  }
 }

@@ -13,6 +13,7 @@ import {
   NotFoundException,
   BadRequestException,
   Delete,
+  Param,
 } from "@nestjs/common";
 import { PlayerService } from "./player.service";
 import { UpdatePlayerDto } from "./dto/update-player.dto";
@@ -123,4 +124,16 @@ export class PlayerController {
       );
     }
   }
-}
+
+  @Get("/endorsements/:playerId")
+  async getEndorsements(@Param("playerId") playerId: string) {
+      return await this.playerService.getEndorsements(playerId);
+    } catch (error) {
+      console.error("[GET_ENDORSEMENTS_CTRL]:", error);
+      throw new HttpException(
+        error.message || "Internal Server Error",
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  } 
+    
