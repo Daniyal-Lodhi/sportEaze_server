@@ -11,6 +11,9 @@ import { contains } from 'class-validator';
 import { NotFoundError } from 'rxjs';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
+import { start } from 'repl';
+import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
+import e from 'express';
 
 @Injectable()
 export class ContractsService {
@@ -30,7 +33,7 @@ export class ContractsService {
     const player = await this.userRepo.findOne({ where: { id: createContractDto.playerId } });
   
     if (!patron || !player) {
-      throw new Error('Patron or Player not found');
+      throw new NotFoundException('Patron or Player not found');
     }
   
     // Prepare milestone entities
@@ -64,6 +67,8 @@ export class ContractsService {
 
     return {
       ...contract,
+      startDate: formatToLocalDateTime(contract.startDate),
+      endDate: formatToLocalDateTime(contract.endDate),
       milestones: contract.milestones.map(milestone => ({
         id: milestone.id,
         description: milestone.description,
@@ -94,11 +99,13 @@ export class ContractsService {
       contracts = await this.contractRepo.find({
         where: [{ player: { id }}, { patron: { id } }],
         relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+        order: { startDate: 'DESC' },
       });
     } else {
       contracts = await this.contractRepo.find({
         where: [{ player: { id }, status: filter }, { patron: { id }, status: filter }],
         relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+        order: { startDate: 'DESC' },
       });
     }
 
@@ -108,6 +115,8 @@ export class ContractsService {
 
     return contracts.map(contract => ({
       ...contract,
+      startDate: formatToLocalDateTime(contract.startDate),
+      endDate: formatToLocalDateTime(contract.endDate),
       milestones: contract.milestones.map(milestone => ({
         id: milestone.id,
         description: milestone.description,
@@ -135,6 +144,7 @@ export class ContractsService {
     const contracts = await this.contractRepo.find({
       where: [{ player: { id: user1Id }, patron: { id: user2Id } }, { player: { id: user2Id }, patron: { id: user1Id } }],
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+      order: { startDate: 'DESC' },
     });
 
     if (!contracts || contracts.length === 0) {
@@ -143,6 +153,8 @@ export class ContractsService {
 
     return contracts.map(contract => ({
       ...contract,
+      startDate: formatToLocalDateTime(contract.startDate),
+      endDate: formatToLocalDateTime(contract.endDate),
       milestones: contract.milestones.map(milestone => ({
         id: milestone.id,
         description: milestone.description,
@@ -167,17 +179,20 @@ export class ContractsService {
   }
 
   async getContractById(id: string) {
-        const contracts = await this.contractRepo.find({
+        const contract = await this.contractRepo.findOne({
       where: { id },
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+      order: { startDate: 'DESC' },
     });
 
-    if (!contracts || contracts.length === 0) {
-      return [];
+    if (!contract) {
+      return {};
     }
 
-    return contracts.map(contract => ({
+    return {
       ...contract,
+      startDate: formatToLocalDateTime(contract.startDate),
+      endDate: formatToLocalDateTime(contract.endDate),
       milestones: contract.milestones.map(milestone => ({
         id: milestone.id,
         description: milestone.description,
@@ -198,7 +213,7 @@ export class ContractsService {
         userType: contract.player.user.userType,
 
       },
-    }));
+    };
   }
 
 
@@ -225,39 +240,33 @@ export class ContractsService {
     return await this.getContractById(id);
   }
 
-async updateContract(id: string, updateContractDto: UpdateContractDto) {
-  const contract = await this.contractRepo.findOne({
-    where: { id },
-    relations: ['patron', 'player', 'milestones'],
-  });
+  async updateContract(id: string, updateContractDto: UpdateContractDto) {
+    const contract = await this.contractRepo.findOne({
+      where: { id },
+      relations: ['patron', 'player', 'milestones'],
+    });
 
-  if (!contract) {
-    throw new NotFoundException('Contract not found');
+    if (!contract) {
+      throw new NotFoundException('Contract not found');
+    }
+
+    // Update simple fields
+    Object.assign(contract, {
+      ...updateContractDto,
+      milestones: undefined
+    });
+
+    const milestones = await this.milestoneRepo.find({where: {contract: {id}}, relations: ['contract']});
+
+    Object.assign(milestones, updateContractDto.milestones);
+
+    await this.milestoneRepo.save(milestones);
+
+    await this.contractRepo.save(contract);
+
+    this.notificationService.create(contract.patron.id, {type: NotificationType.CONTRACT_UPDATED, recipientUserId: contract.player.id}, contract.id);
+
+    return await this.getContractById(id);
   }
-
-  // Update simple fields
-  Object.assign(contract, {
-    ...updateContractDto,
-    milestones: undefined, // prevent accidental overwrite
-  });
-
-  // If milestones are provided
-  if (updateContractDto.milestones) {
-    // Remove existing milestones if needed (optional logic)
-    await this.milestoneRepo.delete({ contract: { id } });
-
-    // Save new milestones with proper contract reference
-    const newMilestones = updateContractDto.milestones.map(m => this.milestoneRepo.create({ ...m, contract }));
-    await this.milestoneRepo.save(newMilestones);
-
-    contract.milestones = newMilestones;
-  }
-
-  await this.contractRepo.save(contract);
-
-  this.notificationService.create(contract.patron.id, {type: NotificationType.CONTRACT_UPDATED, recipientUserId: contract.player.id}, contract.id);
-
-  return await this.getContractById(id);
-}
 
 }
