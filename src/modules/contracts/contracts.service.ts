@@ -184,6 +184,9 @@ export class ContractsService {
       throw new NotFoundException('Contract not found');
     }
 
+    console.log(contract.patron.id, userId);
+    console.log(contract.player.id, userId);
+
     if (contract.player.id !== userId) {
       throw new UnauthorizedException('You are not authorized to accept this contract');
     }

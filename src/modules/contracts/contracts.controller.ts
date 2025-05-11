@@ -38,6 +38,8 @@ export class ContractsController {
     return await this.contractsService.getContractById(contractId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch("/accept/:contractId")
   async acceptContract(@Param('contractId') contractId: string, @Request() req) {
     return await this.contractsService.acceptContract(contractId, req.user.id);
