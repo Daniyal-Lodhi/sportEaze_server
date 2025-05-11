@@ -9,7 +9,7 @@ import {
   OneToOne,
   PrimaryColumn,
 } from "typeorm";
-import { RatingAndReview } from "src/common/entities/rating-reviews.entity";
+import { Endorsement } from "src/common/entities/endorsement.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { PlayingLevel } from "src/common/enums/player/playing-levels.enum";
 import { Contract } from "src/modules/contracts/entities/contract.entity";
@@ -65,8 +65,8 @@ export class Player {
   @OneToMany(() => Contract, (contract) => contract.player)
   contracts: Contract[];
   
-  @OneToMany(() => RatingAndReview, (ratingAndReview) => ratingAndReview.player)
-  ratingAndReviews: RatingAndReview[];
+  @OneToMany(() => Endorsement, (ratingAndReview) => ratingAndReview.player)
+  endorsements: Endorsement[];
 
 
   @OneToOne(() => Wallet)

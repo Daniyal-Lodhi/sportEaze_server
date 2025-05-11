@@ -1,7 +1,8 @@
-import { PrimaryColumn, OneToOne, JoinColumn, Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import { PrimaryColumn, OneToOne, JoinColumn, Column, CreateDateColumn, Entity, UpdateDateColumn, OneToMany } from "typeorm";
 import { User } from "../../entities/user.entity";
 import { Sport } from "src/common/enums/sport/sport.enum";
 import { MentorRole } from "src/common/enums/mentor/mentor.enum";
+import { Endorsement } from "src/common/entities/endorsement.entity";
 
 @Entity("mentors")
 export class Mentor{
@@ -48,4 +49,7 @@ export class Mentor{
 
   @Column({type: "text", array: true, nullable: true })
   verificationDocuments?: string[]; 
+
+  @OneToMany(() => Endorsement, (endorsement) => endorsement.mentor)
+  endorsements: Endorsement[];
 }

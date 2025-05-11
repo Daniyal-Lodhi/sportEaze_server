@@ -4,6 +4,7 @@ import { RegisterMentorDto } from './dto/register-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
 import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { EndorseDto } from './dto/endorse.dto';
 
 @Controller('/api/user/mentor')
 @ApiBearerAuth()
@@ -26,4 +27,12 @@ export class MentorController {
     console.log(req);
     return this.mentorService.getMentorById(req.user.id);
   }
+
+    @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post("/endorse")
+  async endorse(@Request() req, @Body() body: EndorseDto) {
+    return await this.mentorService.endorsePlayer(req.user.id, body);
+  }
+
 }

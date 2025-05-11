@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { RegisterMentorDto } from './dto/register-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
 import { UserService } from '../user.service';
@@ -8,11 +8,17 @@ import { Mentor } from './entities/mentor.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { Player } from '../player/entities/player.entity';
+import { Endorsement } from 'src/common/entities/endorsement.entity';
+import e from 'express';
+import { EndorseDto } from './dto/endorse.dto';
 
 @Injectable()
 export class MentorService {
   constructor(
     @InjectRepository(Mentor) private readonly mentorRepository: Repository<Mentor>,
+    @InjectRepository(Player) private readonly playerRepository: Repository<Player>,
+    @InjectRepository(Endorsement) private readonly endorsementRepository: Repository<Endorsement>,
     private readonly userService: UserService
   ) {}
   
@@ -77,5 +83,31 @@ export class MentorService {
       
         return this.userService.getUser(id);
   }
+
+    async endorsePlayer(mentorId: string, body: EndorseDto) {
+      const mentor = await this.mentorRepository.findOne({ where: { id: mentorId } });
+
+    if(!mentor) {
+      throw new UnauthorizedException("Only patrons can endorse players");
+    }
+
+    const player = await this.playerRepository.findOne({ where: { id: body.playerId } });
+
+    if(!player) {
+      throw new UnauthorizedException("Only players can be endorsed");
+    }
+
+    const endorsement = await this.endorsementRepository.save({
+      player: player,
+      mentor: mentor,
+      rating: body.rating,
+      review: body.review,
+    });
+
+    await this.endorsementRepository.save(endorsement);
+
+    return endorsement;
+  }
+
 
 }

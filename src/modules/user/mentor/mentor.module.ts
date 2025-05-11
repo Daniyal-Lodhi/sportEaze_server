@@ -7,9 +7,11 @@ import { NetworkModule } from '../network/network.module';
 import { UserService } from '../user.service';
 import { User } from '../entities/user.entity';
 import { LocalAuthModule } from 'src/modules/auth/local-auth/local-auth.module';
+import { Player } from '../player/entities/player.entity';
+import { Endorsement } from 'src/common/entities/endorsement.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mentor, User]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Mentor, User, Player, Endorsement]), LocalAuthModule, NetworkModule],
   controllers: [MentorController],
   providers: [MentorService, UserService],
 })
