@@ -20,17 +20,26 @@ import { RegisterUserDto } from "./dto/register-user.dto";
 import { DEFAULT_USER_PROFILE_PIC_URL } from "src/common/consts/user-const";
 import { NetworkService } from "./network/network.service";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
-import { SharedPostsService } from "./user-posts/shared-posts/shared-posts.service";
-import { UserPostService } from "./user-posts/user-post.service";
+import { SharedPost } from "./user-posts/entities/shared-post.entity";
+import { Endorsement } from "src/common/entities/endorsement.entity";
+import { UserPost } from "./user-posts/entities/user-post.entity";
+import { Comment } from "./user-posts/entities/post-comment.entity";
+import { PostLikes } from "./user-posts/entities/post-like.entity";
+import { LikePostDto } from "./user-posts/post-likes/dto/post-like.dto";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(UserPost) private userPostRepository: Repository<UserPost>,
+    @InjectRepository(SharedPost) private sharedPostRepository: Repository<SharedPost>,
+    @InjectRepository(Comment) private postCommentRepository: Repository<Comment>,
+    @InjectRepository(PostLikes) private postLikeRepository: Repository<PostLikes>,
+    @InjectRepository(Endorsement) private endorsementRepository: Repository<Endorsement>,
     private localAuthSrv: LocalAuthService,
     private networkService: NetworkService,
     // private UserPostService: UserPostService,
-    // private sharedPostService: SharedPostsService,
+    
   ) {}
 
   async RegisterUser(createUserDto: CreateUserDto): Promise<string> {
@@ -121,17 +130,29 @@ export class UserService {
     const followerCount: number = await this.networkService.getFollowersCount(id);
     const connectionCount: number = await this.networkService.getConnectionsCount(id);
     const pendingConnectionCount: number = await this.networkService.getPendingConnectionsCount(id);
-    // const postCount: number = await this.UserPostService.getUserPostCount(id);
-    // const sharedPostCount = await this.sharedPostService.getSharedPostCount(id);
 
+
+    const sharedPostCount = await this.sharedPostRepository.count({ where: { user } });
+
+    const endorsementsGiven = await this.endorsementRepository.count({ where: { mentor: { user } } });
+    const endorsementsReceived = await this.endorsementRepository.count({ where: { player: { user } } });
+
+    const countSharedPosts = await this.sharedPostRepository.count({ where: { originalPost: { userId: id }  } });
+
+    const commentsCount = await this.postCommentRepository.count({ where: { post: { userId: id } } });
+
+    const userPostLikesCount = await this.postLikeRepository.count({ where: { post: { userId: id } } });
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount, connectionCount, pendingConnectionCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, connectionCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount } : undefined, 
       patron: user.patron ?? undefined,
-      mentor: user.mentor ?? undefined,
+      mentor: user.mentor ? { ...user.mentor, endorsementsGiven } : undefined,
       isFollowing,
       connection,
+      sharedPostCount,
+      connectionCount,
+      followerCount,
     } as GetUserDto;
     
   }

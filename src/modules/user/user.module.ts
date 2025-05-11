@@ -13,10 +13,15 @@ import { PatronModule } from "./patron/patron.module";
 import { NetworkModule } from "./network/network.module";
 import { MentorModule } from "./mentor/mentor.module";
 import { SponsoredPostModule } from "./ads/sp-ads.module";
+import { SharedPost } from "./user-posts/entities/shared-post.entity";
+import { Endorsement } from "src/common/entities/endorsement.entity";
+import { UserPost } from "./user-posts/entities/user-post.entity";
+import { Comment } from "./user-posts/entities/post-comment.entity";
+import { PostLikes } from "./user-posts/entities/post-like.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserPost, SharedPost, Comment, PostLikes, Endorsement]),
     LocalAuthModule,
     PlayerModule,
     PatronModule,
