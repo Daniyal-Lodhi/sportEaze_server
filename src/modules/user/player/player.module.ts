@@ -12,9 +12,13 @@ import { NetworkModule } from "../network/network.module";
 import { Wallet } from "src/common/entities/wallet.entity";
 import { EndorseDto } from "../mentor/dto/endorse.dto";
 import { Endorsement } from "src/common/entities/endorsement.entity";
+import { UserPost } from "../user-posts/entities/user-post.entity";
+import { Comment } from "../user-posts/entities/post-comment.entity";
+import { SharedPost } from "../user-posts/entities/shared-post.entity";
+import { PostLikes } from "../user-posts/entities/post-like.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Player, User, Wallet, Endorsement]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Player, User, Wallet, UserPost, SharedPost, PostLikes, Comment, Endorsement]), LocalAuthModule, NetworkModule],
   controllers: [PlayerController],
   providers: [PlayerService, UserService,],
 })

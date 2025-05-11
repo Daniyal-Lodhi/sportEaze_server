@@ -16,9 +16,14 @@ import { NetworkSocketHandler } from "../network/network.socket.handler";
 import { NotificationsService } from "src/modules/notifications/notifications.service";
 import { Notification } from "src/modules/notifications/entities/notification.entity";
 import { NotificationSocketHandler } from "src/modules/notifications/notification.socket.handler";
+import { UserPost } from "../user-posts/entities/user-post.entity";
+import { SharedPost } from "../user-posts/entities/shared-post.entity";
+import { Comment } from "../user-posts/entities/post-comment.entity";
+import { PostLikes } from "../user-posts/entities/post-like.entity";
+import { Endorsement } from "src/common/entities/endorsement.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User,SponsoredPost,SponsoredPostTargetSport,SponsoredPostMedia,Connection,Followers, Notification])],
+  imports: [TypeOrmModule.forFeature([User, UserPost,SharedPost, Comment, PostLikes, Endorsement, SponsoredPost,SponsoredPostTargetSport,SponsoredPostMedia,Connection,Followers, Notification])],
   controllers: [SponsoredPostsController],
   providers: [SponsoredPostService,UserService,LocalAuthService,JwtService,NetworkService, NetworkSocketHandler, NotificationsService, NotificationSocketHandler],
 })

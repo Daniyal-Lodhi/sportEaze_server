@@ -24,9 +24,10 @@ import { NetworkModule } from "../network/network.module";
 import { NotificationsService } from "src/modules/notifications/notifications.service";
 import { Notification } from "src/modules/notifications/entities/notification.entity";
 import { NotificationSocketHandler } from "src/modules/notifications/notification.socket.handler";
+import { Endorsement } from "src/common/entities/endorsement.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment, Notification]), NetworkModule],
+  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment, Notification, Endorsement]), NetworkModule],
   controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
   providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService, PostCommentsGateway, PostLikesGateway, NotificationsService, NotificationSocketHandler],
   exports: [UserPostService]

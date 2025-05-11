@@ -9,9 +9,13 @@ import { User } from '../entities/user.entity';
 import { LocalAuthModule } from 'src/modules/auth/local-auth/local-auth.module';
 import { Player } from '../player/entities/player.entity';
 import { Endorsement } from 'src/common/entities/endorsement.entity';
+import { PostLikes } from '../user-posts/entities/post-like.entity';
+import { SharedPost } from '../user-posts/entities/shared-post.entity';
+import { UserPost } from '../user-posts/entities/user-post.entity';
+import { Comment } from '../user-posts/entities/post-comment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mentor, User, Player, Endorsement]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Mentor, User, Player, UserPost, SharedPost, Comment, PostLikes, Endorsement]), LocalAuthModule, NetworkModule],
   controllers: [MentorController],
   providers: [MentorService, UserService],
 })
