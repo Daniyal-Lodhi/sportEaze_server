@@ -72,6 +72,9 @@ export class NotificationsService {
     else if(type === NotificationType.MSG_RECEIVED) {
       redirectData = {chatId: redirectId};
     }
+    else if(type === NotificationType.CONTRACT_CREATED || type === NotificationType.CONTRACT_UPDATED || type === NotificationType.CONTRACT_ACCEPTED) {
+      redirectData = {contractId: redirectId};
+    }
 
     const result = {
       notifications: [{
