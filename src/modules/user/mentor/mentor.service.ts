@@ -106,7 +106,21 @@ export class MentorService {
 
     await this.endorsementRepository.save(endorsement);
 
-    return endorsement;
+    return {
+      ...endorsement,
+      player: {
+        id: endorsement.player.id,
+        profilePicUrl: endorsement.player.user.profilePicUrl,
+        fullName: endorsement.player.user.fullName,
+        username: endorsement.player.user.username,
+      },
+      mentor: {
+        id: endorsement.mentor.id,
+        profilePicUrl: endorsement.mentor.user.profilePicUrl,
+        fullName: endorsement.mentor.user.fullName,
+        username: endorsement.mentor.user.username,
+      },
+    };
   }
 
 
