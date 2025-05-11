@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Req, Query, UsePipes, ValidationPipe, ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
+import { ContractStatus } from 'src/common/enums/contracts/contracts.enum';
+import { ContractStatusValidationPipe } from 'src/common/customValidation/ContractStatusValidationPipe';
+
 
 @Controller('/api/contracts')
 export class ContractsController {
@@ -19,8 +22,8 @@ export class ContractsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get()
-  async getContractsByUserId(@Request() req) {
-    return await this.contractsService.getContractsByUserId(req.user.id);
+  async getContractsByUserId(@Request() req, @Query("filter", new ContractStatusValidationPipe()) filter: ContractStatus | 0) {
+    return await this.contractsService.getContractsByUserId(req.user.id, filter);
   }
   
   @UseGuards(JwtAuthGuard)
@@ -33,5 +36,10 @@ export class ContractsController {
   @Get('/:contractId')
   async getContractById(@Param('contractId') contractId: string, @Request() req) {
     return await this.contractsService.getContractById(contractId);
+  }
+
+  @Patch("/accept/:contractId")
+  async acceptContract(@Param('contractId') contractId: string, @Request() req) {
+    return await this.contractsService.acceptContract(contractId, req.user.id);
   }
 }

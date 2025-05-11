@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Contract } from './entities/contract.entity';
 import { ContractStatus } from 'src/common/enums/contracts/contracts.enum';
 import { Milestone } from './entities/milestones.entity';
 import { contains } from 'class-validator';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class ContractsService {
@@ -76,11 +77,20 @@ export class ContractsService {
     }
   }
   
-  async getContractsByUserId(id: string) {
-    const contracts = await this.contractRepo.find({
-      where: [{ player: { id }}, { patron: { id } }],
-      relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
-    });
+  async getContractsByUserId(id: string, filter: number) {
+    let contracts;
+
+    if (filter === 0) {
+      contracts = await this.contractRepo.find({
+        where: [{ player: { id }}, { patron: { id } }],
+        relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+      });
+    } else {
+      contracts = await this.contractRepo.find({
+        where: [{ player: { id }, status: filter }, { patron: { id }, status: filter }],
+        relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+      });
+    }
 
     if (!contracts || contracts.length === 0) {
       return [];
@@ -164,5 +174,24 @@ export class ContractsService {
 
       },
     }));
+  }
+
+
+  async acceptContract(id: string, userId: string) {
+    const contract = await this.contractRepo.findOne({ where: { id }, relations: ['patron', 'player'] });
+
+    if (!contract) {
+      throw new NotFoundException('Contract not found');
+    }
+
+    if (contract.player.id !== userId) {
+      throw new UnauthorizedException('You are not authorized to accept this contract');
+    }
+
+    contract.status = ContractStatus.IN_PROGRESS;
+
+    await this.contractRepo.save(contract);
+
+    return await this.getContractById(id);
   }
 }
