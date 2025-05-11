@@ -70,7 +70,7 @@ export class NotificationsService {
       redirectData = {postId: redirectId};
     }
     else if(type === NotificationType.MSG_RECEIVED) {
-      redirectData = {chatId: redirectId};
+      redirectData = {chatId: redirectId, senderId: actorId, receiverId: recipientUserId};
     }
     else if(type === NotificationType.CONTRACT_CREATED || type === NotificationType.CONTRACT_UPDATED || type === NotificationType.CONTRACT_ACCEPTED) {
       redirectData = {contractId: redirectId};
