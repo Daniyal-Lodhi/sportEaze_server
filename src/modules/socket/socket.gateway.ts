@@ -11,7 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ChatSocketHandler } from '../chat/chat.socket.handler';
 import { CreateChatDto } from '../chat/dto/create-chat.dto';
 import { CONTRACT_RECEIVED, IS_MSG_TYPING, SEND_MESSAGE } from 'src/common/consts/socket-events';
-import { ContractSocketHandler } from '../contracts/contract.socket.handler';
 import { CreateContractDto } from '../contracts/dto/create-contract.dto';
 
 export const socketClients: Map<string, Socket> = new Map();
@@ -22,7 +21,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private jwtService: JwtService,
     private chatSocketHandler: ChatSocketHandler,
-    private contractSocketHandler: ContractSocketHandler,
   ) { }
 
   async handleConnection(client: Socket) {
@@ -83,13 +81,4 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage(CONTRACT_RECEIVED)
-  async handleContractReceived(
-    @MessageBody() data: CreateContractDto,
-    @ConnectedSocket() client: Socket
-  ) {
-    const sender = client.data.user;
-    console.log(`Sender: ${JSON.stringify(sender)}`);
-    this.contractSocketHandler.handleContractReceived(sender.id, data);
-  }
 }
