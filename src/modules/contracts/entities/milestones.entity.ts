@@ -9,7 +9,7 @@ export class Milestone {
     @Column()
     description: string;
 
-    @Column("decimal")
+    @Column()
     amount: number;
 
     @Column({default: false})

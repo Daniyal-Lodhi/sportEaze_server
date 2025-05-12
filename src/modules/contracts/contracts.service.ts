@@ -103,7 +103,7 @@ export class ContractsService {
         fullName: contract.patron.user.fullName,
         username: contract.patron.user.username,
         userType: contract.patron.user.userType,
-        wallet: patron.patron.wallet,
+        wallet,
       },
       player: {
         id: contract.player.user.id,
@@ -338,10 +338,13 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
   async releaseFunds(userId: string, { playerId, milestoneId }: ReleaseFundsDto) {
     const milestone = await this.milestoneRepo.findOne({ where: { id: milestoneId } });
 
+    
     if(!milestone) {
       throw new NotFoundException('Milestone not found');
     }
-
+    
+    // if(milestone.isPaid)
+    //   throw new UnauthorizedException('Milestone already paid');
     
     const patronWallet = await this.walletRepository.findOne({ where: { patron: { id: userId } } });
     
