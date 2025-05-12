@@ -122,6 +122,33 @@ export class MentorService {
       },
     };
   }
+    async getEndorsements(mentorId: string) {
+      const mentor = await this.mentorRepository.findOne({ where: { id: mentorId } });
+
+    if(!mentor) {
+      throw new UnauthorizedException("Only patrons can endorse players");
+    }
+
+    const endorsements = await this.endorsementRepository.find({
+      where: { mentor: { id: mentorId } }, relations: ['player', "player.user", 'mentor', "mentor.user"],
+    });
+
+    return endorsements.map(endorsement => ({
+      ...endorsement,
+      player: {
+        id: endorsement.player.id,
+        profilePicUrl: endorsement.player.user.profilePicUrl,
+        fullName: endorsement.player.user.fullName,
+        username: endorsement.player.user.username,
+      },
+      mentor: {
+        id: endorsement.mentor.id,
+        profilePicUrl: endorsement.mentor.user.profilePicUrl,
+        fullName: endorsement.mentor.user.fullName,
+        username: endorsement.mentor.user.username,
+      },
+    }));
+  }
 
 
 }

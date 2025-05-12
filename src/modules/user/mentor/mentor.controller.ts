@@ -7,32 +7,41 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { EndorseDto } from './dto/endorse.dto';
 
 @Controller('/api/user/mentor')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 export class MentorController {
   constructor(private readonly mentorService: MentorService) {}
-
+  
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Request() req,  @Body() createMentorDto: RegisterMentorDto) {
     return this.mentorService.create(req.user.id, createMentorDto);
   }
-
+  
   @Patch()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   update(@Request() req, @Body() updateMentorDto: UpdateMentorDto) {
     return this.mentorService.update(req.user.id, updateMentorDto);
   }
-
+  
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   get(@Request() req) {
     console.log(req);
     return this.mentorService.getMentorById(req.user.id);
   }
 
-    @ApiBearerAuth()
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post("/endorse")
   async endorse(@Request() req, @Body() body: EndorseDto) {
     return await this.mentorService.endorsePlayer(req.user.id, body);
   }
 
+
+  @Get('/endorsements/:mentorId')
+  async getEndorsements(@Param('mentorId') mentorId: string) {
+    return await this.mentorService.getEndorsements(mentorId);
+  }
 }

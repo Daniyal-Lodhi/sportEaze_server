@@ -8,12 +8,14 @@ import { UserPost } from "../user/user-posts/entities/user-post.entity";
 import { PostLikesService } from "../user/user-posts/post-likes/post-likes.service";
 import { UserService } from "../user/user.service";
 import { PostTypeEnum } from "src/common/enums/post/user-posts.enum";
+import { Contract } from "../contracts/entities/contract.entity";
 
 @Injectable()
 export class FeedService {
   constructor(
     @InjectRepository(UserPost) private readonly userPostRepo: Repository<UserPost>,
     @InjectRepository(SharedPost) private readonly sharedPostRepo: Repository<SharedPost>,
+    @InjectRepository(Contract) private readonly contractRepository: Repository<Contract>,
     private readonly postLikeService: PostLikesService,
     private readonly userService: UserService,
     private readonly networkService: NetworkService,
@@ -93,25 +95,45 @@ export class FeedService {
 
   private async sanitizePosts(posts: UserPost[], userId: string): Promise<any[]> { 
     return Promise.all( 
-      posts.map(async (post) => ({ 
-        ...post, 
-        userId: undefined, 
-        user: { 
-          ...post.user, 
-          email: undefined, 
-          dob: undefined, 
-          gender: undefined, 
-          sportInterests: undefined, 
-          deleted: undefined, 
-          createdAt: undefined, 
-          updatedAt: undefined, 
-        }, 
-        likeCount: post.likes?.length || 0, 
-        commentCount: post.comments?.length || 0, 
-        comments: undefined, 
-        likes: undefined, 
-        isLiked: await this.postLikeService.isUserLikedPost(post.id, userId), 
-      })) 
+      posts.map(async (post) => {
+        
+        let patron = undefined;
+
+        if(post.postType == PostTypeEnum.CONTRACT) {
+          const contract = await this.contractRepository.findOne({
+            where: { id: post.contractId },
+            relations: ["patron", "patron.user"],
+          });
+          
+          patron = {
+            id: contract.patron.id,
+            profilePicUrl: contract.patron.user.profilePicUrl,
+            fullName: contract.patron.user.fullName,
+            username: contract.patron.user.username,
+          }
+        }
+
+        return {
+          ...post, 
+          userId: undefined, 
+          user: { 
+            ...post.user, 
+            email: undefined, 
+            dob: undefined, 
+            gender: undefined, 
+            sportInterests: undefined, 
+            deleted: undefined, 
+            createdAt: undefined, 
+            updatedAt: undefined, 
+          },
+          patron, 
+          likeCount: post.likes?.length || 0, 
+          commentCount: post.comments?.length || 0, 
+          comments: undefined, 
+          likes: undefined, 
+          isLiked: await this.postLikeService.isUserLikedPost(post.id, userId), 
+        }
+      })
     ); 
   } 
 
@@ -120,6 +142,22 @@ export class FeedService {
       posts.map(async (post) => {
         const { likes, comments, ...restOriginalPost } = post.originalPost;
   
+        let patron = undefined;
+
+        if(restOriginalPost.postType == PostTypeEnum.CONTRACT) {
+          const contract = await this.contractRepository.findOne({
+            where: { id: restOriginalPost.contractId },
+            relations: ["patron", "patron.user"],
+          });
+          
+          patron = {
+            id: contract.patron.id,
+            profilePicUrl: contract.patron.user.profilePicUrl,
+            fullName: contract.patron.user.fullName,
+            username: contract.patron.user.username,
+          }
+        }
+
         return {
           sharedId: post.id,
           id: restOriginalPost.id,
@@ -137,6 +175,7 @@ export class FeedService {
             username: restOriginalPost.user?.username,
             userType: restOriginalPost.user?.userType,
           },
+          patron,
           likeCount: likes?.length || 0,
           commentCount: comments?.length || 0,
           isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, userId),           

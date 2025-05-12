@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateTextPostDTO } from "./dto/create-text-post.dto";
@@ -12,8 +12,6 @@ import { UserType } from "src/common/enums/user/user-type.enum";
 import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.enum";
 import { PostLikesService } from "./post-likes/post-likes.service";
 import { SharedPost } from "./entities/shared-post.entity";
-import { create } from "domain";
-import { SharedPostsService } from "./shared-posts/shared-posts.service";
 import { Milestone } from "src/modules/contracts/entities/milestones.entity";
 import { Contract } from "src/modules/contracts/entities/contract.entity";
 import { NotificationsService } from "src/modules/notifications/notifications.service";
@@ -125,7 +123,7 @@ export class UserPostService {
             const { likes, comments, ...restOriginalPost } = post.originalPost;
             
             let patron = undefined;
-``
+
             if(restOriginalPost.postType == PostTypeEnum.CONTRACT) {
               const contract = await this.contractRepository.findOne({
                 where: { id: restOriginalPost.contractId },
