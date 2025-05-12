@@ -343,8 +343,8 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
       throw new NotFoundException('Milestone not found');
     }
     
-    // if(milestone.isPaid)
-    //   throw new UnauthorizedException('Milestone already paid');
+    if(milestone.isPaid)
+      throw new UnauthorizedException('Milestone already paid');
     
     const patronWallet = await this.walletRepository.findOne({ where: { patron: { id: userId } } });
     
