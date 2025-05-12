@@ -78,6 +78,13 @@ export class ContractsService {
     wallet.cash -= contract.totalAmount;
 
     await this.walletRepository.save(wallet);
+    
+    const patronSocket = socketClients.get(patronId);
+
+    if(patronSocket) {
+      patronSocket.emit(WALLET_UPDATED, wallet);
+    }
+
 
     return {
       ...contract,
@@ -282,6 +289,16 @@ export class ContractsService {
     await this.contractRepo.save(contract);
 
     this.notificationService.create(contract.patron.id, {type: NotificationType.CONTRACT_UPDATED, recipientUserId: contract.player.id}, contract.id);
+
+    const wallet = await this.walletRepository.findOne({ where: { patron: { id: contract.patron.id } } });
+    wallet.payables = contract.totalAmount;
+    await this.walletRepository.save(wallet);
+
+    const patronSocket = socketClients.get(contract.patron.id);
+
+    if(patronSocket) {
+      patronSocket.emit(WALLET_UPDATED, wallet);
+    }
 
     return await this.getContractById(id);
   }
