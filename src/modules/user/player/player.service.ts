@@ -50,7 +50,7 @@ export class PlayerService {
 
     const player = Object.assign(new Player(), { id, ...playerDetails });
 
-    const wallet = this.walletRepository.create({ total: 0, pending: 0 });
+    const wallet = this.walletRepository.create({ cash: 0, payables: null });
     await this.walletRepository.save(wallet);
     player.wallet = wallet;
 
@@ -117,8 +117,8 @@ export class PlayerService {
     delete playerUpdates.gender;
   
     Object.assign(player, playerUpdates);
-    player.wallet.total = walletTotal ?? player.wallet.total;
-    player.wallet.pending = walletPending ?? player.wallet.pending;
+    player.wallet.cash = walletTotal ?? player.wallet.cash;
+    player.wallet.payables = walletPending ?? player.wallet.payables;
 
     await this.playerRepository.save(player);
     await this.walletRepository.save(player.wallet);
