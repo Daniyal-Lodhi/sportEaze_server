@@ -145,7 +145,7 @@ export class UserService {
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount, connectionCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount } : undefined, 
       patron: user.patron ?? undefined,
       mentor: user.mentor ? { ...user.mentor, endorsementsGiven } : undefined,
       isFollowing,
