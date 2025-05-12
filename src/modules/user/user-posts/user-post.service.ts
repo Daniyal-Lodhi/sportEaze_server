@@ -41,6 +41,23 @@ export class UserPostService {
 
     if(createTextPost.contractId != null && createTextPost.milestoneId != null){
       createTextPost.postType = PostTypeEnum.CONTRACT;
+      
+      const { contractId, milestoneId } = createTextPost;
+
+      const contract = await this.contractRepository.findOne({
+        where: { id: contractId },
+        relations: ["patron"],
+      });
+
+      const milestone = await this.milestoneRepository.findOne({
+        where: { id: milestoneId },
+      });
+
+      milestone.isAchieved = true;
+
+      await this.milestoneRepository.save(milestone);
+
+      await this.notificationService.create(userId, {type: NotificationType.MILESTONE_ACHIEVED, recipientUserId: contract.patron.id}, contractId);
     }
     
     const post = this.postRepository.create({
