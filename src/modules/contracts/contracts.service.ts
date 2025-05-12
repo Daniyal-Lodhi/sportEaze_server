@@ -359,6 +359,8 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
     console.log(playerWallet);
     playerWallet.cash += milestone.amount;
 
+    await this.milestoneRepo.save(milestone);
+
     await this.walletRepository.save(patronWallet);
     await this.walletRepository.save(playerWallet);
 
@@ -371,7 +373,7 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
     const playerSocket = socketClients.get(playerId);
 
     if(playerSocket) {
-      playerSocket.emit(WALLET_UPDATED, patronWallet);
+      playerSocket.emit(WALLET_UPDATED, playerWallet);
     }
 
 
