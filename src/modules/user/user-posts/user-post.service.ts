@@ -148,7 +148,7 @@ export class UserPostService {
   
     const [posts, totalPosts] = await this.postRepository.findAndCount({
       where: { userId: user2Id },
-      relations: ["media", "likes", "comments"],
+      relations: [ "user", "media", "likes", "comments"],
       order: { createdAt: "DESC" }, // ✅ Fetch latest posts first
       skip: (pageNo - 1) * pageSize, // ✅ Pagination logic
       take: pageSize,

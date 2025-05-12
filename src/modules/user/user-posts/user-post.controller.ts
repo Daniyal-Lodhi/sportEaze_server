@@ -100,7 +100,6 @@ async getPostById(@Request() req, @Response() res, @Param("postId") postId: stri
 @Get("/get-posts/:userid")
 async getPost(
   @Request() req,
-  @Response() res,
   @Param("userid") userId: string,
   @Query("pageSize") pageSize?: string,
   @Query("pageNo") pageNo?: string
@@ -118,7 +117,7 @@ async getPost(
 
     const posts = await this.PostSrv.getPosts(req.user.id, userId, size, page);
 
-    return res.status(200).json({ success: true, ...posts });
+    return posts;
 
   } catch (error) {
     console.error("[GET_USER_POST_CTRL]:", error);
