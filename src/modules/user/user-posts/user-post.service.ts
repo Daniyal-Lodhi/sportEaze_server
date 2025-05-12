@@ -13,6 +13,7 @@ import { PostTypeEnum, ReactTypeEnum } from "src/common/enums/post/user-posts.en
 import { PostLikesService } from "./post-likes/post-likes.service";
 import { SharedPost } from "./entities/shared-post.entity";
 import { create } from "domain";
+import { SharedPostsService } from "./shared-posts/shared-posts.service";
 
 @Injectable()
 export class UserPostService {
@@ -84,17 +85,69 @@ export class UserPostService {
     return savedPostWithMedia;
   }
 
+  async getSharedPostsByUserId(user1Id: string, user2Id: string) {
+        await this.userSrv.getUser(user2Id);
+        const posts = await this.sharedPostRepository.find({
+          where: { user: { id: user2Id } },
+          relations: ["originalPost"],
+        });
+        
+        return Promise.all( 
+          posts.map(async (post) => {
+            const { likes, comments, ...restOriginalPost } = post.originalPost;
+      
+            return {
+              sharedId: post.id,
+              id: restOriginalPost.id,
+              textContent: restOriginalPost.textContent,
+              visibility: restOriginalPost.visibility,
+              shareCount: restOriginalPost.shareCount,
+              postType: PostTypeEnum.SHARED,
+              createdAt: restOriginalPost.createdAt,
+              updatedAt: restOriginalPost.updatedAt,
+              media: restOriginalPost.media,
+              user: {
+                id: restOriginalPost.user?.id,
+                profilePicUrl: restOriginalPost.user?.profilePicUrl,
+                fullName: restOriginalPost.user?.fullName,
+                username: restOriginalPost.user?.username,
+                userType: restOriginalPost.user?.userType,
+              },
+              likeCount: likes?.length || 0,
+              commentCount: comments?.length || 0,
+              // isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, user1Id),           
+              share: {
+                message: post.shareMessage,
+                user: {
+                  id: post.user?.id,
+                  profilePicUrl: post.user?.profilePicUrl,
+                  fullName: post.user?.fullName,
+                  username: post.user?.username,
+                  userType: post.user?.userType,
+                }
+              }
+            };
+          }) 
+        ); 
+  }
+
   async getPosts(
-    userId: string,
+    user1Id: string,
+    user2Id: string,
     pageSize: number,
     pageNo: number
-  ): Promise<{ totalPosts: number; currentPage: number; totalPages: number; posts: any[] }> {
-    await this.userSrv.getUser(userId);
+  ) {
+    const user = await this.userSrv.getUser(user2Id);
   
-    console.log(`Fetching posts for user: ${userId}, Page: ${pageNo}, Page Size: ${pageSize}`);
+    if(user.userType !== UserType.PLAYER) {
+      return await this.getSharedPostsByUserId(user1Id, user2Id);
+    }
+
+
+    console.log(`Fetching posts for user: ${user2Id}, Page: ${pageNo}, Page Size: ${pageSize}`);
   
     const [posts, totalPosts] = await this.postRepository.findAndCount({
-      where: { userId },
+      where: { userId: user2Id },
       relations: ["media", "likes", "comments"],
       order: { createdAt: "DESC" }, // ✅ Fetch latest posts first
       skip: (pageNo - 1) * pageSize, // ✅ Pagination logic
@@ -103,24 +156,47 @@ export class UserPostService {
   
     console.log(`Total Posts Found: ${totalPosts}, Returned Posts: ${posts.length}`);
   
-    return {
-      totalPosts, // ✅ Total number of posts
-      currentPage: pageNo,
-      totalPages: Math.ceil(totalPosts / pageSize),
-      posts: posts.map(({ id, textContent, visibility, shareCount, media, likes, comments }) => ({
-        id,
-        textContent,
-        visibility,
-        shareCount,
-        media,
-        likeCount: likes?.length || 0, // ✅ Total number of likes
-        commentCount: comments?.length || 0, // ✅ Total number of comments
-        reactions: likes?.reduce((acc, { reactType }) => {
-          acc[reactType] = (acc[reactType] || 0) + 1;
-          return acc;
-        }, {} as Record<ReactTypeEnum, number>), // ✅ Reaction breakdown
-      })),
-    };
+    // return {
+    //   totalPosts, // ✅ Total number of posts
+    //   currentPage: pageNo,
+    //   totalPages: Math.ceil(totalPosts / pageSize),
+    //   posts: posts.map(({ id, textContent, visibility, shareCount, media, likes, comments }) => ({
+    //     id,
+    //     textContent,
+    //     visibility,
+    //     shareCount,
+    //     media,
+    //     likeCount: likes?.length || 0, // ✅ Total number of likes
+    //     commentCount: comments?.length || 0, // ✅ Total number of comments
+    //     reactions: likes?.reduce((acc, { reactType }) => {
+    //       acc[reactType] = (acc[reactType] || 0) + 1;
+    //       return acc;
+    //     }, {} as Record<ReactTypeEnum, number>), // ✅ Reaction breakdown
+    //   })),
+    // };
+
+
+    return Promise.all(
+      posts.map(async (post) => ({
+        ...post, 
+        userId: undefined, 
+        user: { 
+          ...post.user, 
+          email: undefined, 
+          dob: undefined, 
+          gender: undefined, 
+          sportInterests: undefined, 
+          deleted: undefined, 
+          createdAt: undefined, 
+          updatedAt: undefined, 
+        }, 
+        likeCount: post.likes?.length || 0, 
+        commentCount: post.comments?.length || 0, 
+        comments: undefined, 
+        likes: undefined, 
+        isLiked: await this.postLikeService.isUserLikedPost(post.id, user1Id), 
+      }))
+    )
   }
 
   async getPostById(id: string, userId?: string | undefined): Promise<GetPostDTO> {

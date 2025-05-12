@@ -27,21 +27,21 @@ export class SharedPostsController {
     }  
   }
 
-  @Get(":id")
-  async get(@Request() req, @Response() res, @Param("id") id: string)
-  {
-    try {
-      const sharedPosts = await this.sharedPostsService.getSharedPostsByUserId(id);
+  // @Get(":id")
+  // async get(@Request() req, @Response() res, @Param("id") id: string)
+  // {
+  //   try {
+  //     const sharedPosts = await this.sharedPostsService.getSharedPostsByUserId(id);
 
-     res.status(200).json({success: true, ...{sharedPosts}});
-   } catch (error) {
-     console.error("[GET_SHARED_POSTS]:", error);
-     throw new HttpException(
-       error.message || "Internal Server Error",
-       error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-     );
-   }  
-  }
+  //    res.status(200).json({success: true, ...{sharedPosts}});
+  //  } catch (error) {
+  //    console.error("[GET_SHARED_POSTS]:", error);
+  //    throw new HttpException(
+  //      error.message || "Internal Server Error",
+  //      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+  //    );
+  //  }  
+  // }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

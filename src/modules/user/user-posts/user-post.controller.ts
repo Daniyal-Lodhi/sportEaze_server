@@ -115,7 +115,7 @@ async getPost(
 
     console.log(`Fetching posts for user: ${userId}, Page: ${page}, Page Size: ${size}`);
 
-    const posts = await this.PostSrv.getPosts(userId, size, page);
+    const posts = await this.PostSrv.getPosts(req.user.id, userId, size, page);
 
     return res.status(200).json({ success: true, ...posts });
 

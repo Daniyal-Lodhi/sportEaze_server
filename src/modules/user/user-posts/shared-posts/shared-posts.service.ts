@@ -7,15 +7,19 @@ import { UserPostService } from '../user-post.service';
 import { GetPostDTO } from '../dto/get-post.dto';
 import { SharedPost } from '../entities/shared-post.entity';
 import { Repository } from 'typeorm';
-import { PostVisibilityEnum, ReactTypeEnum } from 'src/common/enums/post/user-posts.enum';
+import { PostTypeEnum, PostVisibilityEnum } from 'src/common/enums/post/user-posts.enum';
 import { UserPost } from '../entities/user-post.entity';
 import { UpdateSharedPostDto } from './dto/update-shared-post.dto';
-import { share } from 'rxjs';
+import { PostLikesService } from '../post-likes/post-likes.service';
 
 @Injectable()
 export class SharedPostsService {
-  constructor(private readonly userSrv: UserService, private readonly postSrv: UserPostService, @InjectRepository(SharedPost)
-      private readonly sharedPostRepository: Repository<SharedPost>, @InjectRepository(UserPost) private readonly postRepository) {}
+  constructor(
+    private readonly userSrv: UserService,
+    private readonly postSrv: UserPostService,
+    @InjectRepository(SharedPost) private readonly sharedPostRepository: Repository<SharedPost>, 
+    @InjectRepository(UserPost) private readonly postRepository : Repository<UserPost>,
+  ) {}
 
   async create(userId:string, createSharedPostDto: CreateSharedPostDto): Promise<SharedPost> {
 
@@ -67,28 +71,8 @@ export class SharedPostsService {
     return sharedPost;
   }
   
-  async getSharedPostsByUserId(userId: string): Promise<SharedPost[]> {
-    await this.userSrv.getUser(userId);
-    const sharedPosts = await this.sharedPostRepository.find({
-      where: { user: { id: userId } },
-      relations: ["originalPost"],
-    });
-    
-    const updatedSharedPosts = await Promise.all(
-      sharedPosts.map(async (sharedPost) => {
-        if (sharedPost.originalPost) {
-          const originalPostDTO = await this.postSrv.getPostById(sharedPost.originalPost.id);
-          const originalPost = { ...originalPostDTO } as any;
-          originalPost.likes = undefined;
-          originalPost.reactions = undefined;
-          sharedPost.originalPost = originalPost;
-        }
-        return sharedPost;
-      })
-    );
-    
-    return updatedSharedPosts;
-  }
+  // async getSharedPostsByUserId(user1Id: string, user2Id: string): Promise<any[]> {
+  // }
     
 
   async UpdateSharedPost(userId: string, sharedPostId: string, updateSharedPost: UpdateSharedPostDto): Promise<SharedPost> {
