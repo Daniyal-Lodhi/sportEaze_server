@@ -148,7 +148,7 @@ export class UserService {
 
     const totalContracts = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
 
-    const postCount = await this.userPostRepository.count({ where: { user } });
+    const postCount = await this.userPostRepository.count({ where: { userId: id } });
 
     return {
       ...user,
