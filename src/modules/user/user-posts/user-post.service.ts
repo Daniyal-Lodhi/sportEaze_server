@@ -14,6 +14,8 @@ import { PostLikesService } from "./post-likes/post-likes.service";
 import { SharedPost } from "./entities/shared-post.entity";
 import { create } from "domain";
 import { SharedPostsService } from "./shared-posts/shared-posts.service";
+import { Milestone } from "src/modules/contracts/entities/milestones.entity";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
 
 @Injectable()
 export class UserPostService {
@@ -21,6 +23,7 @@ export class UserPostService {
     @InjectRepository(UserPost) private readonly postRepository: Repository<UserPost>,
     @InjectRepository(PostMedia) private readonly postMediaRepository: Repository<PostMedia>,
     @InjectRepository(SharedPost) private readonly sharedPostRepository: Repository<SharedPost>,
+    @InjectRepository(Contract) private readonly contractRepository: Repository<Contract>,
     private readonly userSrv: UserService,
     private readonly postLikeService: PostLikesService,
   ) {}
@@ -63,6 +66,11 @@ export class UserPostService {
 
     if(CreateMediaPostDTOWoMedia.contractId != null && CreateMediaPostDTOWoMedia.milestoneId != null){
       CreateMediaPostDTOWoMedia.postType = PostTypeEnum.CONTRACT;
+
+      const { contractId, milestoneId } = CreateMediaPostDTOWoMedia;
+
+
+
     }
 
     const post = this.postRepository.create({
@@ -85,16 +93,37 @@ export class UserPostService {
     return savedPostWithMedia;
   }
 
-  async getSharedPostsByUserId(user1Id: string, user2Id: string) {
+  async getSharedPostsByUserId(user1Id: string, user2Id: string, pageNo: number, pageSize: number) {
         await this.userSrv.getUser(user2Id);
         const posts = await this.sharedPostRepository.find({
           where: { user: { id: user2Id } },
-          relations: ["originalPost"],
+          relations: ["originalPost", "originalPost.user", "user", "originalPost.media", "originalPost.likes", "originalPost.comments"],
+          order: { createdAt: "DESC" }, // ✅ Fetch latest posts first
+          skip: (pageNo - 1) * pageSize, // ✅ Pagination logic
+          take: pageSize,
+
         });
         
         return Promise.all( 
           posts.map(async (post) => {
             const { likes, comments, ...restOriginalPost } = post.originalPost;
+            
+            let patron = undefined;
+``
+            if(restOriginalPost.postType == PostTypeEnum.CONTRACT) {
+              const contract = await this.contractRepository.findOne({
+                where: { id: restOriginalPost.contractId },
+                relations: ["patron", "patron.user"],
+              });
+
+              patron = {
+                id: contract.patron.id,
+                profilePicUrl: contract.patron.user.profilePicUrl,
+                fullName: contract.patron.user.fullName,
+                username: contract.patron.user.username,
+              }
+            }
+
       
             return {
               sharedId: post.id,
@@ -115,7 +144,8 @@ export class UserPostService {
               },
               likeCount: likes?.length || 0,
               commentCount: comments?.length || 0,
-              // isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, user1Id),           
+              isLiked: await this.postLikeService.isUserLikedPost(post.originalPost.id, user1Id),
+              patron,           
               share: {
                 message: post.shareMessage,
                 user: {
@@ -140,7 +170,7 @@ export class UserPostService {
     const user = await this.userSrv.getUser(user2Id);
   
     if(user.userType !== UserType.PLAYER) {
-      return await this.getSharedPostsByUserId(user1Id, user2Id);
+      return await this.getSharedPostsByUserId(user1Id, user2Id, pageNo, pageSize);
     }
 
 
@@ -177,25 +207,45 @@ export class UserPostService {
 
 
     return Promise.all(
-      posts.map(async (post) => ({
-        ...post, 
-        userId: undefined, 
-        user: { 
-          ...post.user, 
-          email: undefined, 
-          dob: undefined, 
-          gender: undefined, 
-          sportInterests: undefined, 
-          deleted: undefined, 
-          createdAt: undefined, 
-          updatedAt: undefined, 
-        }, 
-        likeCount: post.likes?.length || 0, 
-        commentCount: post.comments?.length || 0, 
-        comments: undefined, 
-        likes: undefined, 
-        isLiked: await this.postLikeService.isUserLikedPost(post.id, user1Id), 
-      }))
+      posts.map(async (post) => {
+
+        let patron = undefined;
+
+        if(post.postType == PostTypeEnum.CONTRACT) {
+          const contract = await this.contractRepository.findOne({
+            where: { id: post.contractId },
+            relations: ["patron", "patron.user"],
+          });
+
+          patron = {
+            id: contract.patron.id,
+            profilePicUrl: contract.patron.user.profilePicUrl,
+            fullName: contract.patron.user.fullName,
+            username: contract.patron.user.username,
+          }
+        }
+
+        return {
+          ...post, 
+          userId: undefined, 
+          user: { 
+            ...post.user, 
+            email: undefined, 
+            dob: undefined, 
+            gender: undefined, 
+            sportInterests: undefined, 
+            deleted: undefined, 
+            createdAt: undefined, 
+            updatedAt: undefined, 
+          }, 
+          likeCount: post.likes?.length || 0, 
+          commentCount: post.comments?.length || 0, 
+          comments: undefined, 
+          likes: undefined, 
+          isLiked: await this.postLikeService.isUserLikedPost(post.id, user1Id), 
+          patron
+        }
+      })
     )
   }
 

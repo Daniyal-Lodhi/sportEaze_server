@@ -148,9 +148,11 @@ export class UserService {
 
     const totalContracts = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
 
+    const postCount = await this.userPostRepository.count({ where: { user } });
+
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount, postCount } : undefined, 
       patron: user.patron ? { ...user.patron, totalContracts } : undefined,
       mentor: user.mentor ? { ...user.mentor, endorsementsGiven } : undefined,
       isFollowing,

@@ -13,7 +13,6 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
 import { start } from 'repl';
 import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
-import e from 'express';
 import { Wallet } from 'src/common/entities/wallet.entity';
 
 @Injectable()
@@ -66,7 +65,14 @@ export class ContractsService {
       relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
     });
 
-    this.notificationService.create(patronId, {type: NotificationType.CONTRACT_CREATED, recipientUserId: player.id}, contract.id);
+    await this.notificationService.create(patronId, {type: NotificationType.CONTRACT_CREATED, recipientUserId: player.id}, contract.id);
+
+    const wallet = await this.walletRepository.findOne({ where: { patron: { id: patronId } } });
+
+    wallet.payables = contract.totalAmount;
+    wallet.cash -= contract.totalAmount;
+
+    await this.walletRepository.save(wallet);
 
     return {
       ...contract,
