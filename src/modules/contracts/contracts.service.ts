@@ -32,8 +32,8 @@ export class ContractsService {
   ) {}
   
   async create(patronId: string, createContractDto: CreateContractDto) {
-    const patron = await this.userRepo.findOne({ where: { id: patronId } });
-    const player = await this.userRepo.findOne({ where: { id: createContractDto.playerId } });
+    const patron = await this.userRepo.findOne({ where: { id: patronId }, relations: ['patron', "patron.wallet"] });
+    const player = await this.userRepo.findOne({ where: { id: createContractDto.playerId }, relations: ["player", 'player.wallet'] });
   
     if (!patron || !player) {
       throw new NotFoundException('Patron or Player not found');
@@ -83,6 +83,7 @@ export class ContractsService {
         fullName: contract.patron.user.fullName,
         username: contract.patron.user.username,
         userType: contract.patron.user.userType,
+        wallet: patron.patron.wallet,
       },
       player: {
         id: contract.player.user.id,
@@ -90,7 +91,7 @@ export class ContractsService {
         fullName: contract.player.user.fullName,
         username: contract.player.user.username,
         userType: contract.player.user.userType,
-
+        wallet: player.player.wallet,
       },
     }
   }
@@ -101,13 +102,13 @@ export class ContractsService {
     if (filter === 0) {
       contracts = await this.contractRepo.find({
         where: [{ player: { id }}, { patron: { id } }],
-        relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+        relations: ['milestones', 'patron', 'player', "patron.wallet", "player.wallet", 'patron.user', 'player.user'],
         order: { startDate: 'DESC' },
       });
     } else {
       contracts = await this.contractRepo.find({
         where: [{ player: { id }, status: filter }, { patron: { id }, status: filter }],
-        relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+        relations: ['milestones', 'patron', 'player', "patron.wallet", "player.wallet", 'patron.user', 'player.user'],
         order: { startDate: 'DESC' },
       });
     }
@@ -131,6 +132,7 @@ export class ContractsService {
         fullName: contract.patron.user.fullName,
         username: contract.patron.user.username,
         userType: contract.patron.user.userType,
+        wallet: contract.patron.wallet,
       },
       player: {
         id: contract.player.user.id,
@@ -138,7 +140,7 @@ export class ContractsService {
         fullName: contract.player.user.fullName,
         username: contract.player.user.username,
         userType: contract.player.user.userType,
-
+        wallet: contract.player.wallet,
       },
     }));
   }
@@ -146,7 +148,7 @@ export class ContractsService {
   async getContractsWithUser(user1Id: string, user2Id: string) {
     const contracts = await this.contractRepo.find({
       where: [{ player: { id: user1Id }, patron: { id: user2Id } }, { player: { id: user2Id }, patron: { id: user1Id } }],
-      relations: ['milestones', 'patron', 'player', 'patron.user', 'player.user'],
+        relations: ['milestones', 'patron', 'player', "patron.wallet", "player.wallet", 'patron.user', 'player.user'],
       order: { startDate: 'DESC' },
     });
 
@@ -169,6 +171,7 @@ export class ContractsService {
         fullName: contract.patron.user.fullName,
         username: contract.patron.user.username,
         userType: contract.patron.user.userType,
+        wallet: contract.patron.wallet,
       },
       player: {
         id: contract.player.user.id,
@@ -176,7 +179,7 @@ export class ContractsService {
         fullName: contract.player.user.fullName,
         username: contract.player.user.username,
         userType: contract.player.user.userType,
-
+        wallet: contract.player.wallet,
       },
     }));
   }

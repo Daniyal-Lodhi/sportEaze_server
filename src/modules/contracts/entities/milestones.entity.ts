@@ -15,6 +15,9 @@ export class Milestone {
     @Column({default: false})
     isAchieved: boolean;
 
+    @Column({default: false})
+    isPaid: boolean;
+
     @ManyToOne(() => Contract, contract => contract.milestones, { onDelete: "CASCADE" })
     @JoinColumn({ name: "contractId" })
     contract: Contract;
