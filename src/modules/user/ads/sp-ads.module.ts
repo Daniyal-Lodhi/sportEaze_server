@@ -21,9 +21,10 @@ import { SharedPost } from "../user-posts/entities/shared-post.entity";
 import { Comment } from "../user-posts/entities/post-comment.entity";
 import { PostLikes } from "../user-posts/entities/post-like.entity";
 import { Endorsement } from "src/common/entities/endorsement.entity";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserPost,SharedPost, Comment, PostLikes, Endorsement, SponsoredPost,SponsoredPostTargetSport,SponsoredPostMedia,Connection,Followers, Notification])],
+  imports: [TypeOrmModule.forFeature([User, UserPost,SharedPost, Comment, PostLikes, Endorsement, SponsoredPost,SponsoredPostTargetSport,SponsoredPostMedia,Connection,Followers, Notification, Contract])],
   controllers: [SponsoredPostsController],
   providers: [SponsoredPostService,UserService,LocalAuthService,JwtService,NetworkService, NetworkSocketHandler, NotificationsService, NotificationSocketHandler],
 })

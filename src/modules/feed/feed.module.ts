@@ -16,9 +16,10 @@ import { Notification } from '../notifications/entities/notification.entity';
 import { NotificationSocketHandler } from '../notifications/notification.socket.handler';
 import { Comment } from '../user/user-posts/entities/post-comment.entity';
 import { Endorsement } from 'src/common/entities/endorsement.entity';
+import { Contract } from '../contracts/entities/contract.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes, User, Comment, Endorsement, Notification]), NetworkModule, LocalAuthModule],
+  imports: [TypeOrmModule.forFeature([UserPost, SharedPost, PostLikes, User, Comment, Endorsement, Notification, Contract]), NetworkModule, LocalAuthModule],
   controllers: [FeedController],
   providers: [FeedService, PostLikesService, PostLikesGateway, UserService, NotificationsService, NotificationSocketHandler],
 })

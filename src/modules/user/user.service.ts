@@ -26,6 +26,8 @@ import { UserPost } from "./user-posts/entities/user-post.entity";
 import { Comment } from "./user-posts/entities/post-comment.entity";
 import { PostLikes } from "./user-posts/entities/post-like.entity";
 import { LikePostDto } from "./user-posts/post-likes/dto/post-like.dto";
+import { Contract } from "../contracts/entities/contract.entity";
+import { ContractStatus } from "src/common/enums/contracts/contracts.enum";
 
 @Injectable()
 export class UserService {
@@ -36,6 +38,7 @@ export class UserService {
     @InjectRepository(Comment) private postCommentRepository: Repository<Comment>,
     @InjectRepository(PostLikes) private postLikeRepository: Repository<PostLikes>,
     @InjectRepository(Endorsement) private endorsementRepository: Repository<Endorsement>,
+    @InjectRepository(Contract) private contractsRepository: Repository<Contract>,
     private localAuthSrv: LocalAuthService,
     private networkService: NetworkService,
     // private UserPostService: UserPostService,
@@ -143,10 +146,12 @@ export class UserService {
 
     const userPostLikesCount = await this.postLikeRepository.count({ where: { post: { userId: id } } });
 
+    const totalContracts = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
+
     return {
       ...user,
       player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount } : undefined, 
-      patron: user.patron ?? undefined,
+      patron: user.patron ? { ...user.patron, totalContracts } : undefined,
       mentor: user.mentor ? { ...user.mentor, endorsementsGiven } : undefined,
       isFollowing,
       connection,

@@ -16,9 +16,10 @@ import { UserPost } from "../user-posts/entities/user-post.entity";
 import { Comment } from "../user-posts/entities/post-comment.entity";
 import { SharedPost } from "../user-posts/entities/shared-post.entity";
 import { PostLikes } from "../user-posts/entities/post-like.entity";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Player, User, Wallet, UserPost, SharedPost, PostLikes, Comment, Endorsement]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Player, User, Wallet, UserPost, SharedPost, PostLikes, Comment, Endorsement, Contract]), LocalAuthModule, NetworkModule],
   controllers: [PlayerController],
   providers: [PlayerService, UserService,],
 })

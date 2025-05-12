@@ -16,9 +16,10 @@ import { SharedPost } from '../user-posts/entities/shared-post.entity';
 import { Comment } from '../user-posts/entities/post-comment.entity';
 import { PostLikes } from '../user-posts/entities/post-like.entity';
 import { Endorsement } from 'src/common/entities/endorsement.entity';
+import { Contract } from 'src/modules/contracts/entities/contract.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Patron, User, Wallet, UserPost, SharedPost, Comment, PostLikes, Endorsement]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Patron, User, Wallet, UserPost, SharedPost, Comment, PostLikes, Endorsement, Contract]), LocalAuthModule, NetworkModule],
   controllers: [PatronController],
   providers: [PatronService, UserService, PatronSocketHandler],
 })

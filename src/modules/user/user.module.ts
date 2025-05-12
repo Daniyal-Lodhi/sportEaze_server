@@ -18,10 +18,11 @@ import { Endorsement } from "src/common/entities/endorsement.entity";
 import { UserPost } from "./user-posts/entities/user-post.entity";
 import { Comment } from "./user-posts/entities/post-comment.entity";
 import { PostLikes } from "./user-posts/entities/post-like.entity";
+import { Contract } from "../contracts/entities/contract.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserPost, SharedPost, Comment, PostLikes, Endorsement]),
+    TypeOrmModule.forFeature([User, UserPost, SharedPost, Comment, PostLikes, Endorsement, Contract]),
     LocalAuthModule,
     PlayerModule,
     PatronModule,
