@@ -51,7 +51,7 @@ export class PatronService {
 
     const patron = Object.assign(new Patron(), { id, ...patronDetails });
 
-    const wallet = this.walletRepository.create({ total: 0, pending: 0 });
+    const wallet = this.walletRepository.create({ cash: 10000, payables: 0 });
     await this.walletRepository.save(wallet);
     patron.wallet = wallet;
 
@@ -85,8 +85,8 @@ export class PatronService {
     // Update patron details
     Object.assign(patron, { id, ...patronDetails });
     
-    patron.wallet.total = patronDetails.walletTotal ?? patron.wallet.total;
-    patron.wallet.pending = patronDetails.walletPending ?? patron.wallet.pending;
+    patron.wallet.cash = patronDetails.walletTotal ?? patron.wallet.cash;
+    patron.wallet.payables = patronDetails.walletPending ?? patron.wallet.payables;
 
     await this.walletRepository.save(patron.wallet);
 

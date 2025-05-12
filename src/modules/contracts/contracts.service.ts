@@ -14,6 +14,7 @@ import { NotificationType } from 'src/common/enums/notifications/notifications.e
 import { start } from 'repl';
 import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
 import e from 'express';
+import { Wallet } from 'src/common/entities/wallet.entity';
 
 @Injectable()
 export class ContractsService {
@@ -24,6 +25,8 @@ export class ContractsService {
     private contractRepo: Repository<Contract>,
     @InjectRepository(Milestone)
     private milestoneRepo: Repository<Milestone>,
+    @InjectRepository(Wallet)
+    private walletRepository: Repository<Wallet>,
     private readonly notificationService: NotificationsService,
 
   ) {}

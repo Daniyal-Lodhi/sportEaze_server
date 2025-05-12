@@ -9,9 +9,10 @@ import { ContractSocketHandler } from './contract.socket.handler';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationSocketHandler } from '../notifications/notification.socket.handler';
 import { Notification } from '../notifications/entities/notification.entity';
+import { Wallet } from 'src/common/entities/wallet.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Contract, Milestone, Notification])],
+  imports: [TypeOrmModule.forFeature([User, Contract, Milestone, Notification, Wallet])],
   controllers: [ContractsController],
   providers: [ContractsService, ContractSocketHandler, NotificationsService, NotificationSocketHandler],
   exports: [ContractsService],
