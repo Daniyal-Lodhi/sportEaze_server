@@ -50,11 +50,11 @@ export class PlayerService {
 
     const player = Object.assign(new Player(), { id, ...playerDetails });
 
-    const wallet = this.walletRepository.create({ cash: 0, payables: null });
-    await this.walletRepository.save(wallet);
+    const wallet = this.walletRepository.create({ cash: 0, payables: null, player });
     player.wallet = wallet;
-
+    
     await this.playerRepository.save(player);
+    await this.walletRepository.save(wallet);
 
     return this.userService.getUser(id);
   }

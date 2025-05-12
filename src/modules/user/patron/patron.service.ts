@@ -51,11 +51,14 @@ export class PatronService {
 
     const patron = Object.assign(new Patron(), { id, ...patronDetails });
 
-    const wallet = this.walletRepository.create({ cash: 10000, payables: 0 });
-    await this.walletRepository.save(wallet);
-    patron.wallet = wallet;
+    const wallet = this.walletRepository.create({ cash: 10000, payables: 0, patron });
 
+    console.log(wallet);
+
+    patron.wallet = wallet;
+    
     await this.patronRepository.save(patron);
+    await this.walletRepository.save(wallet);
 
     return this.userService.getUser(id);
   }

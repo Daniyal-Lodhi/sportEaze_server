@@ -69,9 +69,8 @@ export class Player {
   endorsements: Endorsement[];
 
 
-  @OneToOne(() => Wallet)
-    @JoinColumn({ name: "walletId" })
-    wallet: Wallet
+  @OneToOne(() => Wallet, (wallet) => wallet.player)
+  wallet: Wallet
 }
 
 // socialMedialinks: put in player table, make get, update and delete api for socialmedia links

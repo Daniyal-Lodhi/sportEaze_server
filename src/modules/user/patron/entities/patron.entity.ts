@@ -64,7 +64,6 @@ export class Patron {
   @OneToMany(() => Contract, (contract) => contract.patron)
   contracts: Contract[];
 
-  @OneToOne(() => Wallet)
-  @JoinColumn({ name: "walletId" })
+  @OneToOne(() => Wallet, (wallet) => wallet.patron)
   wallet: Wallet
 }

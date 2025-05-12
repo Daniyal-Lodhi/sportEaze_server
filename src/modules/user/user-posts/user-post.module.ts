@@ -26,9 +26,10 @@ import { Notification } from "src/modules/notifications/entities/notification.en
 import { NotificationSocketHandler } from "src/modules/notifications/notification.socket.handler";
 import { Endorsement } from "src/common/entities/endorsement.entity";
 import { Contract } from "src/modules/contracts/entities/contract.entity";
+import { Milestone } from "src/modules/contracts/entities/milestones.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment, Notification, Endorsement, Contract]), NetworkModule],
+  imports: [TypeOrmModule.forFeature([UserPost, PostMedia, User, PostLikes, SharedPost, Comment, Notification, Endorsement, Contract, Milestone]), NetworkModule],
   controllers: [UserPostController,PostLikesController, SharedPostsController, PostCommentsController],
   providers: [UserPostService, UserService, LocalAuthService, JwtService, PostLikesService, SharedPostsService, PostCommentsService, PostCommentsGateway, PostLikesGateway, NotificationsService, NotificationSocketHandler],
   exports: [UserPostService]

@@ -6,6 +6,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/local-auth/jwt-auth.guard';
 import { ContractStatus } from 'src/common/enums/contracts/contracts.enum';
 import { ContractStatusValidationPipe } from 'src/common/customValidation/ContractStatusValidationPipe';
+import { ReleaseFundsDto } from './dto/release-funds.dto';
 
 
 @Controller('/api/contracts')
@@ -50,4 +51,12 @@ export class ContractsController {
   async updateContract(@Param('contractId') contractId: string, @Body() updateContractDto: UpdateContractDto, @Request() req) {
     return await this.contractsService.updateContract(contractId, updateContractDto);
   }
+
+  @Post("/release-funds")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async releaseFunds(@Body() body: ReleaseFundsDto, @Request() req) {
+    return await this.contractsService.releaseFunds(req.user.id, body);
+  }
+  
 }

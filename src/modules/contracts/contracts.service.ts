@@ -14,6 +14,9 @@ import { NotificationType } from 'src/common/enums/notifications/notifications.e
 import { start } from 'repl';
 import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
 import { Wallet } from 'src/common/entities/wallet.entity';
+import { ReleaseFundsDto } from './dto/release-funds.dto';
+import { socketClients } from '../socket/socket.gateway';
+import { WALLET_UPDATED } from 'src/common/consts/socket-events';
 
 @Injectable()
 export class ContractsService {
@@ -68,6 +71,8 @@ export class ContractsService {
     await this.notificationService.create(patronId, {type: NotificationType.CONTRACT_CREATED, recipientUserId: player.id}, contract.id);
 
     const wallet = await this.walletRepository.findOne({ where: { patron: { id: patronId } } });
+
+    console.log(wallet) 
 
     wallet.payables = contract.totalAmount;
     wallet.cash -= contract.totalAmount;
@@ -281,4 +286,48 @@ export class ContractsService {
     return await this.getContractById(id);
   }
 
+
+  async releaseFunds(userId: string, { playerId, milestoneId }: ReleaseFundsDto) {
+    const milestone = await this.milestoneRepo.findOne({ where: { id: milestoneId } });
+
+    if(!milestone) {
+      throw new NotFoundException('Milestone not found');
+    }
+
+    
+    const patronWallet = await this.walletRepository.findOne({ where: { patron: { id: userId } } });
+    
+    if(patronWallet.cash < milestone.amount) {
+      throw new UnauthorizedException('Insufficient funds');
+    }
+
+    milestone.isPaid = true;
+    milestone.isAchieved = true;
+
+    patronWallet.cash -= milestone.amount;
+    patronWallet.payables -= milestone.amount;
+
+    const playerWallet = await this.walletRepository.findOne({ where: { player: { id: playerId } } });
+    console.log(playerWallet);
+    playerWallet.cash += milestone.amount;
+
+    await this.walletRepository.save(patronWallet);
+    await this.walletRepository.save(playerWallet);
+
+    const patronSocket = socketClients.get(userId);
+
+    if(patronSocket) {
+      patronSocket.emit(WALLET_UPDATED, patronWallet);
+    }
+
+    const playerSocket = socketClients.get(playerId);
+
+    if(playerSocket) {
+      playerSocket.emit(WALLET_UPDATED, patronWallet);
+    }
+
+
+    await this.notificationService.create(playerId, {type: NotificationType.FUNDS_RELEASED, recipientUserId: userId});
+    await this.notificationService.create(userId, {type: NotificationType.FUNDS_RECEIVED, recipientUserId: playerId});
+  }
 }

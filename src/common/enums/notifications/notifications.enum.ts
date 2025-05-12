@@ -8,6 +8,9 @@ export enum NotificationType {
     CONTRACT_CREATED = 7,
     CONTRACT_UPDATED = 8,
     CONTRACT_ACCEPTED = 9,
+    MILESTONE_ACHIEVED = 10,
+    FUNDS_RELEASED = 11,
+    FUNDS_RECEIVED = 12,
 }
 
 

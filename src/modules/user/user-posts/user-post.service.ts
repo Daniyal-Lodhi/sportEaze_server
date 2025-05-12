@@ -16,6 +16,8 @@ import { create } from "domain";
 import { SharedPostsService } from "./shared-posts/shared-posts.service";
 import { Milestone } from "src/modules/contracts/entities/milestones.entity";
 import { Contract } from "src/modules/contracts/entities/contract.entity";
+import { NotificationsService } from "src/modules/notifications/notifications.service";
+import { NotificationType } from "src/common/enums/notifications/notifications.enum";
 
 @Injectable()
 export class UserPostService {
@@ -24,8 +26,10 @@ export class UserPostService {
     @InjectRepository(PostMedia) private readonly postMediaRepository: Repository<PostMedia>,
     @InjectRepository(SharedPost) private readonly sharedPostRepository: Repository<SharedPost>,
     @InjectRepository(Contract) private readonly contractRepository: Repository<Contract>,
+    @InjectRepository(Milestone) private readonly milestoneRepository: Repository<Milestone>,
     private readonly userSrv: UserService,
     private readonly postLikeService: PostLikesService,
+    private readonly notificationService: NotificationsService,
   ) {}
   async createTextPost(
     userId: string,
@@ -69,8 +73,20 @@ export class UserPostService {
 
       const { contractId, milestoneId } = CreateMediaPostDTOWoMedia;
 
+      const contract = await this.contractRepository.findOne({
+        where: { id: contractId },
+        relations: ["patron"],
+      });
 
+      const milestone = await this.milestoneRepository.findOne({
+        where: { id: milestoneId },
+      });
 
+      milestone.isAchieved = true;
+
+      await this.milestoneRepository.save(milestone);
+
+      await this.notificationService.create(userId, {type: NotificationType.MILESTONE_ACHIEVED, recipientUserId: contract.patron.id}, contractId);
     }
 
     const post = this.postRepository.create({

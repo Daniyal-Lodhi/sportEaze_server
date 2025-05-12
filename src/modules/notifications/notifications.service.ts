@@ -29,7 +29,9 @@ export class NotificationsService {
       [NotificationType.CONTRACT_CREATED]: `${actorName} has created a contract for you`,
       [NotificationType.CONTRACT_UPDATED]: `${actorName} has updated a contract for you`,
       [NotificationType.CONTRACT_ACCEPTED]: `${actorName} has accepted a contract`,
-      
+      [NotificationType.MILESTONE_ACHIEVED]: `${actorName} has completed a milestone. Click here to release funds`,
+      [NotificationType.FUNDS_RECEIVED]: `${actorName} has released you funds for achieving a milestone`,
+      [NotificationType.FUNDS_RELEASED]: `${actorName} has received funds for achieving a milestone`,
     };
     return messages[type] || '';
   }
@@ -72,8 +74,16 @@ export class NotificationsService {
     else if(type === NotificationType.MSG_RECEIVED) {
       redirectData = {chatId: redirectId, senderId: actorId, receiverId: recipientUserId};
     }
-    else if(type === NotificationType.CONTRACT_CREATED || type === NotificationType.CONTRACT_UPDATED || type === NotificationType.CONTRACT_ACCEPTED) {
+    else if(
+      type === NotificationType.CONTRACT_CREATED  ||
+      type === NotificationType.CONTRACT_UPDATED  ||
+      type === NotificationType.CONTRACT_ACCEPTED ||
+      type === NotificationType.MILESTONE_ACHIEVED
+    ) {
       redirectData = {contractId: redirectId};
+    }
+    else if(type === NotificationType.FUNDS_RELEASED || type === NotificationType.FUNDS_RECEIVED) {
+      redirectData = {};
     }
 
     const result = {
