@@ -16,6 +16,7 @@ import { Milestone } from "src/modules/contracts/entities/milestones.entity";
 import { Contract } from "src/modules/contracts/entities/contract.entity";
 import { NotificationsService } from "src/modules/notifications/notifications.service";
 import { NotificationType } from "src/common/enums/notifications/notifications.enum";
+import { ContractStatus } from "src/common/enums/contracts/contracts.enum";
 
 @Injectable()
 export class UserPostService {
@@ -57,6 +58,13 @@ export class UserPostService {
 
       await this.milestoneRepository.save(milestone);
 
+      const count = await this.milestoneRepository.count({where: { contract, isAchieved: false}});
+
+      if(count == 0) {
+        contract.status = ContractStatus.COMPLETED;
+      }
+      
+      await this.contractRepository.save(contract);
       await this.notificationService.create(userId, {type: NotificationType.MILESTONE_ACHIEVED, recipientUserId: contract.patron.id}, contractId);
     }
     
@@ -102,7 +110,16 @@ export class UserPostService {
       await this.milestoneRepository.save(milestone);
 
       await this.notificationService.create(userId, {type: NotificationType.MILESTONE_ACHIEVED, recipientUserId: contract.patron.id}, contractId);
+    
+      const count = await this.milestoneRepository.count({where: { contract, isAchieved: false}});
+
+      if(count == 0) {
+        contract.status = ContractStatus.COMPLETED;
+      }
+      
+      await this.contractRepository.save(contract);
     }
+    
 
     const post = this.postRepository.create({
       ...CreateMediaPostDTOWoMedia,
