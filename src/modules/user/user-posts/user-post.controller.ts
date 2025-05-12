@@ -95,7 +95,8 @@ async getPostById(@Request() req, @Response() res, @Param("postId") postId: stri
   }
 }
 
-
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 @Get("/get-posts/:userid")
 async getPost(
   @Request() req,
