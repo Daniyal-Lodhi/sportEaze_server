@@ -74,8 +74,7 @@ export class ContractsService {
 
     console.log(wallet) 
 
-    wallet.payables = contract.totalAmount;
-    wallet.cash -= contract.totalAmount;
+    wallet.payables += contract.totalAmount;
 
     await this.walletRepository.save(wallet);
     
@@ -94,7 +93,10 @@ export class ContractsService {
         id: milestone.id,
         description: milestone.description,
         amount: milestone.amount,
-        contractId: contract.id})),
+        contractId: contract.id,
+        isAchieved: milestone.isAchieved,
+        isPaid: milestone.isPaid,
+      })),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -143,7 +145,10 @@ export class ContractsService {
         id: milestone.id,
         description: milestone.description,
         amount: milestone.amount,
-        contractId: contract.id})),
+        contractId: contract.id,
+        isAchieved: milestone.isAchieved,
+        isPaid: milestone.isPaid,
+      })),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -182,7 +187,10 @@ export class ContractsService {
         id: milestone.id,
         description: milestone.description,
         amount: milestone.amount,
-        contractId: contract.id})),
+        contractId: contract.id,
+        isAchieved: milestone.isAchieved,
+        isPaid: milestone.isPaid,
+      })),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -221,7 +229,10 @@ export class ContractsService {
         id: milestone.id,
         description: milestone.description,
         amount: milestone.amount,
-        contractId: contract.id})),
+        contractId: contract.id,
+        isAchieved: milestone.isAchieved,
+        isPaid: milestone.isPaid,
+      })),
       patron: {
         id: contract.patron.user.id,
         profilePicUrl: contract.patron.user.profilePicUrl,
@@ -282,6 +293,36 @@ export class ContractsService {
 
     const milestones = await this.milestoneRepo.find({where: {contract: {id}}, relations: ['contract']});
 
+if (contract.totalAmount !== updateContractDto.totalAmount) {
+  const amountDifference = updateContractDto.totalAmount - contract.totalAmount;
+
+  const patronWallet = await this.walletRepository.findOne({ where: { patron: { id: contract.patron.id } } });
+
+  if (!patronWallet) {
+    throw new NotFoundException('Patron wallet not found');
+  }
+
+  if (amountDifference > 0) {
+    // Total amount increased: ensure patron has enough funds
+    if (patronWallet.cash < amountDifference) {
+      throw new UnauthorizedException('Insufficient funds');
+    }
+
+    patronWallet.payables += amountDifference;
+  } else {
+    // Total amount decreased: adjust payables downward
+    const absoluteDiff = Math.abs(amountDifference);
+    patronWallet.payables = Math.max(0, patronWallet.payables - absoluteDiff); // avoid negative payables
+  }
+
+  await this.walletRepository.save(patronWallet);
+
+  const patronSocket = socketClients.get(contract.patron.id);
+  if (patronSocket) {
+    patronSocket.emit(WALLET_UPDATED, patronWallet);
+  }
+}
+
     Object.assign(milestones, updateContractDto.milestones);
 
     await this.milestoneRepo.save(milestones);
@@ -289,16 +330,6 @@ export class ContractsService {
     await this.contractRepo.save(contract);
 
     this.notificationService.create(contract.patron.id, {type: NotificationType.CONTRACT_UPDATED, recipientUserId: contract.player.id}, contract.id);
-
-    const wallet = await this.walletRepository.findOne({ where: { patron: { id: contract.patron.id } } });
-    wallet.payables = contract.totalAmount;
-    await this.walletRepository.save(wallet);
-
-    const patronSocket = socketClients.get(contract.patron.id);
-
-    if(patronSocket) {
-      patronSocket.emit(WALLET_UPDATED, wallet);
-    }
 
     return await this.getContractById(id);
   }
