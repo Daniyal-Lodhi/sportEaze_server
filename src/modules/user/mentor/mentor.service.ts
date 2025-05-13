@@ -135,6 +135,7 @@ export class MentorService {
 
     const endorsements = await this.endorsementRepository.find({
       where: { mentor: { id: mentorId } }, relations: ['player', "player.user", 'mentor', "mentor.user"],
+      order: { createdAt: 'DESC' },
     });
 
     return endorsements.map(endorsement => ({

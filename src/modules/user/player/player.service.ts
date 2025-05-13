@@ -206,6 +206,7 @@ export class PlayerService {
     const endorsements = await this.endorsementRepository.find({
       where: { player: { id: playerid } },
       relations: ["mentor", "mentor.user", "player" , "player.user"],
+      order: { createdAt: 'DESC' },
     });
 
     if (!endorsements) {
@@ -237,26 +238,88 @@ async getPreferred(id: string) {
   const user = await this.userService.getUser(id);
   let playerIds = [];
 
-  const query = this.playerRepository.createQueryBuilder('player');
+  const qb = this.playerRepository.createQueryBuilder('player');
 
   // --- FAN ---
   if (user.userType === UserType.FAN) {
     const sports = user.fan?.sportInterests ?? [];
 
     if (sports.length > 0) {
-      query
+      // First try primarySport match
+      const primaryMatch = await this.playerRepository
+        .createQueryBuilder('player')
         .where('player.primarySport IN (:...sports)', { sports })
-        .orWhere('player.secondarySports && :sports', { sports });
-    }
-
-    query.select('player.id');
-    playerIds = await query.getMany();
-
-    if (playerIds.length === 0) {
-      playerIds = await this.playerRepository.createQueryBuilder('player')
         .select('player.id')
         .getMany();
+
+      if (primaryMatch.length > 0) {
+        playerIds = primaryMatch;
+      } else {
+        // Then try secondarySports match
+        const secondaryMatch = await this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.secondarySports && :sports', { sports })
+          .select('player.id')
+          .getMany();
+
+        playerIds = secondaryMatch;
+      }
     }
+  }
+
+  // --- PLAYER ---
+  else if (user.userType === UserType.PLAYER) {
+    const primary = user.player?.primarySport;
+    const secondary = user.player?.secondarySports ?? [];
+
+    const conditions: any[] = [];
+
+    if (primary) {
+      // 1. primary ↔ primary
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.primarySport = :primary', { primary })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (secondary.length > 0) {
+      // 2. secondary ↔ primary
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.primarySport IN (:...secondary)', { secondary })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (primary) {
+      // 3. primary ↔ secondary
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.secondarySports && :primaryArray', { primaryArray: [primary] })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (secondary.length > 0) {
+      // 4. secondary ↔ secondary
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.secondarySports && :secondary', { secondary })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    const allMatches = await Promise.all(conditions);
+    playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values()); // Deduplicate by ID
   }
 
   // --- MENTOR ---
@@ -265,55 +328,19 @@ async getPreferred(id: string) {
     const sportInterests = user.mentor?.sportInterests ?? [];
 
     if (primarySport) {
-      query.where('player.primarySport = :primarySport', { primarySport });
+      qb.where('player.primarySport = :primarySport', { primarySport });
     }
 
     if (sportInterests.length > 0) {
-      if (query.expressionMap.wheres.length > 0) {
-        query.orWhere('player.secondarySports && :sportInterests', { sportInterests });
+      if (qb.expressionMap.wheres.length > 0) {
+        qb.orWhere('player.secondarySports && :sportInterests', { sportInterests });
       } else {
-        query.where('player.secondarySports && :sportInterests', { sportInterests });
+        qb.where('player.secondarySports && :sportInterests', { sportInterests });
       }
     }
 
-    query.select('player.id');
-    playerIds = await query.getMany();
-
-    if (playerIds.length === 0) {
-      playerIds = await this.playerRepository.createQueryBuilder('player')
-        .select('player.id')
-        .getMany();
-    }
-  }
-
-  // --- PLAYER ---
-  else if (user.userType === UserType.PLAYER) {
-    const primarySport = user.player?.primarySport;
-    const secondarySports = user.player?.secondarySports ?? [];
-    const playingLevel = user.player?.playingLevel;
-
-    if (primarySport) {
-      query.where('player.primarySport = :primarySport', { primarySport });
-    }
-
-    if (secondarySports.length > 0) {
-      if (query.expressionMap.wheres.length > 0) {
-        query.orWhere('player.secondarySports && :secondarySports', { secondarySports });
-      } else {
-        query.where('player.secondarySports && :secondarySports', { secondarySports });
-      }
-    }
-
-    if (playingLevel) {
-      if (query.expressionMap.wheres.length > 0) {
-        query.orWhere('player.playingLevel = :playingLevel', { playingLevel });
-      } else {
-        query.where('player.playingLevel = :playingLevel', { playingLevel });
-      }
-    }
-
-    query.select('player.id');
-    playerIds = await query.getMany();
+    qb.select('player.id');
+    playerIds = await qb.getMany();
 
     if (playerIds.length === 0) {
       playerIds = await this.playerRepository.createQueryBuilder('player')
@@ -328,21 +355,20 @@ async getPreferred(id: string) {
     const levels = user.patron?.preferredPlayerLevels ?? [];
 
     if (sports.length > 0) {
-      query
-        .where('player.primarySport IN (:...sports)', { sports })
+      qb.where('player.primarySport IN (:...sports)', { sports })
         .orWhere('player.secondarySports && :sports', { sports });
     }
 
     if (levels.length > 0) {
-      if (query.expressionMap.wheres.length > 0) {
-        query.orWhere('player.playingLevel IN (:...levels)', { levels });
+      if (qb.expressionMap.wheres.length > 0) {
+        qb.orWhere('player.playingLevel IN (:...levels)', { levels });
       } else {
-        query.where('player.playingLevel IN (:...levels)', { levels });
+        qb.where('player.playingLevel IN (:...levels)', { levels });
       }
     }
 
-    query.select('player.id');
-    playerIds = await query.getMany();
+    qb.select('player.id');
+    playerIds = await qb.getMany();
 
     if (playerIds.length === 0) {
       playerIds = await this.playerRepository.createQueryBuilder('player')
@@ -357,5 +383,6 @@ async getPreferred(id: string) {
 
   return data;
 }
+
 
 }
