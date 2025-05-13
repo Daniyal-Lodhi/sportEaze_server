@@ -151,4 +151,11 @@ export class MentorService {
   }
 
 
+  async getPreferredMentors(id?: string) {
+    const mentorIds = await this.mentorRepository.find();
+
+    return Promise.all(
+      mentorIds.map(async mentor => await this.userService.getUser(mentor.id))
+    );
+  }
 }

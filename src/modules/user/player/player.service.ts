@@ -229,4 +229,131 @@ export class PlayerService {
       }
     }));
   }
+
+
+async getPreferred(id: string) {
+  const user = await this.userService.getUser(id);
+  let playerIds = [];
+
+  const query = this.playerRepository.createQueryBuilder('player');
+
+  // --- FAN ---
+  if (user.userType === UserType.FAN) {
+    const sports = user.fan?.sportInterests ?? [];
+
+    if (sports.length > 0) {
+      query
+        .where('player.primarySport IN (:...sports)', { sports })
+        .orWhere('player.secondarySports && :sports', { sports });
+    }
+
+    query.select('player.id');
+    playerIds = await query.getMany();
+
+    if (playerIds.length === 0) {
+      playerIds = await this.playerRepository.createQueryBuilder('player')
+        .select('player.id')
+        .getMany();
+    }
+  }
+
+  // --- MENTOR ---
+  else if (user.userType === UserType.MENTOR) {
+    const primarySport = user.mentor?.primarySport;
+    const sportInterests = user.mentor?.sportInterests ?? [];
+
+    if (primarySport) {
+      query.where('player.primarySport = :primarySport', { primarySport });
+    }
+
+    if (sportInterests.length > 0) {
+      if (query.expressionMap.wheres.length > 0) {
+        query.orWhere('player.secondarySports && :sportInterests', { sportInterests });
+      } else {
+        query.where('player.secondarySports && :sportInterests', { sportInterests });
+      }
+    }
+
+    query.select('player.id');
+    playerIds = await query.getMany();
+
+    if (playerIds.length === 0) {
+      playerIds = await this.playerRepository.createQueryBuilder('player')
+        .select('player.id')
+        .getMany();
+    }
+  }
+
+  // --- PLAYER ---
+  else if (user.userType === UserType.PLAYER) {
+    const primarySport = user.player?.primarySport;
+    const secondarySports = user.player?.secondarySports ?? [];
+    const playingLevel = user.player?.playingLevel;
+
+    if (primarySport) {
+      query.where('player.primarySport = :primarySport', { primarySport });
+    }
+
+    if (secondarySports.length > 0) {
+      if (query.expressionMap.wheres.length > 0) {
+        query.orWhere('player.secondarySports && :secondarySports', { secondarySports });
+      } else {
+        query.where('player.secondarySports && :secondarySports', { secondarySports });
+      }
+    }
+
+    if (playingLevel) {
+      if (query.expressionMap.wheres.length > 0) {
+        query.orWhere('player.playingLevel = :playingLevel', { playingLevel });
+      } else {
+        query.where('player.playingLevel = :playingLevel', { playingLevel });
+      }
+    }
+
+    query.select('player.id');
+    playerIds = await query.getMany();
+
+    if (playerIds.length === 0) {
+      playerIds = await this.playerRepository.createQueryBuilder('player')
+        .select('player.id')
+        .getMany();
+    }
+  }
+
+  // --- PATRON ---
+  else if (user.userType === UserType.PATRON) {
+    const sports = user.patron?.supportedSports ?? [];
+    const levels = user.patron?.preferredPlayerLevels ?? [];
+
+    if (sports.length > 0) {
+      query
+        .where('player.primarySport IN (:...sports)', { sports })
+        .orWhere('player.secondarySports && :sports', { sports });
+    }
+
+    if (levels.length > 0) {
+      if (query.expressionMap.wheres.length > 0) {
+        query.orWhere('player.playingLevel IN (:...levels)', { levels });
+      } else {
+        query.where('player.playingLevel IN (:...levels)', { levels });
+      }
+    }
+
+    query.select('player.id');
+    playerIds = await query.getMany();
+
+    if (playerIds.length === 0) {
+      playerIds = await this.playerRepository.createQueryBuilder('player')
+        .select('player.id')
+        .getMany();
+    }
+  }
+
+  const data = await Promise.all(
+    playerIds.map((player) => this.userService.getUser(player.id))
+  );
+
+  return data;
+}
+
 }

@@ -145,4 +145,17 @@ export class PatronService {
     return patrons;
 
   }
+
+  async getPreferredPatrons(): Promise<any> {
+    const patronIds = await this.patronRepository.find({ where: { status: PatronAccountStatus.APPROVED }, select: ['id'] });
+
+    let patrons = [];
+
+    for (const element of patronIds) {
+      const user = await this.userService.getUser(element.id);
+      patrons.push(user);
+    }
+
+    return patrons;
+  }
 }

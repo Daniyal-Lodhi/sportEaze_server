@@ -111,7 +111,7 @@ export class UserService {
     return [accessToken, await this.getUser(user.id)];
   }
 
-  async getUser(id: string, userId?: string | undefined): Promise<GetUserDto> {
+  async getUser(id: string, userId?: string | undefined): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ["player", "patron", "mentor", "patron.wallet", "player.wallet"],
@@ -160,7 +160,7 @@ export class UserService {
       sharedPostCount,
       connectionCount,
       followerCount,
-    } as GetUserDto;
+    };
     
   }
 

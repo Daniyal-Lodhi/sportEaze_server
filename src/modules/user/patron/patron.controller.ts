@@ -49,4 +49,10 @@ export class PatronController {
     return await this.patronService.getPatrons(req.user.id);
   }
 
+
+  @Get("/preferred")
+  async getPreferredPatrons(@Request() req) {
+    return await this.patronService.getPreferredPatrons();
+  } 
+
 }

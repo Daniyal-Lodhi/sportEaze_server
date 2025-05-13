@@ -135,5 +135,17 @@ export class PlayerController {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @Get("/preferred")
+    async getPreferred(@Request() req) {
+      if (!req.user || !req.user.id) {
+        throw new UnauthorizedException("Invalid user credentials");
+      }
+
+      return await this.playerService.getPreferred(req.user.id);
+    } 
   } 
     

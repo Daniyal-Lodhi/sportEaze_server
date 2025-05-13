@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { MentorService } from './mentor.service';
 import { RegisterMentorDto } from './dto/register-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
@@ -43,5 +43,17 @@ export class MentorController {
   @Get('/endorsements/:mentorId')
   async getEndorsements(@Param('mentorId') mentorId: string) {
     return await this.mentorService.getEndorsements(mentorId);
+  }
+
+
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  @Get("/preferred")
+  async getPreferredMentors(@Request() req) {
+    // if (!req.user || !req.user.id) {
+      // throw new UnauthorizedException("Invalid user credentials");
+    // }
+    
+    return await this.mentorService.getPreferredMentors();
   }
 }
