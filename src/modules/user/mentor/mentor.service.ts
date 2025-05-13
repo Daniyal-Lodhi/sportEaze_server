@@ -101,12 +101,15 @@ export class MentorService {
       throw new UnauthorizedException("Only players can be endorsed");
     }
 
-    const endorsement = await this.endorsementRepository.save({
+
+    const endorsement = this.endorsementRepository.create({
       player: player,
       mentor: mentor,
       rating: body.rating,
       review: body.review,
     });
+
+    await this.endorsementRepository.save(endorsement);
 
     await this.endorsementRepository.save(endorsement);
 
