@@ -322,32 +322,67 @@ async getPreferred(id: string) {
     playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values()); // Deduplicate by ID
   }
 
-  // --- MENTOR ---
-  else if (user.userType === UserType.MENTOR) {
-    const primarySport = user.mentor?.primarySport;
-    const sportInterests = user.mentor?.sportInterests ?? [];
+else if (user.userType === UserType.MENTOR) {
+  const primary = user.mentor?.primarySport;
+  const interests = user.mentor?.sportInterests ?? [];
 
-    if (primarySport) {
-      qb.where('player.primarySport = :primarySport', { primarySport });
-    }
+  const conditions: any[] = [];
 
-    if (sportInterests.length > 0) {
-      if (qb.expressionMap.wheres.length > 0) {
-        qb.orWhere('player.secondarySports && :sportInterests', { sportInterests });
-      } else {
-        qb.where('player.secondarySports && :sportInterests', { sportInterests });
-      }
-    }
-
-    qb.select('player.id');
-    playerIds = await qb.getMany();
-
-    if (playerIds.length === 0) {
-      playerIds = await this.playerRepository.createQueryBuilder('player')
+  if (primary) {
+    // 1. primary ↔ primary
+    conditions.push(
+      this.playerRepository
+        .createQueryBuilder('player')
+        .where('player.primarySport = :primary', { primary })
         .select('player.id')
-        .getMany();
-    }
+        .getMany()
+    );
   }
+
+  if (interests.length > 0) {
+    // 2. interest[] ↔ primary
+    conditions.push(
+      this.playerRepository
+        .createQueryBuilder('player')
+        .where('player.primarySport IN (:...interests)', { interests })
+        .select('player.id')
+        .getMany()
+    );
+  }
+
+  if (primary) {
+    // 3. primary ↔ secondary
+    conditions.push(
+      this.playerRepository
+        .createQueryBuilder('player')
+        .where('player.secondarySports && :primaryArray', { primaryArray: [primary] })
+        .select('player.id')
+        .getMany()
+    );
+  }
+
+  if (interests.length > 0) {
+    // 4. interest[] ↔ secondary
+    conditions.push(
+      this.playerRepository
+        .createQueryBuilder('player')
+        .where('player.secondarySports && :interests', { interests })
+        .select('player.id')
+        .getMany()
+    );
+  }
+
+  const allMatches = await Promise.all(conditions);
+  playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
+
+  // fallback if nothing matched
+  if (playerIds.length === 0) {
+    playerIds = await this.playerRepository
+      .createQueryBuilder('player')
+      .select('player.id')
+      .getMany();
+  }
+}
 
   // --- PATRON ---
   else if (user.userType === UserType.PATRON) {
