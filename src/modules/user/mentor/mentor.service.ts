@@ -85,13 +85,13 @@ export class MentorService {
   }
 
     async endorsePlayer(mentorId: string, body: EndorseDto) {
-      const mentor = await this.mentorRepository.findOne({ where: { id: mentorId } });
+      const mentor = await this.mentorRepository.findOne({ where: { id: mentorId }, relations: ['user'] });
 
     if(!mentor) {
-      throw new UnauthorizedException("Only patrons can endorse players");
+      throw new UnauthorizedException("Only mentors can endorse players");
     }
 
-    const player = await this.playerRepository.findOne({ where: { id: body.playerId } });
+    const player = await this.playerRepository.findOne({ where: { id: body.playerId }, relations: ['user'] });
 
     if(!player) {
       throw new UnauthorizedException("Only players can be endorsed");
@@ -109,25 +109,20 @@ export class MentorService {
     return {
       ...endorsement,
       player: {
-        id: endorsement.player.id,
-        profilePicUrl: endorsement.player.user.profilePicUrl,
-        fullName: endorsement.player.user.fullName,
-        username: endorsement.player.user.username,
+        id: player.id,
+        profilePicUrl: player.user.profilePicUrl,
+        fullName: player.user.fullName,
+        username: player.user.username,
       },
       mentor: {
-        id: endorsement.mentor.id,
-        profilePicUrl: endorsement.mentor.user.profilePicUrl,
-        fullName: endorsement.mentor.user.fullName,
-        username: endorsement.mentor.user.username,
+        id: mentor.id,
+        profilePicUrl: mentor.user.profilePicUrl,
+        fullName: mentor.user.fullName,
+        username: mentor.user.username,
       },
     };
   }
     async getEndorsements(mentorId: string) {
-      const mentor = await this.mentorRepository.findOne({ where: { id: mentorId } });
-
-    if(!mentor) {
-      throw new UnauthorizedException("Only patrons can endorse players");
-    }
 
     const endorsements = await this.endorsementRepository.find({
       where: { mentor: { id: mentorId } }, relations: ['player', "player.user", 'mentor', "mentor.user"],
