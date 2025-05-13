@@ -235,33 +235,38 @@ export class PlayerService {
 
 
 async getPreferred(id: string) {
+  console.log(`[getPreferred] Fetching user with id: ${id}`);
   const user = await this.userService.getUser(id);
+  console.log(`[getPreferred] User fetched:`, user);
+
   let playerIds = [];
 
   const qb = this.playerRepository.createQueryBuilder('player');
 
   // --- FAN ---
   if (user.userType === UserType.FAN) {
-    const sports = user.fan?.sportInterests ?? [];
+    const sports = user.sportInterests ?? [];
+    console.log(`[getPreferred][FAN] Interested sports:`, sports);
 
     if (sports.length > 0) {
-      // First try primarySport match
       const primaryMatch = await this.playerRepository
         .createQueryBuilder('player')
         .where('player.primarySport IN (:...sports)', { sports })
         .select('player.id')
         .getMany();
 
+      console.log(`[getPreferred][FAN] Primary sport matches:`, primaryMatch);
+
       if (primaryMatch.length > 0) {
         playerIds = primaryMatch;
       } else {
-        // Then try secondarySports match
         const secondaryMatch = await this.playerRepository
           .createQueryBuilder('player')
           .where('player.secondarySports && :sports', { sports })
           .select('player.id')
           .getMany();
 
+        console.log(`[getPreferred][FAN] Secondary sport matches:`, secondaryMatch);
         playerIds = secondaryMatch;
       }
     }
@@ -269,13 +274,13 @@ async getPreferred(id: string) {
 
   // --- PLAYER ---
   else if (user.userType === UserType.PLAYER) {
-    const primary = user.player?.primarySport;
-    const secondary = user.player?.secondarySports ?? [];
+    const primary = user.player.primarySport;
+    const secondary = user.player.secondarySports ?? [];
+    console.log(`[getPreferred][PLAYER] Primary: ${primary}, Secondary:`, secondary);
 
     const conditions: any[] = [];
 
     if (primary) {
-      // 1. primary ↔ primary
       conditions.push(
         this.playerRepository
           .createQueryBuilder('player')
@@ -286,7 +291,6 @@ async getPreferred(id: string) {
     }
 
     if (secondary.length > 0) {
-      // 2. secondary ↔ primary
       conditions.push(
         this.playerRepository
           .createQueryBuilder('player')
@@ -297,7 +301,6 @@ async getPreferred(id: string) {
     }
 
     if (primary) {
-      // 3. primary ↔ secondary
       conditions.push(
         this.playerRepository
           .createQueryBuilder('player')
@@ -308,7 +311,6 @@ async getPreferred(id: string) {
     }
 
     if (secondary.length > 0) {
-      // 4. secondary ↔ secondary
       conditions.push(
         this.playerRepository
           .createQueryBuilder('player')
@@ -319,75 +321,81 @@ async getPreferred(id: string) {
     }
 
     const allMatches = await Promise.all(conditions);
-    playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values()); // Deduplicate by ID
+    console.log(`[getPreferred][PLAYER] All match results:`, allMatches);
+
+    playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
+    console.log(`[getPreferred][PLAYER] Deduplicated player IDs:`, playerIds);
   }
 
-else if (user.userType === UserType.MENTOR) {
-  const primary = user.mentor?.primarySport;
-  const interests = user.mentor?.sportInterests ?? [];
+  // --- MENTOR ---
+  else if (user.userType === UserType.MENTOR) {
+    const primary = user.mentor.primarySport;
+    const interests = user.mentor.sportInterests ?? [];
+    console.log(`[getPreferred][MENTOR] Primary: ${primary}, Interests:`, interests);
 
-  const conditions: any[] = [];
+    const conditions: any[] = [];
 
-  if (primary) {
-    // 1. primary ↔ primary
-    conditions.push(
-      this.playerRepository
+    if (primary) {
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.primarySport = :primary', { primary })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (interests.length > 0) {
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.primarySport IN (:...interests)', { interests })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (primary) {
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.secondarySports && :primaryArray', { primaryArray: [primary] })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    if (interests.length > 0) {
+      conditions.push(
+        this.playerRepository
+          .createQueryBuilder('player')
+          .where('player.secondarySports && :interests', { interests })
+          .select('player.id')
+          .getMany()
+      );
+    }
+
+    const allMatches = await Promise.all(conditions);
+    console.log(`[getPreferred][MENTOR] All match results:`, allMatches);
+
+    playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
+    console.log(`[getPreferred][MENTOR] Deduplicated player IDs:`, playerIds);
+
+    if (playerIds.length === 0) {
+      console.log(`[getPreferred][MENTOR] No matches found, returning all players as fallback`);
+      playerIds = await this.playerRepository
         .createQueryBuilder('player')
-        .where('player.primarySport = :primary', { primary })
         .select('player.id')
-        .getMany()
-    );
+        .getMany();
+    }
   }
-
-  if (interests.length > 0) {
-    // 2. interest[] ↔ primary
-    conditions.push(
-      this.playerRepository
-        .createQueryBuilder('player')
-        .where('player.primarySport IN (:...interests)', { interests })
-        .select('player.id')
-        .getMany()
-    );
-  }
-
-  if (primary) {
-    // 3. primary ↔ secondary
-    conditions.push(
-      this.playerRepository
-        .createQueryBuilder('player')
-        .where('player.secondarySports && :primaryArray', { primaryArray: [primary] })
-        .select('player.id')
-        .getMany()
-    );
-  }
-
-  if (interests.length > 0) {
-    // 4. interest[] ↔ secondary
-    conditions.push(
-      this.playerRepository
-        .createQueryBuilder('player')
-        .where('player.secondarySports && :interests', { interests })
-        .select('player.id')
-        .getMany()
-    );
-  }
-
-  const allMatches = await Promise.all(conditions);
-  playerIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
-
-  // fallback if nothing matched
-  if (playerIds.length === 0) {
-    playerIds = await this.playerRepository
-      .createQueryBuilder('player')
-      .select('player.id')
-      .getMany();
-  }
-}
 
   // --- PATRON ---
   else if (user.userType === UserType.PATRON) {
-    const sports = user.patron?.supportedSports ?? [];
-    const levels = user.patron?.preferredPlayerLevels ?? [];
+    const sports = user.patron.supportedSports ?? [];
+    const levels = user.patron.preferredPlayerLevels ?? [];
+    console.log(`[getPreferred][PATRON] Supported sports:`, sports);
+    console.log(`[getPreferred][PATRON] Preferred levels:`, levels);
 
     if (sports.length > 0) {
       qb.where('player.primarySport IN (:...sports)', { sports })
@@ -404,20 +412,32 @@ else if (user.userType === UserType.MENTOR) {
 
     qb.select('player.id');
     playerIds = await qb.getMany();
+    console.log(`[getPreferred][PATRON] Matched player IDs:`, playerIds);
 
     if (playerIds.length === 0) {
-      playerIds = await this.playerRepository.createQueryBuilder('player')
+      console.log(`[getPreferred][PATRON] No matches found, returning all players as fallback`);
+      playerIds = await this.playerRepository
+        .createQueryBuilder('player')
         .select('player.id')
         .getMany();
     }
+  }
+
+  console.log(`[getPreferred] Final playerIds to fetch user data:`, playerIds);
+
+  if (playerIds.length === 0) {
+    playerIds = await this.playerRepository.find();
   }
 
   const data = await Promise.all(
     playerIds.map((player) => this.userService.getUser(player.id))
   );
 
+  console.log(`[getPreferred] Final matched user data:`, data);
+
   return data;
 }
+
 
 
 }

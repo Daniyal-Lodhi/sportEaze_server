@@ -146,16 +146,77 @@ export class PatronService {
 
   }
 
-  async getPreferredPatrons(): Promise<any> {
-    const patronIds = await this.patronRepository.find({ where: { status: PatronAccountStatus.APPROVED }, select: ['id'] });
+async getPreferredPatrons(id: string) {
+  const user = await this.userService.getUser(id);
+  let patronIds = [];
 
-    let patrons = [];
+  const qb = this.patronRepository.createQueryBuilder('patron');
 
-    for (const element of patronIds) {
-      const user = await this.userService.getUser(element.id);
-      patrons.push(user);
+  // --- FAN ---
+  if (user.userType === UserType.FAN) {
+    const sports = user.sportInterests ?? [];
+
+    if (sports.length > 0) {
+      qb.where('patron.supportedSports && :sports', { sports });
+    }
+  }
+
+  // --- PLAYER ---
+  else if (user.userType === UserType.PLAYER) {
+    const sports = [user.player.primarySport, ...(user.player.secondarySports ?? [])].filter(Boolean);
+    const level = user.player.playingLevel;
+
+    if (sports.length > 0) {
+      qb.where('patron.supportedSports && :sports', { sports });
     }
 
-    return patrons;
+    if (level) {
+      if (qb.expressionMap.wheres.length > 0) {
+        qb.orWhere(':level = ANY(patron.preferredPlayerLevels)', { level });
+      } else {
+        qb.where(':level = ANY(patron.preferredPlayerLevels)', { level });
+      }
+    }
   }
+
+  // --- MENTOR ---
+  else if (user.userType === UserType.MENTOR) {
+    const sports = [user.mentor.primarySport, ...(user.mentor.sportInterests ?? [])].filter(Boolean);
+
+    if (sports.length > 0) {
+      qb.where('patron.supportedSports && :sports', { sports });
+    }
+  }
+
+  // --- PATRON (match other patrons) ---
+  else if (user.userType === UserType.PATRON) {
+    const sports = user.patron.supportedSports ?? [];
+
+    if (sports.length > 0) {
+      qb.where('patron.supportedSports && :sports', { sports });
+    }
+  }
+
+  qb.select('patron.id');
+  patronIds = await qb.getMany();
+
+  // Fallback to all patrons if none matched
+  if (patronIds.length === 0) {
+    patronIds = await this.patronRepository
+      .createQueryBuilder('patron')
+      .select('patron.id')
+      .getMany();
+  }
+
+  if(patronIds.length === 0) {
+    patronIds = await this.patronRepository.find();
+  }
+
+  const data = await Promise.all(
+    patronIds.map((patron) => this.userService.getUser(patron.id))
+  );
+
+  return data;
+}
+
 }

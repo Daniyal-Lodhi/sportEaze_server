@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { Player } from '../player/entities/player.entity';
 import { Endorsement } from 'src/common/entities/endorsement.entity';
-import e from 'express';
 import { EndorseDto } from './dto/endorse.dto';
 import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
@@ -157,11 +156,189 @@ export class MentorService {
   }
 
 
-  async getPreferredMentors(id?: string) {
-    const mentorIds = await this.mentorRepository.find();
+async getPreferredMentors(id: string) {
+  const user = await this.userService.getUser(id);
+  let mentorIds = [];
 
-    return Promise.all(
-      mentorIds.map(async mentor => await this.userService.getUser(mentor.id))
-    );
+  const qb = this.mentorRepository.createQueryBuilder('mentor');
+
+  // --- FAN ---
+  if (user.userType === UserType.FAN) {
+    const sports = user.sportInterests ?? [];
+
+    if (sports.length > 0) {
+      // Try primarySport match
+      const primaryMatch = await this.mentorRepository
+        .createQueryBuilder('mentor')
+        .where('mentor.primarySport IN (:...sports)', { sports })
+        .select('mentor.id')
+        .getMany();
+
+      if (primaryMatch.length > 0) {
+        mentorIds = primaryMatch;
+      } else {
+        // Try sportInterests match
+        const interestMatch = await this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.sportInterests && :sports', { sports })
+          .select('mentor.id')
+          .getMany();
+
+        mentorIds = interestMatch;
+      }
+    }
   }
+
+  // --- PLAYER ---
+  else if (user.userType === UserType.PLAYER) {
+    const primary = user.player.primarySport;
+    const secondary = user.player.secondarySports ?? [];
+
+    const conditions: any[] = [];
+
+    if (primary) {
+      // 1. primary ↔ primary
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.primarySport = :primary', { primary })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (secondary.length > 0) {
+      // 2. secondary ↔ primary
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.primarySport IN (:...secondary)', { secondary })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (primary) {
+      // 3. primary ↔ sportInterests
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.sportInterests && :primaryArray', { primaryArray: [primary] })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (secondary.length > 0) {
+      // 4. secondary ↔ sportInterests
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.sportInterests && :secondary', { secondary })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    const allMatches = await Promise.all(conditions);
+    mentorIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
+  }
+
+  // --- MENTOR ---
+  else if (user.userType === UserType.MENTOR) {
+    const primary = user.mentor.primarySport;
+    const interests = user.mentor.sportInterests ?? [];
+
+    const conditions: any[] = [];
+
+    if (primary) {
+      // 1. primary ↔ primary
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.primarySport = :primary', { primary })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (interests.length > 0) {
+      // 2. interest[] ↔ primary
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.primarySport IN (:...interests)', { interests })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (primary) {
+      // 3. primary ↔ sportInterests
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.sportInterests && :primaryArray', { primaryArray: [primary] })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    if (interests.length > 0) {
+      // 4. interest[] ↔ sportInterests
+      conditions.push(
+        this.mentorRepository
+          .createQueryBuilder('mentor')
+          .where('mentor.sportInterests && :interests', { interests })
+          .select('mentor.id')
+          .getMany()
+      );
+    }
+
+    const allMatches = await Promise.all(conditions);
+    mentorIds = Array.from(new Map(allMatches.flat().map(p => [p.id, p])).values());
+
+    if (mentorIds.length === 0) {
+      mentorIds = await this.mentorRepository
+        .createQueryBuilder('mentor')
+        .select('mentor.id')
+        .getMany();
+    }
+  }
+
+  // --- PATRON ---
+  else if (user.userType === UserType.PATRON) {
+    const sports = user.patron.supportedSports ?? [];
+
+    if (sports.length > 0) {
+      qb.where('mentor.primarySport IN (:...sports)', { sports })
+        .orWhere('mentor.sportInterests && :sports', { sports });
+    }
+
+    qb.select('mentor.id');
+    mentorIds = await qb.getMany();
+
+    if (mentorIds.length === 0) {
+      mentorIds = await this.mentorRepository
+        .createQueryBuilder('mentor')
+        .select('mentor.id')
+        .getMany();
+    }
+  }
+
+  if(mentorIds.length === 0) {
+    mentorIds = await this.mentorRepository
+      .createQueryBuilder('mentor')
+      .select('mentor.id')
+      .getMany();
+  }
+
+  // Final result
+  const data = await Promise.all(
+    mentorIds.map((mentor) => this.userService.getUser(mentor.id))
+  );
+
+  return data;
+}
+
 }

@@ -46,14 +46,14 @@ export class MentorController {
   }
 
 
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get("/preferred")
   async getPreferredMentors(@Request() req) {
-    // if (!req.user || !req.user.id) {
-      // throw new UnauthorizedException("Invalid user credentials");
-    // }
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
+    }
     
-    return await this.mentorService.getPreferredMentors();
+    return await this.mentorService.getPreferredMentors(req.user.id);
   }
 }
