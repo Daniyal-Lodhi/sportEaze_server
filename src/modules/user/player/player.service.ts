@@ -16,6 +16,7 @@ import { BaseUserDto } from "../dto/base-user.dto";
 import { GetUserDto } from "../dto/get-user.dto";
 import { Wallet } from "src/common/entities/wallet.entity";
 import { Endorsement } from "src/common/entities/endorsement.entity";
+import { formatToLocalDateTime } from "src/common/utils/dayjs.helper";
 
 @Injectable()
 export class PlayerService {
@@ -213,6 +214,7 @@ export class PlayerService {
 
     return endorsements.map((endorsement) => ({
       ...endorsement,
+      createdAt: formatToLocalDateTime(endorsement.createdAt),
       player: {
         id: endorsement.player.id,
         fullName: endorsement.player.user.fullName,

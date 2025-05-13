@@ -14,10 +14,15 @@ import { SharedPost } from '../user-posts/entities/shared-post.entity';
 import { UserPost } from '../user-posts/entities/user-post.entity';
 import { Comment } from '../user-posts/entities/post-comment.entity';
 import { Contract } from 'src/modules/contracts/entities/contract.entity';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { Notification } from 'src/modules/notifications/entities/notification.entity';
+import { NotificationSocketHandler } from 'src/modules/notifications/notification.socket.handler';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mentor, User, Player, UserPost, SharedPost, Comment, PostLikes, Endorsement, Contract]), LocalAuthModule, NetworkModule],
+  imports: [TypeOrmModule.forFeature([Mentor, User, Player, UserPost, SharedPost, Comment, PostLikes, Endorsement, Contract, Notification
+
+  ]), LocalAuthModule, NetworkModule],
   controllers: [MentorController],
-  providers: [MentorService, UserService],
+  providers: [MentorService, UserService, NotificationsService, NotificationSocketHandler],
 })
 export class MentorModule {}

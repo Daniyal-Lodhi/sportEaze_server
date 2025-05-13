@@ -2,6 +2,7 @@ import { Mentor } from "src/modules/user/mentor/entities/mentor.entity";
 import { Patron } from "src/modules/user/patron/entities/patron.entity";
 import { Player } from "src/modules/user/player/entities/player.entity";
 import {
+  BeforeInsert,
   Check,
   Column,
   Entity,
@@ -9,6 +10,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import dayjs, { LOCAL_TZ } from "../utils/dayjs.helper";
 
 @Entity("Endorsements")
 export class Endorsement {
@@ -30,4 +32,13 @@ export class Endorsement {
 
   @Column({ type: "varchar", length: 100 })
   review: string;
+
+  @Column()
+  createdAt: Date;
+
+  @BeforeInsert()
+  setCreatedAt() {
+    this.createdAt = dayjs().tz(LOCAL_TZ).toDate();
+  }
+
 }

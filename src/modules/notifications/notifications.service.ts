@@ -32,6 +32,7 @@ export class NotificationsService {
       [NotificationType.MILESTONE_ACHIEVED]: `${actorName} has completed a milestone. Click here to release funds`,
       [NotificationType.FUNDS_RECEIVED]: `${actorName} has released you funds for achieving a milestone`,
       [NotificationType.FUNDS_RELEASED]: `${actorName} has received funds for achieving a milestone`,
+      [NotificationType.ENDORSEMENT_RECEIVED]: `${actorName} has given you an endorsement`,
     };
     return messages[type] || '';
   }
@@ -84,6 +85,9 @@ export class NotificationsService {
     }
     else if(type === NotificationType.FUNDS_RELEASED || type === NotificationType.FUNDS_RECEIVED) {
       redirectData = {};
+    }
+    else if(type === NotificationType.ENDORSEMENT_RECEIVED) {
+      redirectData = {playerId: redirectId};
     }
 
     const result = {

@@ -12,6 +12,9 @@ import { Player } from '../player/entities/player.entity';
 import { Endorsement } from 'src/common/entities/endorsement.entity';
 import e from 'express';
 import { EndorseDto } from './dto/endorse.dto';
+import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
 
 @Injectable()
 export class MentorService {
@@ -19,7 +22,8 @@ export class MentorService {
     @InjectRepository(Mentor) private readonly mentorRepository: Repository<Mentor>,
     @InjectRepository(Player) private readonly playerRepository: Repository<Player>,
     @InjectRepository(Endorsement) private readonly endorsementRepository: Repository<Endorsement>,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly notificationsService: NotificationsService,
   ) {}
   
   async create(id: string, registerMentorDto: RegisterMentorDto) {
@@ -106,6 +110,8 @@ export class MentorService {
 
     await this.endorsementRepository.save(endorsement);
 
+    await this.notificationsService.create(mentorId, {type: NotificationType.ENDORSEMENT_RECEIVED, recipientUserId: player.id}, player.id);
+
     return {
       ...endorsement,
       player: {
@@ -130,6 +136,7 @@ export class MentorService {
 
     return endorsements.map(endorsement => ({
       ...endorsement,
+      createdAt: formatToLocalDateTime(endorsement.createdAt),
       player: {
         id: endorsement.player.id,
         profilePicUrl: endorsement.player.user.profilePicUrl,
