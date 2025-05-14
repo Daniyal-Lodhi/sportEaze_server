@@ -133,22 +133,14 @@ export class UserService {
     const followerCount: number = await this.networkService.getFollowersCount(id);
     const connectionCount: number = await this.networkService.getConnectionsCount(id);
     const pendingConnectionCount: number = await this.networkService.getPendingConnectionsCount(id);
-
-
-    const sharedPostCount = await this.sharedPostRepository.count({ where: { user } });
-
-    const endorsementsGiven = await this.endorsementRepository.count({ where: { mentor: { user } } });
-    const endorsementsReceived = await this.endorsementRepository.count({ where: { player: { user } } });
-
-    const countSharedPosts = await this.sharedPostRepository.count({ where: { originalPost: { userId: id }  } });
-
-    const commentsCount = await this.postCommentRepository.count({ where: { post: { userId: id } } });
-
-    const userPostLikesCount = await this.postLikeRepository.count({ where: { post: { userId: id } } });
-
-    const totalContracts = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
-
-    const postCount = await this.userPostRepository.count({ where: { userId: id } });
+    const sharedPostCount: number = await this.sharedPostRepository.count({ where: { user } });
+    const endorsementsGiven: number = await this.endorsementRepository.count({ where: { mentor: { id: user.id } } });
+    const endorsementsReceived: number = await this.endorsementRepository.count({ where: { player: { id: user.id } } });
+    const countSharedPosts: number = await this.sharedPostRepository.count({ where: { originalPost: { userId: id }  } });
+    const commentsCount: number = await this.postCommentRepository.count({ where: { post: { userId: id } } });
+    const userPostLikesCount: number = await this.postLikeRepository.count({ where: { post: { userId: id } } });
+    const totalContracts: number = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
+    const postCount: number = await this.userPostRepository.count({ where: { userId: id } });
 
     return {
       ...user,
