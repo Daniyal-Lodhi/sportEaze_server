@@ -14,6 +14,7 @@ import { EndorseDto } from './dto/endorse.dto';
 import { formatToLocalDateTime } from 'src/common/utils/dayjs.helper';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
 import { NotificationType } from 'src/common/enums/notifications/notifications.enum';
+import { shuffleArray } from 'src/common/utils/shuffle-array';
 
 @Injectable()
 export class MentorService {
@@ -338,7 +339,7 @@ async getPreferredMentors(id: string) {
     mentorIds.map((mentor) => this.userService.getUser(mentor.id))
   );
 
-  return data;
+  return shuffleArray(data).slice(0,10);
 }
 
 }

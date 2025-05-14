@@ -13,6 +13,7 @@ import { GetUserDto } from '../dto/get-user.dto';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 import { PatronSocketHandler } from './patron.socket.handler';
 import { Wallet } from 'src/common/entities/wallet.entity';
+import { shuffleArray } from 'src/common/utils/shuffle-array';
 
 @Injectable()
 export class PatronService {
@@ -216,7 +217,7 @@ async getPreferredPatrons(id: string) {
     patronIds.map((patron) => this.userService.getUser(patron.id))
   );
 
-  return data;
+  return shuffleArray(data).slice(0,10);
 }
 
 }

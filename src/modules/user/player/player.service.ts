@@ -25,6 +25,7 @@ import { Contract } from "src/modules/contracts/entities/contract.entity";
 import { PostLikes } from "../user-posts/entities/post-like.entity";
 import { UserPost } from "../user-posts/entities/user-post.entity";
 import { Comment } from "../user-posts/entities/post-comment.entity";
+import { shuffleArray } from "src/common/utils/shuffle-array";
 
 @Injectable()
 export class PlayerService {
@@ -505,7 +506,7 @@ export class PlayerService {
 
     console.log(`[getPreferred] Final matched user data:`, data);
 
-    return data;
+  return shuffleArray(data).slice(0,10);
   }
 
   async getPlayerForComparision(username: string, userId?: string | undefined) {

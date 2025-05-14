@@ -203,11 +203,4 @@ export class FeedService {
     return this.sanitizePosts(posts, userId); 
   } 
 
-  private shufflePosts(posts: any[]) { 
-    for (let i = posts.length - 1; i > 0; i--) { 
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [posts[i], posts[j]] = [posts[j], posts[i]]; // Swap elements 
-    }
-    return posts;
-  }
 }
