@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, 
 import { MentorService } from './mentor.service';
 import { RegisterMentorDto } from './dto/register-mentor.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
-import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { EndorseDto } from './dto/endorse.dto';
 
@@ -47,13 +47,10 @@ export class MentorController {
 
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get("/preferred")
   async getPreferredMentors(@Request() req) {
-    if (!req.user || !req.user.id) {
-      throw new UnauthorizedException("Invalid user credentials");
-    }
     
-    return await this.mentorService.getPreferredMentors(req.user.id);
+    return await this.mentorService.getPreferredMentors(req.user?.id);
   }
 }

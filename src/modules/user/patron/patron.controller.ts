@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { PatronService } from './patron.service';
-import { JwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from 'src/modules/auth/local-auth/jwt-auth.guard';
 import { RegisterPatronDto } from './dto/register-patron.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UpdatePatronDto } from './dto/update-patron.dto';
@@ -51,15 +51,10 @@ export class PatronController {
   
   
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get("/preferred")
   async getPreferredPatrons(@Request() req) {
 
-    if (!req.user || !req.user.id) {
-      throw new UnauthorizedException("Invalid user credentials");
-    }
-
-    return await this.patronService.getPreferredPatrons(req.user.id);
+    return await this.patronService.getPreferredPatrons(req.user?.id);
   } 
-
 }

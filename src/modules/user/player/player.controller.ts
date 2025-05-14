@@ -13,10 +13,11 @@ import {
   NotFoundException,
   BadRequestException,
   Param,
+  Optional,
 } from "@nestjs/common";
 import { PlayerService } from "./player.service";
 import { UpdatePlayerDto } from "./dto/update-player.dto";
-import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
+import { JwtAuthGuard, OptionalJwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
@@ -145,15 +146,11 @@ export class PlayerController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiBearerAuth()
   @Get("/preferred")
   async getPreferred(@Request() req) {
-    if (!req.user || !req.user.id) {
-      throw new UnauthorizedException("Invalid user credentials");
-    }
-
-    return await this.playerService.getPreferred(req.user.id);
+    return await this.playerService.getPreferred(req.user?.id);
   }
 
   @Post("compare")
