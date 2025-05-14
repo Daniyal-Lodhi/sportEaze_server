@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { UpdatePlayerDto } from "./dto/update-player.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 import { Player } from "./entities/player.entity";
 import { UserType } from "src/common/enums/user/user-type.enum";
@@ -19,6 +19,12 @@ import { Endorsement } from "src/common/entities/endorsement.entity";
 import { formatToLocalDateTime } from "src/common/utils/dayjs.helper";
 import { ConnectionStatus } from "src/common/enums/network/network.enum";
 import { NetworkService } from "../network/network.service";
+import { ContractStatus } from "src/common/enums/contracts/contracts.enum";
+import { SharedPost } from "../user-posts/entities/shared-post.entity";
+import { Contract } from "src/modules/contracts/entities/contract.entity";
+import { PostLikes } from "../user-posts/entities/post-like.entity";
+import { UserPost } from "../user-posts/entities/user-post.entity";
+import { Comment } from "../user-posts/entities/post-comment.entity";
 
 @Injectable()
 export class PlayerService {
@@ -33,6 +39,17 @@ export class PlayerService {
     @InjectRepository(Endorsement)
     private readonly endorsementRepository: Repository<Endorsement>,
     private readonly networkService: NetworkService,
+
+    @InjectRepository(SharedPost)
+    private readonly sharedPostRepository: Repository<SharedPost>,
+    @InjectRepository(Contract)
+    private contractsRepository: Repository<Contract>,
+    @InjectRepository(Comment)
+    private postCommentRepository: Repository<Comment>,
+    @InjectRepository(PostLikes)
+    private postLikeRepository: Repository<PostLikes>,
+    @InjectRepository(UserPost)
+    private userPostRepository: Repository<UserPost>,
   ) {}
 
   async RegisterPlayer(
@@ -491,17 +508,20 @@ export class PlayerService {
     return data;
   }
 
-  async getPlayerForComparision(
-    username: string,
-    userId?: string | undefined,
-  ): Promise<GetUserDto> {
+  async getPlayerForComparision(username: string, userId?: string | undefined) {
     const player = await this.userRepository.findOne({
       where: { username },
-      relations: ["player", "patron", "mentor"],
+      relations: [
+        "player",
+        "patron",
+        "mentor",
+        "patron.wallet",
+        "player.wallet",
+      ],
     });
 
     if (player?.deleted || !player) {
-      throw new NotFoundException("Player not found");
+      throw new NotFoundException("User not found");
     }
 
     let isFollowing: boolean | undefined = undefined;
@@ -533,8 +553,37 @@ export class PlayerService {
       await this.networkService.getConnectionsCount(player.id);
     const pendingConnectionCount: number =
       await this.networkService.getPendingConnectionsCount(player.id);
-    // const postCount: number = await this.UserPostService.getUserPostCount(id);
-    // const sharedPostCount = await this.sharedPostService.getSharedPostCount(id);
+
+    const sharedPostCount = await this.sharedPostRepository.count({
+      where: { user: player },
+    });
+
+    const endorsementsGiven = await this.endorsementRepository.count({
+      where: { mentor: { user: player } },
+    });
+    const endorsementsReceived = await this.endorsementRepository.count({
+      where: { player: { user: player } },
+    });
+
+    const countSharedPosts = await this.sharedPostRepository.count({
+      where: { originalPost: { userId: player.id } },
+    });
+
+    const commentsCount = await this.postCommentRepository.count({
+      where: { post: { userId: player.id } },
+    });
+
+    const userPostLikesCount = await this.postLikeRepository.count({
+      where: { post: { userId: player.id } },
+    });
+
+    const totalContracts = await this.contractsRepository.count({
+      where: { patron: { id: player.id }, status: Not(ContractStatus.PENDING) },
+    });
+
+    const postCount = await this.userPostRepository.count({
+      where: { userId: player.id },
+    });
 
     return {
       ...player,
@@ -542,14 +591,23 @@ export class PlayerService {
         ? {
             ...player.player,
             followerCount,
-            connectionCount,
             pendingConnectionCount,
+            endorsementsReceived,
+            countSharedPosts,
+            commentsCount,
+            userPostLikesCount,
+            postCount,
           }
         : undefined,
-      patron: player.patron ?? undefined,
-      mentor: player.mentor ?? undefined,
+      patron: player.patron ? { ...player.patron, totalContracts } : undefined,
+      mentor: player.mentor
+        ? { ...player.mentor, endorsementsGiven }
+        : undefined,
       isFollowing,
       connection,
-    } as GetUserDto;
+      sharedPostCount,
+      connectionCount,
+      followerCount,
+    };
   }
 }
