@@ -25,24 +25,19 @@ class IsDifferentUsernamesConstraint implements ValidatorConstraintInterface {
 export class ComparePlayersDto {
   @ApiProperty({
     description: "Username of the first player to compare",
-    example: "playerOne",
+    example: "@player_one",
   })
   @IsString()
   readonly playerOneUsername: string;
 
   @ApiProperty({
     description: "Username of the second player to compare",
-    example: "playerTwo",
+    example: "@player_two",
   })
   @IsString()
   @Validate(IsDifferentUsernamesConstraint)
   readonly playerTwoUsername: string;
 
-  @ApiProperty({
-    description: "User entity associated with the comparison",
-    type: () => User,
-  })
-  @ValidateNested()
-  @Type(() => User)
   readonly user: User;
 }
+
