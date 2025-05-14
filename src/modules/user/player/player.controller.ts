@@ -12,7 +12,6 @@ import {
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
-  Delete,
   Param,
 } from "@nestjs/common";
 import { PlayerService } from "./player.service";
@@ -21,20 +20,27 @@ import { JwtAuthGuard } from "../../auth/local-auth/jwt-auth.guard";
 import { GetPlayerDto } from "./dto/get-player.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { RegisterPlayerDto } from "./dto/register-player.dto";
+import { ComparePlayersDto } from "./dto/compare-players.dto";
 
 @Controller("api/user/player")
 export class PlayerController {
-  constructor(private readonly playerService: PlayerService) { }
+  constructor(private readonly playerService: PlayerService) {}
 
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  async becomePlayer(@Body() registerPlayerDto: RegisterPlayerDto, @Request() req) {
+  async becomePlayer(
+    @Body() registerPlayerDto: RegisterPlayerDto,
+    @Request() req,
+  ) {
     if (!req.user || !req.user.id) {
       throw new UnauthorizedException("Invalid user credentials");
     }
 
-    const player = await this.playerService.RegisterPlayer(req.user.id, registerPlayerDto);
+    const player = await this.playerService.RegisterPlayer(
+      req.user.id,
+      registerPlayerDto,
+    );
 
     if (!player) {
       throw new BadRequestException("Failed to change user type to player");
@@ -109,7 +115,9 @@ export class PlayerController {
         throw new UnauthorizedException("Invalid user credentials");
       }
 
-      const trendingPlayers = await this.playerService.getTrendingPlayers(req.user.id);
+      const trendingPlayers = await this.playerService.getTrendingPlayers(
+        req.user.id,
+      );
 
       res.status(200).json({
         players: trendingPlayers,
@@ -127,25 +135,60 @@ export class PlayerController {
 
   @Get("/endorsements/:playerId")
   async getEndorsements(@Param("playerId") playerId: string) {
-      return await this.playerService.getEndorsements(playerId);
+    return await this.playerService.getEndorsements(playerId);
+  }
+  catch(error) {
+    console.error("[GET_ENDORSEMENTS_CTRL]:", error);
+    throw new HttpException(
+      error.message || "Internal Server Error",
+      error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get("/preferred")
+  async getPreferred(@Request() req) {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedException("Invalid user credentials");
+    }
+
+    return await this.playerService.getPreferred(req.user.id);
+  }
+
+  @Post("compare")
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getPlayersForComparision(
+    @Body() comparePlayersDto: ComparePlayersDto,
+    @Request() req,
+    @Response() res,
+  ) {
+    try {
+      if (!req.user || !req.user.id) {
+        throw new UnauthorizedException("Invalid user credentials");
+      }
+
+      const playerOne = await this.playerService.getPlayerForComparision(
+        comparePlayersDto.playerOneUsername,
+      );
+
+      const playerTwo = await this.playerService.getPlayerForComparision(
+        comparePlayersDto.playerTwoUsername,
+      );
+
+      res.status(200).json({
+        playerOne,
+        playerTwo,
+        success: true,
+        message: "Players for comparision fetched successfully",
+      });
     } catch (error) {
-      console.error("[GET_ENDORSEMENTS_CTRL]:", error);
+      console.error("[GET_PLAYERS_FOR_COMPARISION_CTRL]:", error);
       throw new HttpException(
         error.message || "Internal Server Error",
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @Get("/preferred")
-    async getPreferred(@Request() req) {
-      if (!req.user || !req.user.id) {
-        throw new UnauthorizedException("Invalid user credentials");
-      }
-
-      return await this.playerService.getPreferred(req.user.id);
-    } 
-  } 
-    
+  }
+}
