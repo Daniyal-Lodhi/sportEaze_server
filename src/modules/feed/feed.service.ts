@@ -21,43 +21,44 @@ export class FeedService {
     private readonly networkService: NetworkService,
   ) {}
 
-  async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<any> {
-    if (!userId) {
-      return await this.getDefaultFeed(pageNo, pageSize, userId);
+async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<any> {
+  if (!userId) return await this.getDefaultFeed(pageNo, pageSize);
+
+  const userType = await this.userService.getUserType(userId);
+
+  if (userType === UserType.FAN || userType === UserType.MENTOR) {
+    const followedPlayers = await this.networkService.getFollowing(userId);
+    const followedPlayerIds = followedPlayers.map(f => f.id);
+
+    const followedPosts = await this.fetchPostsFromUsers(followedPlayerIds, pageNo, pageSize, userId);
+    let totalPosts = [...followedPosts];
+
+    if (totalPosts.length < pageSize) {
+      const remaining = pageSize - totalPosts.length;
+      const sharedPosts = await this.getSharedPostsFromConnections(1, remaining, userId);
+      totalPosts.push(...sharedPosts);
     }
 
-    const userType = await this.userService.getUserType(userId);
-    console.log(userType);
-
-    if (userType === UserType.FAN || userType === UserType.MENTOR) {
-      console.log("Fetching feed for FAN user");
-
-      const followedPlayers = await this.networkService.getFollowing(userId);
-      console.log("Following players:", followedPlayers);
-
-      if (followedPlayers.length > 0) {
-        return await this.getFeedFromFollowedPlayers(pageNo, pageSize, followedPlayers, userId);
-      } else {
-        const sharedPosts = await this.getSharedPostsFromConnections(pageNo, pageSize, userId);
-        if (sharedPosts.length > 0) {
-          return sharedPosts;
-        } else {
-          return await this.getDefaultFeed(pageNo, pageSize, userId);
-        }
-      }
+    if (totalPosts.length < pageSize) {
+      const remaining = pageSize - totalPosts.length;
+      const defaultPosts = await this.fetchPostsFromUsers([], 1, remaining, userId, followedPlayers);
+      totalPosts.push(...defaultPosts);
     }
 
-    return await this.getDefaultFeed(pageNo, pageSize, userId);
+    // Sort by likes > comments > shares
+    return totalPosts.sort((a, b) => {
+      const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+      if (likeDiff !== 0) return likeDiff;
+
+      const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+      if (commentDiff !== 0) return commentDiff;
+
+      return (b.shareCount || 0) - (a.shareCount || 0);
+    });
   }
 
-  private async getFeedFromFollowedPlayers(pageNo: number, pageSize: number, followedPlayers: { id: string }[], userId: string): Promise<any> {
-    const followedPosts: any[] = [];
-
-    const followedPostsData = await this.fetchPostsFromUsers(followedPlayers.map(f => f.id), pageNo, pageSize, userId);
-    followedPosts.push(...followedPostsData);
-
-    return followedPosts;
-  }
+  return await this.getDefaultFeed(pageNo, pageSize, userId);
+}
 
   private async getSharedPostsFromConnections(pageNo: number, pageSize: number, userId: string): Promise<any[]> {
     const connections = await this.networkService.getConnections(userId);
@@ -194,13 +195,25 @@ export class FeedService {
     ); 
   }
 
-  private async getDefaultFeed(pageNo: number, pageSize: number, userId?: string): Promise<any> { 
-    const posts = await this.userPostRepo.find({ 
-      skip: (pageNo - 1) * pageSize, 
-      take: pageSize, 
-      relations: ["media", "user", "likes", "comments"], 
-    }); 
-    return this.sanitizePosts(posts, userId); 
-  } 
+private async getDefaultFeed(pageNo: number, pageSize: number, userId?: string): Promise<any> {
+  const posts = await this.userPostRepo.find({
+    skip: (pageNo - 1) * pageSize,
+    take: pageSize,
+    relations: ["media", "user", "likes", "comments"],
+  });
+
+  const sanitizedPosts = await this.sanitizePosts(posts, userId);
+
+  // Sort by likes > comments > shares
+  return sanitizedPosts.sort((a, b) => {
+    const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+    if (likeDiff !== 0) return likeDiff;
+
+    const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+    if (commentDiff !== 0) return commentDiff;
+
+    return (b.shareCount || 0) - (a.shareCount || 0);
+  });
+}
 
 }
