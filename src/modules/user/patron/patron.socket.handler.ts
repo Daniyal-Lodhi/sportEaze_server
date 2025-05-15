@@ -22,7 +22,7 @@ export class PatronSocketHandler {
 
     if(patronId)
     {
-      patronSocket.emit(PATRON_UPDATED)
+      patronSocket.emit(PATRON_UPDATED, data)
     } else {
       console.log(`Patron ${patronId} not connected`)
     }
