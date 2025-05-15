@@ -112,7 +112,7 @@ export class NetworkService {
 
       if (isAccepted) {
         await this.connectionRepository.save(connection);
-        this.notificationService.create(requesterId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: receiverId});
+        this.notificationService.create(receiverId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: requesterId});
       } else {
         await this.connectionRepository.remove(connection);
       }
