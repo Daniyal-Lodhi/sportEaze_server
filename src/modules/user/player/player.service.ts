@@ -279,235 +279,90 @@ export class PlayerService {
     }));
   }
 
-  async getPreferred(id: string) {
-    console.log(`[getPreferred] Fetching user with id: ${id}`);
-    const user = await this.userService.getUser(id);
-    console.log(`[getPreferred] User fetched:`, user);
+async getPreferred(id: string) {
+  console.log(`[getPreferred] Fetching user with id: ${id}`);
+  const user = await this.userService.getUser(id);
+  console.log(`[getPreferred] User fetched:`, user);
 
-    let playerIds = [];
+  const allPlayers = await this.playerRepository.find();
+  console.log(`[getPreferred] All players fetched (${allPlayers.length})`);
 
-    const qb = this.playerRepository.createQueryBuilder("player");
+  let filteredPlayers = [];
 
-    // --- FAN ---
-    if (user.userType === UserType.FAN) {
-      const sports = user.sportInterests ?? [];
-      console.log(`[getPreferred][FAN] Interested sports:`, sports);
+  // --- FAN ---
+  if (user.userType === UserType.FAN) {
+    const sports = user.sportInterests ?? [];
+    console.log(`[getPreferred][FAN] Interested sports:`, sports);
 
-      if (sports.length > 0) {
-        const primaryMatch = await this.playerRepository
-          .createQueryBuilder("player")
-          .where("player.primarySport IN (:...sports)", { sports })
-          .select("player.id")
-          .getMany();
-
-        console.log(`[getPreferred][FAN] Primary sport matches:`, primaryMatch);
-
-        if (primaryMatch.length > 0) {
-          playerIds = primaryMatch;
-        } else {
-          const secondaryMatch = await this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.secondarySports && :sports", { sports })
-            .select("player.id")
-            .getMany();
-
-          console.log(
-            `[getPreferred][FAN] Secondary sport matches:`,
-            secondaryMatch,
-          );
-          playerIds = secondaryMatch;
-        }
-      }
-    }
-
-    // --- PLAYER ---
-    else if (user.userType === UserType.PLAYER) {
-      const primary = user.player.primarySport;
-      const secondary = user.player.secondarySports ?? [];
-      console.log(
-        `[getPreferred][PLAYER] Primary: ${primary}, Secondary:`,
-        secondary,
-      );
-
-      const conditions: any[] = [];
-
-      if (primary) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.primarySport = :primary", { primary })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (secondary.length > 0) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.primarySport IN (:...secondary)", { secondary })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (primary) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.secondarySports && :primaryArray", {
-              primaryArray: [primary],
-            })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (secondary.length > 0) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.secondarySports && :secondary", { secondary })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      const allMatches = await Promise.all(conditions);
-      console.log(`[getPreferred][PLAYER] All match results:`, allMatches);
-
-      playerIds = Array.from(
-        new Map(allMatches.flat().map((p) => [p.id, p])).values(),
-      );
-      console.log(`[getPreferred][PLAYER] Deduplicated player IDs:`, playerIds);
-    }
-
-    // --- MENTOR ---
-    else if (user.userType === UserType.MENTOR) {
-      const primary = user.mentor.primarySport;
-      const interests = user.mentor.sportInterests ?? [];
-      console.log(
-        `[getPreferred][MENTOR] Primary: ${primary}, Interests:`,
-        interests,
-      );
-
-      const conditions: any[] = [];
-
-      if (primary) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.primarySport = :primary", { primary })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (interests.length > 0) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.primarySport IN (:...interests)", { interests })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (primary) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.secondarySports && :primaryArray", {
-              primaryArray: [primary],
-            })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      if (interests.length > 0) {
-        conditions.push(
-          this.playerRepository
-            .createQueryBuilder("player")
-            .where("player.secondarySports && :interests", { interests })
-            .select("player.id")
-            .getMany(),
-        );
-      }
-
-      const allMatches = await Promise.all(conditions);
-      console.log(`[getPreferred][MENTOR] All match results:`, allMatches);
-
-      playerIds = Array.from(
-        new Map(allMatches.flat().map((p) => [p.id, p])).values(),
-      );
-      console.log(`[getPreferred][MENTOR] Deduplicated player IDs:`, playerIds);
-
-      if (playerIds.length === 0) {
-        console.log(
-          `[getPreferred][MENTOR] No matches found, returning all players as fallback`,
-        );
-        playerIds = await this.playerRepository
-          .createQueryBuilder("player")
-          .select("player.id")
-          .getMany();
-      }
-    }
-
-    // --- PATRON ---
-    else if (user.userType === UserType.PATRON) {
-      const sports = user.patron.supportedSports ?? [];
-      const levels = user.patron.preferredPlayerLevels ?? [];
-      console.log(`[getPreferred][PATRON] Supported sports:`, sports);
-      console.log(`[getPreferred][PATRON] Preferred levels:`, levels);
-
-      if (sports.length > 0) {
-        qb.where("player.primarySport IN (:...sports)", { sports }).orWhere(
-          "player.secondarySports && :sports",
-          { sports },
-        );
-      }
-
-      if (levels.length > 0) {
-        if (qb.expressionMap.wheres.length > 0) {
-          qb.orWhere("player.playingLevel IN (:...levels)", { levels });
-        } else {
-          qb.where("player.playingLevel IN (:...levels)", { levels });
-        }
-      }
-
-      qb.select("player.id");
-      playerIds = await qb.getMany();
-      console.log(`[getPreferred][PATRON] Matched player IDs:`, playerIds);
-
-      if (playerIds.length === 0) {
-        console.log(
-          `[getPreferred][PATRON] No matches found, returning all players as fallback`,
-        );
-        playerIds = await this.playerRepository
-          .createQueryBuilder("player")
-          .select("player.id")
-          .getMany();
-      }
-    }
-
-    console.log(
-      `[getPreferred] Final playerIds to fetch user data:`,
-      playerIds,
+    filteredPlayers = allPlayers.filter(player =>
+      sports.includes(player.primarySport) ||
+      player.secondarySports?.some(s => sports.includes(s))
     );
-
-    if (playerIds.length === 0) {
-      playerIds = await this.playerRepository.find();
-    }
-
-    const data = await Promise.all(
-      playerIds.map((player) => this.userService.getUser(player.id)),
-    );
-
-    console.log(`[getPreferred] Final matched user data:`, data);
-
-  return shuffleArray(data).slice(0,10);
   }
+
+  // --- PLAYER ---
+  else if (user.userType === UserType.PLAYER) {
+    const primary = user.player.primarySport;
+    const secondary = user.player.secondarySports ?? [];
+    console.log(`[getPreferred][PLAYER] Primary: ${primary}, Secondary:`, secondary);
+
+    filteredPlayers = allPlayers.filter(player =>
+      player.primarySport === primary ||
+      secondary.includes(player.primarySport) ||
+      player.secondarySports?.some(s => [primary, ...secondary].includes(s))
+    );
+  }
+
+  // --- MENTOR ---
+  else if (user.userType === UserType.MENTOR) {
+    const primary = user.mentor.primarySport;
+    const interests = user.mentor.sportInterests ?? [];
+    console.log(`[getPreferred][MENTOR] Primary: ${primary}, Interests:`, interests);
+
+    filteredPlayers = allPlayers.filter(player =>
+      player.primarySport === primary ||
+      interests.includes(player.primarySport) ||
+      player.secondarySports?.some(s => [primary, ...interests].includes(s))
+    );
+
+    if (filteredPlayers.length === 0) {
+      console.log(`[getPreferred][MENTOR] No matches found, fallback to all players`);
+      filteredPlayers = allPlayers;
+    }
+  }
+
+  // --- PATRON ---
+  else if (user.userType === UserType.PATRON) {
+    const sports = user.patron.supportedSports ?? [];
+    const levels = user.patron.preferredPlayerLevels ?? [];
+    console.log(`[getPreferred][PATRON] Supported sports:`, sports);
+    console.log(`[getPreferred][PATRON] Preferred levels:`, levels);
+
+    filteredPlayers = allPlayers.filter(player =>
+      sports.includes(player.primarySport) ||
+      player.secondarySports?.some(s => sports.includes(s)) ||
+      levels.includes(player.playingLevel)
+    );
+
+    if (filteredPlayers.length === 0) {
+      console.log(`[getPreferred][PATRON] No matches found, fallback to all players`);
+      filteredPlayers = allPlayers;
+    }
+  }
+
+  if (filteredPlayers.length === 0) {
+    console.log(`[getPreferred] No matches found at all, fallback to all players`);
+    filteredPlayers = allPlayers;
+  }
+
+  const data = await Promise.all(
+    filteredPlayers.map((player) => this.userService.getUser(player.id))
+  );
+
+  console.log(`[getPreferred] Final matched user data:`, data);
+
+  return shuffleArray(data).slice(0, 10);
+}
 
   async getPlayerForComparision(username: string, userId?: string | undefined) {
     const player = await this.userRepository.findOne({

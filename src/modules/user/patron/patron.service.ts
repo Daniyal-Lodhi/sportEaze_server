@@ -149,75 +149,65 @@ export class PatronService {
 
 async getPreferredPatrons(id: string) {
   const user = await this.userService.getUser(id);
-  let patronIds = [];
+  let filteredPatrons = [];
 
-  const qb = this.patronRepository.createQueryBuilder('patron');
+  const allPatrons = await this.patronRepository.find();
+  console.log(`[getPreferredPatrons] All patrons fetched: ${allPatrons.length}`);
 
   // --- FAN ---
   if (user.userType === UserType.FAN) {
     const sports = user.sportInterests ?? [];
-
-    if (sports.length > 0) {
-      qb.where('patron.supportedSports && :sports', { sports });
-    }
+    filteredPatrons = allPatrons.filter(p =>
+      p.supportedSports?.some(sport => sports.includes(sport))
+    );
   }
 
   // --- PLAYER ---
   else if (user.userType === UserType.PLAYER) {
-    const sports = [user.player.primarySport, ...(user.player.secondarySports ?? [])].filter(Boolean);
+    const sports = [
+      user.player.primarySport,
+      ...(user.player.secondarySports ?? [])
+    ].filter(Boolean);
     const level = user.player.playingLevel;
 
-    if (sports.length > 0) {
-      qb.where('patron.supportedSports && :sports', { sports });
-    }
-
-    if (level) {
-      if (qb.expressionMap.wheres.length > 0) {
-        qb.orWhere(':level = ANY(patron.preferredPlayerLevels)', { level });
-      } else {
-        qb.where(':level = ANY(patron.preferredPlayerLevels)', { level });
-      }
-    }
+    filteredPatrons = allPatrons.filter(patron =>
+      (sports.length > 0 && patron.supportedSports?.some(s => sports.includes(s))) ||
+      (level && patron.preferredPlayerLevels?.includes(level))
+    );
   }
 
   // --- MENTOR ---
   else if (user.userType === UserType.MENTOR) {
-    const sports = [user.mentor.primarySport, ...(user.mentor.sportInterests ?? [])].filter(Boolean);
+    const sports = [
+      user.mentor.primarySport,
+      ...(user.mentor.sportInterests ?? [])
+    ].filter(Boolean);
 
-    if (sports.length > 0) {
-      qb.where('patron.supportedSports && :sports', { sports });
-    }
+    filteredPatrons = allPatrons.filter(p =>
+      p.supportedSports?.some(sport => sports.includes(sport))
+    );
   }
 
   // --- PATRON (match other patrons) ---
   else if (user.userType === UserType.PATRON) {
     const sports = user.patron.supportedSports ?? [];
 
-    if (sports.length > 0) {
-      qb.where('patron.supportedSports && :sports', { sports });
-    }
+    filteredPatrons = allPatrons.filter(p =>
+      p.supportedSports?.some(s => sports.includes(s)) && p.id !== user.id // optionally exclude self
+    );
   }
 
-  qb.select('patron.id');
-  patronIds = await qb.getMany();
-
-  // Fallback to all patrons if none matched
-  if (patronIds.length === 0) {
-    patronIds = await this.patronRepository
-      .createQueryBuilder('patron')
-      .select('patron.id')
-      .getMany();
-  }
-
-  if(patronIds.length === 0) {
-    patronIds = await this.patronRepository.find();
+  // Fallback if nothing matched
+  if (filteredPatrons.length === 0) {
+    console.log(`[getPreferredPatrons] No matches found, fallback to all patrons`);
+    filteredPatrons = allPatrons;
   }
 
   const data = await Promise.all(
-    patronIds.map((patron) => this.userService.getUser(patron.id))
+    filteredPatrons.map(patron => this.userService.getUser(patron.id))
   );
 
-  return shuffleArray(data).slice(0,10);
+  return shuffleArray(data).slice(0, 10);
 }
 
 }
