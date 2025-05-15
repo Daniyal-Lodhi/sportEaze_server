@@ -139,12 +139,12 @@ export class UserService {
     const countSharedPosts: number = await this.sharedPostRepository.count({ where: { originalPost: { userId: id }  } });
     const commentsCount: number = await this.postCommentRepository.count({ where: { post: { userId: id } } });
     const userPostLikesCount: number = await this.postLikeRepository.count({ where: { post: { userId: id } } });
-    const totalContracts: number = await this.contractsRepository.count({ where: {  patron: { id }, status: Not(ContractStatus.PENDING) } });
+    const totalContracts: number = await this.contractsRepository.count({ where: [{  patron: { id }, status: Not(ContractStatus.PENDING) }, {player: { id }, status: Not(ContractStatus.PENDING)}] });
     const postCount: number = await this.userPostRepository.count({ where: { userId: id } });
 
     return {
       ...user,
-      player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount, postCount } : undefined, 
+      player: user.player ? { ...user.player, followerCount, pendingConnectionCount, endorsementsReceived, countSharedPosts, commentsCount, userPostLikesCount, postCount, totalContracts } : undefined, 
       patron: user.patron ? { ...user.patron, totalContracts } : undefined,
       mentor: user.mentor ? { ...user.mentor, endorsementsGiven } : undefined,
       isFollowing,

@@ -578,9 +578,7 @@ export class PlayerService {
       where: { post: { userId: player.id } },
     });
 
-    const totalContracts = await this.contractsRepository.count({
-      where: { patron: { id: player.id }, status: Not(ContractStatus.PENDING) },
-    });
+    const totalContracts: number = await this.contractsRepository.count({ where: [{  patron: { id: player.id }, status: Not(ContractStatus.PENDING) }, {player: { id: player.id }, status: Not(ContractStatus.PENDING)}] });
 
     const postCount = await this.userPostRepository.count({
       where: { userId: player.id },
@@ -598,6 +596,7 @@ export class PlayerService {
             commentsCount,
             userPostLikesCount,
             postCount,
+            totalContracts
           }
         : undefined,
       patron: player.patron ? { ...player.patron, totalContracts } : undefined,
