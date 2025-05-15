@@ -361,7 +361,18 @@ async getPreferred(id: string) {
 
   console.log(`[getPreferred] Final matched user data:`, data);
 
-  return shuffleArray(data).slice(0, 10);
+  const dataToReturn = data.slice(0, 10);
+  
+  return dataToReturn.sort((a, b) => {
+    const likesDiff = (b.player.userPostLikesCount || 0) - (a.player.userPostLikesCount || 0);
+    if (likesDiff !== 0) return likesDiff;
+
+    const commentsDiff = (b.player.commentsCount || 0) - (a.player.commentsCount || 0);
+    if (commentsDiff !== 0) return commentsDiff;
+
+    const sharesDiff = (b.player.countSharedPosts || 0) - (a.player.countSharedPosts || 0);
+    if (sharesDiff !== 0) return sharesDiff;
+  });
 }
 
   async getPlayerForComparision(username: string, userId?: string | undefined) {

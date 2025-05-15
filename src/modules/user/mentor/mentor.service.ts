@@ -220,7 +220,13 @@ async getPreferredMentors(id: string) {
     filteredMentors.map(m => this.userService.getUser(m.id))
   );
 
-  return shuffleArray(data).slice(0, 10);
+  const dataToReturn =  data.slice(0, 10);
+
+  return dataToReturn.sort((a, b) => {
+    const enodrsementDiff = (b.mentorEndorsementsCount || 0) - (a.mentorEndorsementsCount || 0);
+
+    if (enodrsementDiff !== 0) return enodrsementDiff;
+  })
 }
 
 }

@@ -207,7 +207,12 @@ async getPreferredPatrons(id: string) {
     filteredPatrons.map(patron => this.userService.getUser(patron.id))
   );
 
-  return shuffleArray(data).slice(0, 10);
+  const dataToReturn = data.slice(0, 10);
+
+  return dataToReturn.sort((a, b) => {
+    const contractsCountDiff = (b.patron.contractsCount || 0) - (a.patron.contractsCount || 0);
+    if (contractsCountDiff !== 0) return contractsCountDiff;
+  })
 }
 
 }
