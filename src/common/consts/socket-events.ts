@@ -8,3 +8,4 @@ export const CONNECTION_REQUEST = "connection_request";
 export const CONNECTION_RESPONSE = "connection_response";
 export const NOTIFICATION = "notification";
 export const WALLET_UPDATED = "wallet_updated";
+export const PATRON_UPDATED = "patron_updated"

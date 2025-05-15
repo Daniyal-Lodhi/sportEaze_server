@@ -96,7 +96,11 @@ export class PatronService {
 
     await this.patronRepository.save(patron);
   
-    return this.userService.getUser(id);
+    const data = this.userService.getUser(id);
+    
+    this.patronSocketHandler.emitPatronUpdated(id, data);
+
+    return data;
   }
   
   async verifyPatron(adminId : string, patronId: string, verifyPatronDto: VerifyPatronDto): Promise<any> {

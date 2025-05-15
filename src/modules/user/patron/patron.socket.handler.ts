@@ -1,7 +1,7 @@
 // chat.socket.handler.ts
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { PATRON_VERIFICATION } from 'src/common/consts/socket-events';
+import { PATRON_UPDATED, PATRON_VERIFICATION } from 'src/common/consts/socket-events';
 import { PatronAccountStatus } from 'src/common/enums/patron/patron.enum';
 import { socketClients } from 'src/modules/socket/socket.gateway';
 
@@ -13,6 +13,18 @@ export class PatronSocketHandler {
       patronSocket.emit(PATRON_VERIFICATION, { status });
     } else {
       console.log(`Patron ${patronId} not connected`);
+    }
+  }
+
+  emitPatronUpdated(patronId: string, data)
+  {
+    const patronSocket = socketClients.get(patronId);
+
+    if(patronId)
+    {
+      patronSocket.emit(PATRON_UPDATED)
+    } else {
+      console.log(`Patron ${patronId} not connected`)
     }
   }
 
