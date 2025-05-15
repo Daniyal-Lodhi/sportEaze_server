@@ -45,16 +45,35 @@ async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<an
       totalPosts.push(...defaultPosts);
     }
 
+    console.log(totalPosts);
+    
     // Sort by likes > comments > shares
-    return totalPosts.sort((a, b) => {
-      const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
-      if (likeDiff !== 0) return likeDiff;
+const nonSharedPosts = totalPosts
+  .filter(post => post.postType !== PostTypeEnum.SHARED)
+  .sort((a, b) => {
+    const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+    if (likeDiff !== 0) return likeDiff;
 
-      const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
-      if (commentDiff !== 0) return commentDiff;
+    const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+    if (commentDiff !== 0) return commentDiff;
 
-      return (b.shareCount || 0) - (a.shareCount || 0);
-    });
+    return (b.shareCount || 0) - (a.shareCount || 0);
+  });
+
+const sharedPosts = totalPosts
+  .filter(post => post.postType === PostTypeEnum.SHARED)
+  .sort((a, b) => {
+    const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+    if (likeDiff !== 0) return likeDiff;
+
+    const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+    if (commentDiff !== 0) return commentDiff;
+
+    return (b.shareCount || 0) - (a.shareCount || 0);
+  });
+
+return [...nonSharedPosts, ...sharedPosts];
+
   }
 
   return await this.getDefaultFeed(pageNo, pageSize, userId);
@@ -73,7 +92,6 @@ async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<an
       relations: ["user", "originalPost", "originalPost.media", "originalPost.likes", "originalPost.comments", "originalPost.user"],
     });
 
-    console.log("Shared posts from connections:", sharedPostsData);
     return this.sanitizeSharedPosts(sharedPostsData, userId);
   }
 
@@ -88,8 +106,6 @@ async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<an
       take: pageSize, 
       relations: ["media", "user", "likes", "comments"], 
     }); 
-
-    console.log(userIds.length > 0 ? "Followed players' posts:" : "Other players' posts:", posts); 
 
     return this.sanitizePosts(posts, userId); 
   } 
