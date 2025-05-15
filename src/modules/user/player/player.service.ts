@@ -426,10 +426,10 @@ async getPreferred(id: string) {
     });
 
     const endorsementsGiven = await this.endorsementRepository.count({
-      where: { mentor: { user: player } },
+      where: { mentor: { user: {id: player.id } } },
     });
     const endorsementsReceived = await this.endorsementRepository.count({
-      where: { player: { user: player } },
+      where: { player: { user: { id: player.id } } },
     });
 
     const countSharedPosts = await this.sharedPostRepository.count({
