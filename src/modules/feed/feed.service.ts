@@ -26,7 +26,7 @@ async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<an
 
   const userType = await this.userService.getUserType(userId);
 
-  if (userType === UserType.FAN || userType === UserType.MENTOR) {
+  if (userType === UserType.FAN || userType === UserType.MENTOR || userType === UserType.PATRON) {
     const followedPlayers = await this.networkService.getFollowing(userId);
     const followedPlayerIds = followedPlayers.map(f => f.id);
 
@@ -35,13 +35,13 @@ async getUserFeed(pageNo: number, pageSize: number, userId?: string): Promise<an
 
     if (totalPosts.length < pageSize) {
       const remaining = pageSize - totalPosts.length;
-      const sharedPosts = await this.getSharedPostsFromConnections(1, remaining, userId);
+      const sharedPosts = await this.getSharedPostsFromConnections(pageNo, remaining, userId);
       totalPosts.push(...sharedPosts);
     }
 
     if (totalPosts.length < pageSize) {
       const remaining = pageSize - totalPosts.length;
-      const defaultPosts = await this.fetchPostsFromUsers([], 1, remaining, userId, followedPlayers);
+      const defaultPosts = await this.fetchPostsFromUsers([], pageNo, remaining, userId, followedPlayers);
       totalPosts.push(...defaultPosts);
     }
 
@@ -75,10 +75,102 @@ const sharedPosts = totalPosts
 return [...nonSharedPosts, ...sharedPosts];
 
   }
+else if (userType === UserType.PLAYER) {
+  const followers = await this.networkService.getFollowers(userId);
+  const followerIds = followers.map(f => f.id);
+
+  const sharedPosts = await this.getSharedFromFollowers(pageNo, pageSize, userId,);
+
+  let totalPosts = [...sharedPosts];
+
+  // Get player's primary and secondary sports
+  const player = await this.userService.getUser(userId);
+  const primarySport = player.primarySport;
+  const secondarySports = player.secondarySports || [];
+
+  // Get posts from other players with same primary sport
+  if (totalPosts.length < pageSize) {
+    const remaining = pageSize - totalPosts.length;
+
+    const samePrimaryPlayers = await this.userService.getUsersBySport(primarySport, userId);
+    const primaryPosts = await this.fetchPostsFromUsers(
+      samePrimaryPlayers.map(p => p.id),
+      1,
+      remaining,
+      userId
+    );
+
+    totalPosts.push(...primaryPosts);
+  }
+
+  // Get posts from players with matching secondary sports
+  if (totalPosts.length < pageSize && secondarySports.length > 0) {
+    const remaining = pageSize - totalPosts.length;
+
+    const sameSecondaryPlayers = await this.userService.getUsersBySecondarySports(secondarySports, userId);
+    const secondaryPosts = await this.fetchPostsFromUsers(
+      sameSecondaryPlayers.map(p => p.id),
+      1,
+      remaining,
+      userId
+    );
+
+    totalPosts.push(...secondaryPosts);
+  }
+
+      if (totalPosts.length < pageSize) {
+      const remaining = pageSize - totalPosts.length;
+      const defaultPosts = await this.fetchPostsFromUsers([], 1, remaining, userId, []);
+      totalPosts.push(...defaultPosts);
+      }
+
+  // Sort all posts: likes > comments > shares
+  const nonSharedPosts = totalPosts
+    .filter(post => post.postType !== PostTypeEnum.SHARED)
+    .sort((a, b) => {
+      const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+      if (likeDiff !== 0) return likeDiff;
+
+      const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+      if (commentDiff !== 0) return commentDiff;
+
+      return (b.shareCount || 0) - (a.shareCount || 0);
+    });
+
+  const shared = totalPosts
+    .filter(post => post.postType === PostTypeEnum.SHARED)
+    .sort((a, b) => {
+      const likeDiff = (b.likeCount || 0) - (a.likeCount || 0);
+      if (likeDiff !== 0) return likeDiff;
+
+      const commentDiff = (b.commentCount || 0) - (a.commentCount || 0);
+      if (commentDiff !== 0) return commentDiff;
+
+      return (b.shareCount || 0) - (a.shareCount || 0);
+    });
+
+  return [...shared, ...nonSharedPosts];
+}
+
 
   return await this.getDefaultFeed(pageNo, pageSize, userId);
 }
 
+  private async getSharedFromFollowers(pageNo: number, pageSize: number, userId: string): Promise<any[]> {
+    const follwers = await this.networkService.getFollowers(userId);
+    const sharedPostsData = await this.sharedPostRepo.find({
+      where: {
+        user: {
+          id: In(follwers.map(c => c.id)),
+        } 
+      },
+      skip: (pageNo - 1) * pageSize,
+      take: pageSize,
+      relations: ["user", "originalPost", "originalPost.media", "originalPost.likes", "originalPost.comments", "originalPost.user"],
+    });
+
+    return this.sanitizeSharedPosts(sharedPostsData, userId);
+  }
   private async getSharedPostsFromConnections(pageNo: number, pageSize: number, userId: string): Promise<any[]> {
     const connections = await this.networkService.getConnections(userId);
     const sharedPostsData = await this.sharedPostRepo.find({
