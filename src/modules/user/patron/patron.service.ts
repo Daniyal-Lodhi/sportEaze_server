@@ -96,7 +96,7 @@ export class PatronService {
 
     await this.patronRepository.save(patron);
   
-    const data = this.userService.getUser(id);
+    const data = await this.userService.getUser(id);
     
     this.patronSocketHandler.emitPatronUpdated(id, data);
 
