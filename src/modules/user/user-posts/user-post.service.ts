@@ -297,7 +297,7 @@ export class UserPostService {
     )
   }
 
-  async getPostById(id: string, userId?: string | undefined): Promise<GetPostDTO> {
+  async getPostById(id: string, userId?: string | undefined): Promise<any> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ["media", "likes", "user", 'comments'], // ✅ Include "comments" in relations
@@ -325,8 +325,26 @@ export class UserPostService {
 
     const isLiked: boolean | undefined = await this.postLikeService.isUserLikedPost(id, userId);
     
+            let patron = undefined;
+
+        if(post.postType == PostTypeEnum.CONTRACT) {
+          const contract = await this.contractRepository.findOne({
+            where: { id: post.contractId },
+            relations: ["patron", "patron.user"],
+          });
+
+          patron = {
+            id: contract.patron.id,
+            profilePicUrl: contract.patron.user.profilePicUrl,
+            fullName: contract.patron.user.fullName,
+            username: contract.patron.user.username,
+          }
+        }
+
+
     return {
       ...post,
+      patron,
       likeCount,
       reactions,
       commentCount, // ✅ Included comment count

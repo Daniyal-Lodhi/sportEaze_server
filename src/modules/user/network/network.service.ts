@@ -79,7 +79,7 @@ export class NetworkService {
 
       this.networkSocketHandler.HandleConnectionRequest(requester_id, receiver_id, connection);
 
-      this.notificationService.create(requester_id, {type: NotificationType.CONNECTION_REQUEST, recipientUserId: receiver_id});
+      this.notificationService.create(requester_id, {type: NotificationType.CONNECTION_REQUEST, recipientUserId: receiver_id}, requester_id);
 
       return { message: "Connection request sent.", success:true, connection };
     } catch (error) {
@@ -112,7 +112,7 @@ export class NetworkService {
 
       if (isAccepted) {
         await this.connectionRepository.save(connection);
-        this.notificationService.create(receiverId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: requesterId});
+        this.notificationService.create(receiverId, {type: NotificationType.CONNECTION_ACCEPTED, recipientUserId: requesterId}, receiverId);
       } else {
         await this.connectionRepository.remove(connection);
       }
@@ -230,7 +230,7 @@ async followPlayer(followerId: string, playerId: string) {
   
     try {
       await this.followRepository.save(newFollow);
-      this.notificationService.create(followerId, {type: NotificationType.FOLLOW, recipientUserId: playerId});
+      this.notificationService.create(followerId, {type: NotificationType.FOLLOW, recipientUserId: playerId}, followerId);
       return { message: "Successfully followed the player.",success:true  };
     } catch (error) {
       console.log(error)
@@ -316,7 +316,7 @@ async unfollowPlayer(followerId: string, playerId: string) {
   
   async getFollowersCount(userId: string): Promise<number> {
     return await this.followRepository.count({
-      where: { playerId: userId },
+      where: [{ playerId: userId }, { followerId: userId }],
     });
   }
 

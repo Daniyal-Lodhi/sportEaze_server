@@ -37,7 +37,7 @@ export class NotificationsService {
     return messages[type] || '';
   }
 
-  async create(actorId: string, { type, recipientUserId }: CreateNotificationDto, redirectId?: string): Promise<any> {
+  async create(actorId: string, { type, recipientUserId }: CreateNotificationDto, redirectId: string): Promise<any> {
     const [recipientUser, actorUser] = await Promise.all([
       this.userRepo.findOne({ where: { id: recipientUserId } }),
       this.userRepo.findOne({ where: { id: actorId } }),
@@ -51,12 +51,14 @@ export class NotificationsService {
 
     const notification = this.notificationRepo.create({
       type,
-      redirect: actorId,
+      redirect: redirectId,
       actorUser,
       recipientUser,
       message,
       isRead: false,
     });
+
+    console.log(notification);
 
     await this.notificationRepo.save(notification);
 
@@ -67,7 +69,7 @@ export class NotificationsService {
     let redirectData = {};
 
     if(type === NotificationType.FOLLOW) {
-      redirectData = {followerId:  actorId};
+      redirectData = {followerId:  redirectId};
     }
     else if(type === NotificationType.POST_LIKED || type === NotificationType.POST_COMMENTED) {
       redirectData = {postId: redirectId};
@@ -79,12 +81,11 @@ export class NotificationsService {
       type === NotificationType.CONTRACT_CREATED  ||
       type === NotificationType.CONTRACT_UPDATED  ||
       type === NotificationType.CONTRACT_ACCEPTED ||
-      type === NotificationType.MILESTONE_ACHIEVED
+      type === NotificationType.MILESTONE_ACHIEVED||
+      type === NotificationType.FUNDS_RELEASED    ||
+      type === NotificationType.FUNDS_RECEIVED
     ) {
       redirectData = {contractId: redirectId};
-    }
-    else if(type === NotificationType.FUNDS_RELEASED || type === NotificationType.FUNDS_RECEIVED) {
-      redirectData = {};
     }
     else if(type === NotificationType.ENDORSEMENT_RECEIVED) {
       redirectData = {playerId: redirectId};
@@ -117,7 +118,7 @@ export class NotificationsService {
   async findAll(userId: string): Promise<any> {
     const notifications = await this.notificationRepo.find({
       where: { recipientUser: { id: userId } },
-      relations: ['actorUser'],
+      relations: ['actorUser', "recipientUser"],
       order: { createdAt: 'DESC' },
     });
 
@@ -127,11 +128,36 @@ export class NotificationsService {
 
     const result = {
       notifications: notifications.map(notification => {
-        
-      let redirectData = {};
-        if(notification.type === NotificationType.FOLLOW) {
-          redirectData = {followerId:  notification.actorUser.id};
-        }
+        console.log(notification);
+
+        const type = notification.type;
+        const actorId = notification.actorUser.id;
+        const redirectId = notification.redirect;
+        const recipientUserId = notification.recipientUser.id;
+    let redirectData = {};
+
+    if(type === NotificationType.FOLLOW) {
+      redirectData = {followerId:  redirectId};
+    }
+    else if(type === NotificationType.POST_LIKED || type === NotificationType.POST_COMMENTED) {
+      redirectData = {postId: redirectId};
+    }
+    else if(type === NotificationType.MSG_RECEIVED) {
+      redirectData = {chatId: redirectId, senderId: actorId, receiverId: recipientUserId};
+    }
+    else if(
+      type === NotificationType.CONTRACT_CREATED  ||
+      type === NotificationType.CONTRACT_UPDATED  ||
+      type === NotificationType.CONTRACT_ACCEPTED ||
+      type === NotificationType.MILESTONE_ACHIEVED||
+      type === NotificationType.FUNDS_RELEASED    ||
+      type === NotificationType.FUNDS_RECEIVED
+    ) {
+      redirectData = {contractId: redirectId};
+    }
+    else if(type === NotificationType.ENDORSEMENT_RECEIVED) {
+      redirectData = {playerId: redirectId};
+    }
         
         return {
         id: notification.id,

@@ -336,7 +336,7 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
 
 
   async releaseFunds(userId: string, { playerId, milestoneId }: ReleaseFundsDto) {
-    const milestone = await this.milestoneRepo.findOne({ where: { id: milestoneId } });
+    const milestone = await this.milestoneRepo.findOne({ where: { id: milestoneId }, relations: ["contract"] });
 
     
     if(!milestone) {
@@ -380,7 +380,7 @@ if (contract.totalAmount !== updateContractDto.totalAmount) {
     }
 
 
-    await this.notificationService.create(playerId, {type: NotificationType.FUNDS_RELEASED, recipientUserId: userId});
-    await this.notificationService.create(userId, {type: NotificationType.FUNDS_RECEIVED, recipientUserId: playerId});
+    await this.notificationService.create(playerId, {type: NotificationType.FUNDS_RELEASED, recipientUserId: userId}, milestone.contract.id);
+    await this.notificationService.create(userId, {type: NotificationType.FUNDS_RECEIVED, recipientUserId: playerId}, milestone.contract.id);
   }
 }
