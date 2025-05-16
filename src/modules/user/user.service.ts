@@ -230,34 +230,39 @@ export class UserService {
   }
 
 
-  async searchUserByNameOrUsername(searchTerm: string, id?: any): Promise<GetUserDto[]> {
-    // Ensure searchTerm is valid (optional)
-    // if (!searchTerm || searchTerm.trim().length < 2) {
-    //   throw new BadRequestException("Search term must be at least 2 characters long.");
-    // }
+async searchUserByNameOrUsername(searchTerm: string, id?: number): Promise<GetUserDto[]> {
+  // Build search conditions
+  const searchConditions: any[] = [
+    { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()) },
+    { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()) },
+  ];
+
+  // Exclude the given user ID, if provided
+  if (id !== undefined && id !== null) {
+    searchConditions.forEach(condition => {
+      condition.id = Not(id);
+    });
+  }
+
+  const users = await this.userRepository.find({
+    where: searchConditions,
+    select: {
+      id: true,
+      userType: true,
+      username: true,
+      fullName: true,
+      profilePicUrl: true,
+    },
+    take: 20,
+  });
+
+  if (!users.length) {
+    throw new NotFoundException("No users found matching the search term.");
+  }
+
+  return users as GetUserDto[];
+}
   
-      const users = await this.userRepository.find({
-        where: [
-          { fullName: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
-          { username: ILike(`%${searchTerm}%`), userType: Not(IsNull()), id: Not(id) },
-        ],
-        select: {
-          id: true,
-          userType: true,
-          username: true, 
-          fullName: true, 
-          profilePicUrl: true, 
-        },
-        take: 20
-      });
-  
-      // // If no users found, throw 404 (Not Found)
-      // if (!users.length) {
-      //   throw new NotFoundException("No users found matching the search term.");
-      // }
-  
-      return users as GetUserDto[];
-  }  
 
   async getUserType(id?: string | undefined): Promise<UserType | null> {
 
